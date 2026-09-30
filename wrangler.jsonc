@@ -1,0 +1,23 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+
+  // Worker name. TODO(client): must match the Worker created in the Cloudflare dashboard.
+  "name": "lanoir",
+  "compatibility_date": "2026-09-01",
+
+  // Static Astro output (`npm run build` → dist/). Assets-only Worker: no `main` script.
+  "assets": {
+    "directory": "./dist",
+    // Serve Astro's generated dist/404.html for unknown routes.
+    "not_found_handling": "404-page"
+  },
+
+  // PRODUCTION = this top-level config, deployed from `main` with `npx wrangler deploy`.
+  // PREVIEW    = `previews` below, used by `npx wrangler preview` on `staging`.
+  //
+  // `previews` holds ONLY preview-specific divergences and never overrides production.
+  // Everything not listed here (name, assets, compatibility_date…) is inherited from above.
+  // Nothing is diverged yet: add preview-only vars/bindings here later (e.g. a Square
+  // *sandbox* binding) so production credentials are never shared with previews.
+  "previews": {}
+}

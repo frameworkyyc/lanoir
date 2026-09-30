@@ -19,8 +19,22 @@ Node 22+. Copy `.env.example` to `.env` if you need to override anything (option
 
 `staging` (development, Cloudflare preview) → `main` (production).
 
-Cloudflare build settings: build command `npm run build`, output directory `dist`, Node 22.
-Environment variables:
+Wrangler is a local dev dependency (pinned in `package-lock.json`), so `npx wrangler …` runs the
+installed version instead of downloading one on every build. Config: `wrangler.jsonc`
+(assets-only Worker serving `dist/`).
+
+| Branch | Cloudflare build | Deploy command |
+|---|---|---|
+| `main` (production) | `npm run build` | `npx wrangler deploy` |
+| `staging` (preview) | `npm run build` | `npx wrangler preview` |
+
+- `previews: {}` in `wrangler.jsonc` is required by `wrangler preview`. It is intentionally empty: name,
+  assets and compatibility date are inherited from the top level. Put **only** preview-specific
+  vars/bindings there (e.g. a Square *sandbox* binding), never anything that should reach production.
+- Worker name in `wrangler.jsonc` must match the Worker in the Cloudflare dashboard.
+
+Build-time environment variables (set in the Cloudflare build settings, not `wrangler.jsonc`, because
+Astro inlines them at build):
 
 | Variable | Staging | Production |
 |---|---|---|
