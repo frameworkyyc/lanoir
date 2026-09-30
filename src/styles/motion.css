@@ -1,0 +1,41 @@
+/* Restrained motion. Everything is opt-in via data attributes and disabled for
+   users who prefer reduced motion. Content is ALWAYS visible without JS: the
+   hidden starting state only applies once <html class="js"> is set. */
+
+@media (prefers-reduced-motion: no-preference) {
+  .js [data-reveal] {
+    opacity: 0;
+    transform: translateY(1.25rem);
+    transition: opacity var(--dur-slow) var(--ease-out), transform var(--dur-slow) var(--ease-out);
+    transition-delay: var(--reveal-delay, 0s);
+  }
+  .js [data-reveal].is-in { opacity: 1; transform: none; }
+
+  /* Image wipe: a clip-path reveal, then the picture settles from a slight scale */
+  .js [data-reveal='image'] {
+    opacity: 1;
+    transform: none;
+    clip-path: inset(0 0 100% 0);
+    transition: clip-path 1.1s var(--ease-in-out);
+    transition-delay: var(--reveal-delay, 0s);
+  }
+  .js [data-reveal='image'].is-in { clip-path: inset(0 0 0 0); }
+  .js [data-reveal='image'] .media__img,
+  .js [data-reveal='image'] .placeholder {
+    transform: scale(1.06);
+    transition: transform 1.6s var(--ease-out);
+    transition-delay: var(--reveal-delay, 0s);
+  }
+  .js [data-reveal='image'].is-in .media__img,
+  .js [data-reveal='image'].is-in .placeholder { transform: none; }
+
+  /* Rules draw in from the left */
+  .js [data-reveal='rule'] {
+    opacity: 1;
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 1.1s var(--ease-in-out);
+    transition-delay: var(--reveal-delay, 0s);
+  }
+  .js [data-reveal='rule'].is-in { transform: scaleX(1); }
+}

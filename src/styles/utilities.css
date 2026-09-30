@@ -1,0 +1,60 @@
+/* ---- Buttons ----------------------------------------------------------- */
+.btn {
+  --btn-bg: var(--pink);
+  --btn-fg: var(--noir);
+  --btn-bd: var(--pink);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  min-height: var(--touch);
+  padding: 0 1.75rem;
+  background: var(--btn-bg);
+  color: var(--btn-fg);
+  border: 1px solid var(--btn-bd);
+  font-family: var(--font-body);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  line-height: 1;
+  white-space: nowrap;
+  transition: background var(--dur-base) var(--ease-out), color var(--dur-base) var(--ease-out),
+    border-color var(--dur-base) var(--ease-out);
+}
+.btn__arrow { transition: transform var(--dur-base) var(--ease-out); }
+.btn:hover .btn__arrow, .btn:focus-visible .btn__arrow { transform: translateX(0.3rem); }
+.btn:hover { --btn-bg: var(--warm-white); --btn-bd: var(--warm-white); }
+
+.btn--ghost {
+  --btn-bg: transparent;
+  --btn-fg: var(--warm-white);
+  --btn-bd: var(--rule-strong);
+}
+.btn--ghost:hover { --btn-bg: transparent; --btn-fg: var(--pink); --btn-bd: var(--pink); }
+
+.btn--dark { --btn-bg: var(--noir); --btn-fg: var(--warm-white); --btn-bd: var(--noir); }
+.btn--dark:hover { --btn-bg: var(--pink); --btn-fg: var(--noir); --btn-bd: var(--pink); }
+
+/* ---- Text link with animated underline + arrow ---------------------------- */
+.link-arrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  min-height: var(--touch);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  background-image: linear-gradient(currentColor, currentColor);
+  background-repeat: no-repeat;
+  background-size: 100% 1px;
+  background-position: 0 calc(50% + 0.85em);
+  transition: color var(--dur-base) var(--ease-out), background-size var(--dur-base) var(--ease-out);
+}
+.link-arrow:hover, .link-arrow:focus-visible { color: var(--pink); }
+.link-arrow .btn__arrow { transition: transform var(--dur-base) var(--ease-out); }
+.link-arrow:hover .btn__arrow { transform: translateX(0.35rem); }
+
+/* ---- Stack helpers ---------------------------------------------------------- */
+.stack > * + * { margin-top: var(--stack, var(--space-s)); }

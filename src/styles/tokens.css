@@ -1,0 +1,104 @@
+/* ==========================================================================
+   LaNoir design tokens
+   Source of truth: LaNoir Brand System (Framework, Sept 2026, v1.1)
+   Change values here; components only reference custom properties.
+   ========================================================================== */
+
+:root {
+  /* ---- Brand palette (exact values from the Brand System) ---------------- */
+  --noir: #171517;            /* primary background */
+  --pink: #e682b3;            /* Signature Pink: headlines, interaction, emphasis */
+  --soft-pink: #f5dee8;       /* light editorial surfaces */
+  --gunmetal: #777078;        /* rules, borders, quiet detail — NOT small text on Noir (3.8:1) */
+  --warm-white: #fcf8fa;      /* text on dark surfaces */
+  --charcoal: #343131;        /* original logo ground */
+
+  /* ---- Derived shades (tints/shades of the palette only, no new hues) ---- */
+  --noir-deep: color-mix(in srgb, var(--noir) 55%, #000);
+  --noir-raised: color-mix(in srgb, var(--noir) 94%, var(--warm-white));
+  --noir-raised-2: color-mix(in srgb, var(--noir) 88%, var(--warm-white));
+  --text: var(--warm-white);
+  --text-muted: color-mix(in srgb, var(--warm-white) 72%, var(--noir)); /* AA on Noir */
+  --rule: color-mix(in srgb, var(--gunmetal) 60%, transparent);
+  --rule-strong: var(--gunmetal);
+  --accent: var(--pink);
+
+  /* Pride colour — used ONLY inside intentional Pride moments (see PrideFeature) */
+  --pride-1: #e40303;
+  --pride-2: #ff8c00;
+  --pride-3: #ffed00;
+  --pride-4: #008026;
+  --pride-5: #24408e;
+  --pride-6: #732982;
+
+  /* ---- Typography -------------------------------------------------------- */
+  --font-display: 'Bebas Neue', 'Oswald', Impact, 'Arial Narrow', sans-serif;
+  --font-statement: 'Cinzel', 'Trajan Pro', 'Times New Roman', serif;
+  --font-body: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+
+  /* Brand scale: Display 44–72px+, Statement 24–36px, Body 16–18px, Label 11–13px */
+  --fs-hero: clamp(4.5rem, 22vw, 13rem);
+  --fs-display-xl: clamp(3.5rem, 13vw, 9rem);
+  --fs-display: clamp(2.75rem, 8vw, 4.5rem);
+  --fs-display-sm: clamp(2rem, 5vw, 3rem);
+  --fs-statement: clamp(1.5rem, 1.1rem + 1.6vw, 2.25rem);
+  --fs-statement-sm: clamp(1.125rem, 1rem + 0.6vw, 1.5rem);
+  --fs-body: clamp(1rem, 0.96rem + 0.2vw, 1.125rem);
+  --fs-small: 0.875rem;
+  --fs-label: 0.75rem;
+
+  --lh-display: 0.9;
+  --lh-tight: 1.15;
+  --lh-body: 1.6;
+  --tracking-label: 0.16em;
+  --tracking-statement: 0.06em;
+
+  /* ---- Spacing ----------------------------------------------------------- */
+  --space-3xs: 0.25rem;
+  --space-2xs: 0.5rem;
+  --space-xs: 0.75rem;
+  --space-s: 1rem;
+  --space-m: 1.5rem;
+  --space-l: 2.5rem;
+  --space-xl: 4rem;
+  --space-2xl: clamp(4rem, 3rem + 5vw, 7rem);
+  --space-3xl: clamp(5rem, 3rem + 9vw, 10rem);
+  --gutter: clamp(1.25rem, 0.5rem + 3.5vw, 3rem);
+
+  /* ---- Content widths ---------------------------------------------------- */
+  --w-prose: 38rem;
+  --w-content: 64rem;
+  --w-wide: 90rem;
+
+  /* ---- Breakpoints (documentation — CSS cannot read custom props in @media) ----
+     sm 40rem (640px)   md 48rem (768px)   lg 64rem (1024px)   xl 80rem (1280px)
+     Everything is mobile-first: base styles = phone, then min-width upwards.
+     The header switches to the desktop navigation at lg. */
+
+  /* ---- Borders ----------------------------------------------------------- */
+  --border-thin: 1px solid var(--rule);
+  --border-strong: 1px solid var(--rule-strong);
+  --radius: 0;                 /* the brand is sharp; keep corners square */
+
+  /* ---- Layout metrics ---------------------------------------------------- */
+  --header-h: 4.25rem;
+  --announce-h: 2.25rem;
+  --touch: 3rem;               /* minimum touch target (48px) */
+
+  /* ---- Motion ------------------------------------------------------------ */
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+  --dur-fast: 160ms;
+  --dur-base: 320ms;
+  --dur-slow: 800ms;
+
+  /* ---- Layers ------------------------------------------------------------ */
+  --z-header: 50;
+  --z-menu: 60;
+}
+
+@media (min-width: 64rem) {
+  :root {
+    --header-h: 5rem;
+  }
+}
