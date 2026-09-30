@@ -1,0 +1,24 @@
+---
+import type { Product } from '~/lib/commerce/types';
+import Eyebrow from '../brand/Eyebrow.astro';
+import ProductGrid from '../commerce/ProductGrid.astro';
+
+interface Props { products: Product[]; }
+const { products } = Astro.props;
+---
+<section class="featured section" aria-labelledby="featured-title">
+  <div class="container-wide">
+    <header class="featured__head">
+      <div class="featured__titles">
+        <Eyebrow>Selected pieces</Eyebrow>
+        <h2 id="featured-title" class="t-display" data-reveal>Start <span class="text-pink">here.</span></h2>
+      </div>
+      <a class="link-arrow" href="/shop">Shop all <span class="btn__arrow" aria-hidden="true">→</span></a>
+    </header>
+    <ProductGrid products={products} ratio="4/5" cols={4} />
+  </div>
+</section>
+<style>
+  .featured__head { display: flex; flex-wrap: wrap; align-items: end; justify-content: space-between; gap: var(--space-s); margin-bottom: var(--space-l); }
+  .featured__titles { display: grid; gap: var(--space-s); }
+</style>

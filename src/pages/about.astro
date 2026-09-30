@@ -1,0 +1,22 @@
+---
+import BaseLayout from '~/layouts/BaseLayout.astro';
+import Eyebrow from '~/components/brand/Eyebrow.astro';
+import Picture from '~/components/media/Picture.astro';
+---
+<BaseLayout title="About LaNoir" description="LaNoir is an attitude-based brand with dark feminine energy and an inclusive, rebellious edge." path="/about">
+  <section class="container-wide about">
+    <div class="about__text">
+      <Eyebrow>About LaNoir</Eyebrow>
+      <h1 class="t-display-xl">Bold.<br /><span class="text-pink">By nature.</span></h1>
+      <p class="t-statement">An attitude-based brand with dark feminine energy and an inclusive, rebellious edge.</p>
+      <p class="t-body t-muted">Badass individuality is the brand. Witchy is part of the aesthetic. Curated box sets, signature collections and wearable statements connect through bold self-expression, not a narrow demographic.</p>
+      <!-- TODO(client): the real brand story / founder introduction. Nothing is invented here. -->
+    </div>
+    <Picture ratio="4/5" variant="neutral" label="ABOUT — behind-the-brand photograph" sizes="(min-width: 64rem) 40vw, 100vw" />
+  </section>
+</BaseLayout>
+<style>
+  .about { display: grid; gap: var(--space-xl); padding-block: var(--space-xl) 0; }
+  .about__text { display: grid; gap: var(--space-m); justify-items: start; align-content: start; }
+  @media (min-width: 64rem) { .about { grid-template-columns: 7fr 5fr; gap: var(--space-2xl); padding-block: var(--space-2xl) 0; } }
+</style>

@@ -1,0 +1,105 @@
+---
+import Arc from '../brand/Arc.astro';
+import Moon from '../brand/Moon.astro';
+import Eyebrow from '../brand/Eyebrow.astro';
+import Picture from '../media/Picture.astro';
+import type { Media } from '~/lib/commerce/types';
+
+interface Props {
+  /** TODO(client): hero photograph. Omit `src` to use the neutral placeholder. */
+  image?: Media;
+}
+const { image } = Astro.props;
+---
+
+<section class="hero" aria-labelledby="hero-title">
+  <div class="hero__sky" aria-hidden="true">
+    <div class="hero__arc"><Arc sweep={0.62} rotate={-20} weight={1.25} /></div>
+    <div class="hero__arc hero__arc--sm"><Arc sweep={0.4} rotate={110} weight={1} /></div>
+    <Moon class="hero__moon" size="2.25rem" fill />
+  </div>
+
+  <div class="container-wide hero__grid">
+    <div class="hero__copy">
+      <Eyebrow>LaNoir / Bad Ass Witchery</Eyebrow>
+
+      <h1 id="hero-title" class="hero__title t-hero">
+        <span class="hero__line"><span>Wear your</span></span>
+        <span class="hero__line hero__line--accent"><span>Power.</span></span>
+      </h1>
+
+      <p class="hero__sub t-statement">Not their expectations.</p>
+
+      <div class="hero__cta">
+        <a class="btn" href="/collections">Shop the collections <span class="btn__arrow" aria-hidden="true">→</span></a>
+        <a class="btn btn--ghost" href="/shop">Shop all</a>
+      </div>
+    </div>
+
+    <figure class="hero__media">
+      <!-- PLACEHOLDER: hero photograph. Brief: confident lifestyle or styled collection shot on a controlled dark ground. Portrait crop; keep subject in the upper two-thirds for mobile. -->
+      <Picture
+        media={image}
+        ratio="4/5"
+        variant="pretty-poison"
+        label="HERO — confident lifestyle / styled collection shot, dark ground, portrait"
+        sizes="(min-width: 64rem) 40vw, 80vw"
+        eager
+        reveal
+      />
+      <figcaption class="hero__cap t-label">01 — 03 / Signature collections</figcaption>
+    </figure>
+  </div>
+</section>
+
+<style>
+  .hero {
+    position: relative;
+    overflow: hidden;
+    padding-block: var(--space-l) var(--space-xl);
+  }
+
+  /* --- celestial layer: thin arcs + a moon; pure decoration --- */
+  .hero__sky { position: absolute; inset: 0; pointer-events: none; color: var(--pink); }
+  .hero__arc { position: absolute; width: 150vw; aspect-ratio: 1; right: -72vw; top: -16vw; opacity: 0.55; }
+  .hero__arc--sm { width: 62vw; right: auto; left: -34vw; top: auto; bottom: 8%; color: var(--gunmetal); opacity: 1; }
+  .hero__moon { position: absolute; top: 1.5rem; right: var(--gutter); }
+
+  .hero__grid { position: relative; display: grid; gap: var(--space-xl); }
+
+  .hero__copy { display: grid; gap: var(--space-m); align-content: start; }
+
+  .hero__title { margin-top: var(--space-xs); }
+  .hero__line { display: block; overflow: hidden; padding-block: 0.03em; }
+  .hero__line > span { display: inline-block; }
+  .hero__line--accent { color: var(--pink); }
+
+  .hero__sub { color: var(--warm-white); margin-top: var(--space-2xs); }
+  .hero__cta { display: flex; flex-wrap: wrap; gap: var(--space-xs); margin-top: var(--space-s); }
+  .hero__cta .btn { flex: 1 1 13rem; }
+
+  /* Mobile crop: image bleeds off the right edge and is offset left — asymmetry without clutter */
+  .hero__media { position: relative; margin-left: 18%; margin-right: calc(var(--gutter) * -1); }
+  .hero__cap { position: absolute; left: -18%; bottom: 0; transform-origin: left bottom; writing-mode: vertical-rl; rotate: 180deg; color: var(--text-muted); padding-left: 0.25rem; }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .hero__line > span { animation: rise 0.9s var(--ease-out) both; }
+    .hero__line:nth-child(2) > span { animation-delay: 0.12s; }
+    .hero__sub, .hero__cta, .hero__copy :global(.eyebrow) { animation: fade 1s var(--ease-out) 0.35s both; }
+    @keyframes rise { from { transform: translateY(105%); } to { transform: none; } }
+    @keyframes fade { from { opacity: 0; transform: translateY(0.75rem); } to { opacity: 1; transform: none; } }
+  }
+
+  @media (min-width: 64rem) {
+    .hero { padding-block: var(--space-xl) var(--space-2xl); min-height: calc(100svh - var(--header-h) - var(--announce-h)); display: flex; align-items: center; }
+    .hero__grid { grid-template-columns: 7fr 5fr; align-items: end; gap: var(--space-xl); width: 100%; }
+    .hero__title { font-size: clamp(9rem, 15vw, 15rem); }
+    .hero__media { margin: 0 0 0 auto; width: 100%; max-width: 30rem; }
+    .hero__media :global(.media) { aspect-ratio: 3/4 !important; }
+    .hero__cap { left: auto; right: calc(100% + 1rem); bottom: 0; }
+    .hero__arc { width: 78vw; right: -20vw; top: -14vw; }
+    .hero__arc--sm { width: 26vw; left: -8vw; bottom: 4%; }
+    .hero__moon { top: 2.5rem; }
+    .hero__cta .btn { flex: 0 0 auto; }
+  }
+</style>

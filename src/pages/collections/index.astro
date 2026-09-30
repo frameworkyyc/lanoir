@@ -1,0 +1,34 @@
+---
+import BaseLayout from '~/layouts/BaseLayout.astro';
+import { commerce } from '~/lib/commerce';
+import { collectionUrl } from '~/lib/routes';
+import Eyebrow from '~/components/brand/Eyebrow.astro';
+import Picture from '~/components/media/Picture.astro';
+import { breadcrumbs } from '~/seo/jsonld';
+const list = await commerce.getCollections('signature');
+---
+<BaseLayout title="Collections" description="Pretty Poison, After Dark and Mystic Minis — the three signature LaNoir collections." path="/collections" jsonLd={breadcrumbs([{ name: 'Home', path: '/' }, { name: 'Collections', path: '/collections' }], Astro.site)}>
+  <section class="container-wide cidx">
+    <Eyebrow>The collections</Eyebrow>
+    <h1 class="t-display-xl">Collections<span class="text-pink">.</span></h1>
+    <ul class="list-reset cidx__list" role="list">
+      {list.map((c) => (
+        <li data-reveal>
+          <a class="cidx__item" href={collectionUrl(c)}>
+            <Picture media={c.image} ratio="16/9" variant={c.slug as 'pretty-poison' | 'after-dark' | 'mystic-minis'} label={`${c.name} — collection photograph`} sizes="(min-width: 64rem) 50vw, 100vw" />
+            <span class="cidx__meta"><span class="t-label text-pink">0{c.order}</span><span class="cidx__name t-display">{c.name}</span><span class="t-label t-muted">{c.tagline}</span></span>
+          </a>
+        </li>
+      ))}
+    </ul>
+  </section>
+</BaseLayout>
+<style>
+  .cidx { display: grid; gap: var(--space-m); padding-block: var(--space-xl) 0; }
+  .cidx__list { display: grid; gap: var(--space-xl); margin-top: var(--space-l); }
+  .cidx__item { display: grid; gap: var(--space-s); overflow: hidden; }
+  .cidx__item :global(.media) { transition: transform var(--dur-slow) var(--ease-out); }
+  .cidx__item:hover :global(.media) { transform: scale(1.03); }
+  .cidx__meta { display: grid; gap: 0.25rem; }
+  @media (min-width: 64rem) { .cidx__list { grid-template-columns: repeat(3, 1fr); gap: var(--space-m); } .cidx__item :global(.media) { aspect-ratio: 4/5 !important; } }
+</style>

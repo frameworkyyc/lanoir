@@ -1,0 +1,19 @@
+---
+import BaseLayout from '~/layouts/BaseLayout.astro';
+import Eyebrow from '~/components/brand/Eyebrow.astro';
+import { footerPolicies } from '~/config/site';
+
+export function getStaticPaths() {
+  return footerPolicies.map((p) => ({ params: { slug: p.href.split('/').pop()! }, props: { label: p.label } }));
+}
+const { label } = Astro.props;
+---
+<!-- TODO(client): real policy text. No shipping, returns, privacy or terms content has been supplied — none is invented. -->
+<BaseLayout title={label} path={Astro.url.pathname}>
+  <section class="container-wide policy">
+    <Eyebrow>Policies</Eyebrow>
+    <h1 class="t-display-xl">{label}<span class="text-pink">.</span></h1>
+    <p class="t-body t-muted">This policy is being finalised.</p>
+  </section>
+</BaseLayout>
+<style>.policy { display: grid; gap: var(--space-m); justify-items: start; padding-block: var(--space-xl) 0; }</style>

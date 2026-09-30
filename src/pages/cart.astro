@@ -1,0 +1,12 @@
+---
+import BaseLayout from '~/layouts/BaseLayout.astro';
+import Eyebrow from '~/components/brand/Eyebrow.astro';
+---
+<BaseLayout title="Cart" path="/cart" noindex>
+  <section class="container-wide cart">
+    <Eyebrow>Your cart</Eyebrow>
+    <h1 class="t-display-xl">Nothing<br /><span class="text-pink">yet.</span></h1>
+    <a class="btn" href="/collections">Shop the collections <span class="btn__arrow" aria-hidden="true">→</span></a>
+  </section>
+</BaseLayout>
+<style>.cart { display: grid; gap: var(--space-m); justify-items: start; padding-block: var(--space-xl) 0; }</style>

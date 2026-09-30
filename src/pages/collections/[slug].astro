@@ -1,0 +1,23 @@
+---
+import ListingPage from '~/components/commerce/ListingPage.astro';
+import { commerce } from '~/lib/commerce';
+
+export async function getStaticPaths() {
+  const all = await commerce.getCollections();
+  return all.filter((c) => c.kind !== 'category').map((c) => ({ params: { slug: c.slug }, props: { collection: c } }));
+}
+const { collection } = Astro.props;
+const products = await commerce.getProducts({ collection: collection.slug });
+const heading = collection.name.split(' ') as [string, string?];
+const variant = (['pretty-poison', 'after-dark', 'mystic-minis'] as const).find((v) => v === collection.slug) ?? (collection.slug === 'pride-exclusive' ? 'pride' : 'neutral');
+---
+<ListingPage
+  title={collection.name}
+  heading={[heading[0], heading.slice(1).join(' ') || undefined]}
+  eyebrow={collection.kind === 'signature' ? `0${collection.order} / Signature collection` : 'Exclusive'}
+  intro={`${collection.tagline} ${collection.description}`}
+  {products}
+  path={`/collections/${collection.slug}`}
+  {collection}
+  {variant}
+/>

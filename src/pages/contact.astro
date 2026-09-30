@@ -1,0 +1,16 @@
+---
+import BaseLayout from '~/layouts/BaseLayout.astro';
+import Eyebrow from '~/components/brand/Eyebrow.astro';
+import { siteConfig } from '~/config/site';
+const email = siteConfig.contact.email;
+---
+<BaseLayout title="Contact" path="/contact">
+  <section class="container-wide contact">
+    <Eyebrow>Contact</Eyebrow>
+    <h1 class="t-display-xl">Get in<br /><span class="text-pink">touch.</span></h1>
+    {email
+      ? <a class="t-statement" href={`mailto:${email}`}>{email}</a>
+      : <p class="t-body t-muted">Contact details are being set up.</p>}
+  </section>
+</BaseLayout>
+<style>.contact { display: grid; gap: var(--space-m); justify-items: start; padding-block: var(--space-xl) 0; }</style>

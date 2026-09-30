@@ -1,0 +1,52 @@
+---
+/**
+ * Shared template for Shop All, collection and category pages (Phase 1: hero +
+ * description + grid). Sorting/filtering arrive in Phase 2.
+ */
+import type { Collection, Product } from '~/lib/commerce/types';
+import BaseLayout from '~/layouts/BaseLayout.astro';
+import Eyebrow from '../brand/Eyebrow.astro';
+import Arc from '../brand/Arc.astro';
+import ProductGrid from './ProductGrid.astro';
+import { breadcrumbs, collectionPage } from '~/seo/jsonld';
+
+interface Props {
+  title: string;
+  heading: [string, string?]; // [white, pink]
+  eyebrow: string;
+  intro: string;
+  products: Product[];
+  path: string;
+  collection?: Collection;
+  variant?: 'pretty-poison' | 'after-dark' | 'mystic-minis' | 'pride' | 'neutral';
+}
+const { title, heading, eyebrow, intro, products, path, collection, variant = 'neutral' } = Astro.props;
+const ld = [breadcrumbs([{ name: 'Home', path: '/' }, { name: title, path }], Astro.site)];
+if (collection) ld.push(collectionPage(collection, path, Astro.site) as never);
+---
+<BaseLayout title={title} description={`${intro}`} path={path} jsonLd={ld}>
+  <section class:list={['lhero', `lhero--${variant}`]}>
+    <div class="lhero__arc" aria-hidden="true"><Arc sweep={0.5} rotate={-30} /></div>
+    <div class="container-wide lhero__inner">
+      <Eyebrow>{eyebrow}</Eyebrow>
+      <h1 class="t-display-xl lhero__title">{heading[0]}{heading[1] && <><br /><span class="text-pink">{heading[1]}</span></>}</h1>
+      <p class="t-statement-sm lhero__intro">{intro}</p>
+    </div>
+  </section>
+  <section class="container-wide lgrid" aria-label={`${title} products`}>
+    {products.length > 0
+      ? <ProductGrid products={products} variant={variant} />
+      : <p class="t-body t-muted">New pieces are on the way.</p>}
+  </section>
+</BaseLayout>
+<style>
+  .lhero { position: relative; overflow: hidden; padding-block: var(--space-xl) var(--space-xl); border-bottom: var(--border-thin); }
+  .lhero__arc { position: absolute; width: 90vw; aspect-ratio: 1; right: -40vw; top: -30vw; color: var(--pink); opacity: 0.5; pointer-events: none; }
+  .lhero--after-dark { background: var(--noir-deep); }
+  .lhero--after-dark .lhero__title { font-family: var(--font-statement); font-weight: 500; letter-spacing: 0.08em; font-size: clamp(2.75rem, 10vw, 6.5rem); line-height: 1.05; }
+  .lhero--after-dark .lhero__arc { color: var(--gunmetal); }
+  .lhero__inner { position: relative; display: grid; gap: var(--space-m); justify-items: start; }
+  .lhero__intro { max-width: 32rem; color: var(--text-muted); }
+  .lgrid { padding-block: var(--space-xl) 0; }
+  @media (min-width: 64rem) { .lhero { padding-block: var(--space-2xl); } .lgrid { padding-block-start: var(--space-2xl); } }
+</style>

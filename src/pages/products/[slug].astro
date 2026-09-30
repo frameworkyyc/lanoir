@@ -1,0 +1,46 @@
+---
+/**
+ * PHASE 1 STUB — a clean product page so product links resolve. The full
+ * purchase experience (variants, quantity, add to cart, gallery, related
+ * products, structured data polish) is Phase 2/3. No purchase controls yet.
+ */
+import BaseLayout from '~/layouts/BaseLayout.astro';
+import { commerce } from '~/lib/commerce';
+import { priceLabel } from '~/lib/format';
+import { collectionUrl } from '~/lib/routes';
+import Picture from '~/components/media/Picture.astro';
+import Eyebrow from '~/components/brand/Eyebrow.astro';
+import { breadcrumbs, productLd } from '~/seo/jsonld';
+
+export async function getStaticPaths() {
+  const all = await commerce.getProducts();
+  return all.map((p) => ({ params: { slug: p.slug }, props: { product: p } }));
+}
+const { product } = Astro.props;
+const cols = await Promise.all(product.collections.map((s) => commerce.getCollection(s)));
+const first = cols.find(Boolean);
+const path = `/products/${product.slug}`;
+---
+<BaseLayout
+  title={product.name}
+  description={product.summary ?? `${product.name} from LaNoir — Bad Ass Witchery.`}
+  {path}
+  ogType="product"
+  jsonLd={[productLd(product, path, Astro.site), breadcrumbs([{ name: 'Home', path: '/' }, { name: 'Shop', path: '/shop' }, { name: product.name, path }], Astro.site)]}
+>
+  <article class="container-wide pdp">
+    <div class="pdp__media"><Picture media={product.images[0]} ratio="4/5" eager label={`${product.name} — main product photograph`} sizes="(min-width: 64rem) 50vw, 100vw" /></div>
+    <div class="pdp__info">
+      {first && <Eyebrow><a href={collectionUrl(first)}>{first.name}</a></Eyebrow>}
+      <h1 class="t-display">{product.name}</h1>
+      <p class="t-statement-sm">{priceLabel(product)}</p>
+      {product.description && <p class="t-body t-muted">{product.description}</p>}
+      {first && <a class="link-arrow" href={collectionUrl(first)}>More from {first.name} <span class="btn__arrow" aria-hidden="true">→</span></a>}
+    </div>
+  </article>
+</BaseLayout>
+<style>
+  .pdp { display: grid; gap: var(--space-l); padding-block: var(--space-m) 0; }
+  .pdp__info { display: grid; gap: var(--space-s); justify-items: start; align-content: start; }
+  @media (min-width: 64rem) { .pdp { grid-template-columns: 7fr 5fr; gap: var(--space-2xl); padding-block: var(--space-xl) 0; } .pdp__info { position: sticky; top: calc(var(--header-h) + var(--space-l)); } }
+</style>

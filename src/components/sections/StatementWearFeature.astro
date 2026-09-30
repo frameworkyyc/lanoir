@@ -1,0 +1,59 @@
+---
+/** Apparel, kept secondary: one light Soft Pink editorial surface for rhythm. */
+import type { Product } from '~/lib/commerce/types';
+import { productUrl } from '~/lib/routes';
+import { priceLabel } from '~/lib/format';
+import Picture from '../media/Picture.astro';
+
+interface Props { products: Product[]; }
+const { products } = Astro.props;
+---
+<section class="wear" aria-labelledby="wear-title">
+  <div class="container-wide wear__grid">
+    <header class="wear__head">
+      <p class="t-label wear__eyebrow">Statement wear</p>
+      <h2 id="wear-title" class="t-display wear__title" data-reveal>Say it<br />on <span>purpose.</span></h2>
+      <p class="t-body wear__copy">Typography-first statements. Bold enough to stand out. Clean enough to wear.</p>
+      <a class="btn btn--dark" href="/statement-wear">Shop statement wear <span class="btn__arrow" aria-hidden="true">→</span></a>
+    </header>
+
+    <ul class="wear__row list-reset" role="list">
+      {products.slice(0, 3).map((p, i) => (
+        <li style={`--reveal-delay:${i * 90}ms`} data-reveal>
+          <a class="wear__item" href={productUrl(p.slug)}>
+            <Picture media={p.images[0]} ratio="4/5" variant="neutral" label={`${p.name} — flat-lay or on-body apparel photograph`} sizes="(min-width: 64rem) 20vw, 60vw" class="wear__img" />
+            <span class="wear__name">{p.name}</span>
+            <span class="t-label wear__price">{priceLabel(p)}</span>
+          </a>
+        </li>
+      ))}
+    </ul>
+  </div>
+</section>
+<style>
+  .wear { background: var(--soft-pink); color: var(--noir); padding-block: var(--space-2xl); margin-block: var(--space-2xl); }
+  .wear__grid { display: grid; gap: var(--space-xl); }
+  .wear__head { display: grid; gap: var(--space-s); justify-items: start; align-content: start; }
+  .wear__eyebrow { color: color-mix(in srgb, var(--noir) 75%, var(--soft-pink)); }
+  .wear__title span { -webkit-text-stroke: 1.5px var(--noir); color: transparent; }
+  .wear__copy { color: color-mix(in srgb, var(--noir) 80%, var(--soft-pink)); }
+  .wear :global(.link-arrow:hover) { color: var(--noir); }
+
+  .wear__row { display: grid; grid-auto-flow: column; grid-auto-columns: 62%; gap: var(--space-s); margin-inline: calc(var(--gutter) * -1); padding: 0 var(--gutter); overflow-x: auto; scroll-snap-type: x mandatory; scroll-padding-inline: var(--gutter); scrollbar-width: none; }
+  .wear__row::-webkit-scrollbar { display: none; }
+  .wear__row > li { scroll-snap-align: start; }
+  .wear__item { display: grid; gap: 0.2rem; }
+  .wear :global(.media) { background: color-mix(in srgb, var(--soft-pink) 80%, var(--noir)); transition: transform var(--dur-slow) var(--ease-out); }
+  .wear__item:hover :global(.media) { transform: scale(1.03); }
+  .wear__item { overflow: hidden; }
+  .wear__name { margin-top: var(--space-xs); font-size: var(--fs-small); font-weight: 500; }
+  .wear__price { color: color-mix(in srgb, var(--noir) 75%, var(--soft-pink)); }
+  .wear :global(.placeholder) { background: color-mix(in srgb, var(--soft-pink) 82%, var(--noir)); }
+  .wear :global(.placeholder svg *) { stroke: color-mix(in srgb, var(--noir) 50%, var(--soft-pink)); }
+
+  @media (min-width: 64rem) {
+    .wear__grid { grid-template-columns: 4fr 8fr; gap: var(--space-2xl); align-items: start; }
+    .wear__row { grid-auto-flow: row; grid-template-columns: repeat(3, 1fr); grid-auto-columns: auto; margin: 0; padding: 0; overflow: visible; gap: var(--space-m); }
+    .wear__row > li:nth-child(2) { margin-top: 3rem; }
+  }
+</style>

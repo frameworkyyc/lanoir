@@ -38,25 +38,29 @@ const {
 } = Astro.props;
 
 const src = media?.src;
-const isRemote = typeof src === 'string';
+const common = {
+  class: 'media__img',
+  alt: media?.alt ?? '',
+  widths,
+  sizes,
+  formats: ['avif', 'webp'] as ('avif' | 'webp')[],
+  loading: eager ? ('eager' as const) : ('lazy' as const),
+  fetchpriority: eager ? ('high' as const) : ('auto' as const),
+  decoding: 'async' as const,
+  style: media?.focal ? `object-position:${media.focal}` : undefined,
+};
 ---
 
 <div class:list={['media', className]} style={`aspect-ratio:${ratio}`} data-reveal={reveal ? 'image' : undefined}>
   {
-    src ? (
-      <AstroPicture
-        class="media__img"
-        src={src}
-        alt={media?.alt ?? ''}
-        widths={widths}
-        sizes={sizes}
-        formats={['avif', 'webp']}
-        loading={eager ? 'eager' : 'lazy'}
-        fetchpriority={eager ? 'high' : 'auto'}
-        decoding="async"
-        style={media?.focal ? `object-position:${media.focal}` : undefined}
-        {...(isRemote ? { width: media?.width, height: media?.height } : {})}
-      />
+    typeof src === 'string' ? (
+      media?.width && media?.height ? (
+        <AstroPicture {...common} src={src} width={media.width} height={media.height} />
+      ) : (
+        <AstroPicture {...common} src={src} inferSize />
+      )
+    ) : src ? (
+      <AstroPicture {...common} src={src} />
     ) : (
       <Placeholder variant={variant} label={label ?? media?.alt} />
     )

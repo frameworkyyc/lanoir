@@ -1,0 +1,147 @@
+---
+/**
+ * The three signature collections, each with its OWN composition — not three
+ * identical cards. Same palette and type system; different personality:
+ *  01 Pretty Poison  bold / dangerous / playful  → big split, pink sticker, tilted tag
+ *  02 After Dark     restrained / sophisticated  → deep band, Cinzel, cinematic crop
+ *  03 Mystic Minis   discovery / gifting         → staggered scroll row of small treasures
+ */
+import type { Collection, Product } from '~/lib/commerce/types';
+import { collectionUrl } from '~/lib/routes';
+import Eyebrow from '../brand/Eyebrow.astro';
+import Moon from '../brand/Moon.astro';
+import Picture from '../media/Picture.astro';
+import ProductCard from '../commerce/ProductCard.astro';
+
+interface Props {
+  prettyPoison: Collection;
+  afterDark: Collection;
+  mysticMinis: Collection;
+  minis: Product[];
+}
+const { prettyPoison, afterDark, mysticMinis, minis } = Astro.props;
+---
+
+<section class="sig" aria-labelledby="sig-title">
+  <div class="container-wide sig__intro">
+    <Eyebrow>The collections</Eyebrow>
+    <h2 id="sig-title" class="t-display sig__title" data-reveal>Three ways <span class="text-pink">in.</span></h2>
+  </div>
+
+  <!-- 01 PRETTY POISON ------------------------------------------------------ -->
+  <article class="pp container-wide">
+    <a class="pp__link" href={collectionUrl(prettyPoison)}>
+      <div class="pp__media">
+        <!-- PLACEHOLDER: Pretty Poison styled box-set hero. Bold, playful, feminine-forward; real product on controlled dark ground. -->
+        <Picture media={prettyPoison.image} ratio="4/5" variant="pretty-poison" label="PRETTY POISON — styled signature box-set photograph (portrait)" sizes="(min-width: 64rem) 50vw, 100vw" reveal />
+        <span class="pp__sticker t-label" aria-hidden="true">Signature</span>
+      </div>
+      <div class="pp__copy">
+        <p class="pp__num t-display-xl t-outline" aria-hidden="true">01</p>
+        <h3 class="pp__name t-display-xl">Pretty<br /><span class="text-pink">Poison</span></h3>
+        <p class="t-statement-sm">{prettyPoison.tagline}</p>
+        <span class="link-arrow">Shop Pretty Poison <span class="btn__arrow" aria-hidden="true">→</span></span>
+      </div>
+    </a>
+  </article>
+
+  <!-- 02 AFTER DARK ------------------------------------------------------------ -->
+  <article class="ad">
+    <div class="container-wide">
+      <a class="ad__link" href={collectionUrl(afterDark)}>
+        <div class="ad__copy">
+          <p class="ad__num t-label">02</p>
+          <h3 class="ad__name">After<br />Dark</h3>
+          <p class="t-label ad__tag">{afterDark.tagline}</p>
+          <span class="link-arrow">Enter After Dark <span class="btn__arrow" aria-hidden="true">→</span></span>
+        </div>
+        <div class="ad__media">
+          <!-- PLACEHOLDER: After Dark product photograph. Dark, seductive, restrained. Wide cinematic crop; product emerging from shadow. -->
+          <Picture media={afterDark.image} ratio="16/9" variant="after-dark" label="AFTER DARK — low-key product photograph, cinematic wide crop" sizes="(min-width: 64rem) 55vw, 100vw" reveal />
+        </div>
+        <Moon class="ad__moon" size="3rem" />
+      </a>
+    </div>
+  </article>
+
+  <!-- 03 MYSTIC MINIS ---------------------------------------------------------- -->
+  <article class="mm container-wide">
+    <header class="mm__head">
+      <p class="mm__num t-label">03</p>
+      <h3 class="t-display mm__name">Mystic <span class="text-pink">Minis</span></h3>
+      <p class="t-body t-muted">Smaller treasures. Gifts. Accessible pieces.</p>
+      <a class="link-arrow" href={collectionUrl(mysticMinis)}>Explore the minis <span class="btn__arrow" aria-hidden="true">→</span></a>
+    </header>
+    <ul class="mm__row list-reset" role="list" tabindex="0" aria-label="Mystic Minis products — scroll for more">
+      {minis.slice(0, 4).map((p) => (
+        <li class="mm__item"><ProductCard product={p} variant="mystic-minis" ratio="1/1" sizes="(min-width: 64rem) 20vw, 60vw" /></li>
+      ))}
+    </ul>
+  </article>
+</section>
+
+<style>
+  .sig { padding-block: var(--space-2xl) 0; }
+  .sig__intro { display: grid; gap: var(--space-s); margin-bottom: var(--space-xl); }
+
+  /* ---------- 01 Pretty Poison ---------- */
+  .pp { margin-bottom: var(--space-3xl); }
+  .pp__link { display: grid; gap: var(--space-m); }
+  .pp__media { position: relative; }
+  .pp__sticker {
+    position: absolute; right: -0.25rem; top: 1.25rem;
+    padding: 0.55rem 1rem; background: var(--pink); color: var(--noir); font-weight: 700;
+    rotate: 5deg; transition: rotate var(--dur-base) var(--ease-out);
+  }
+  .pp__link:hover .pp__sticker { rotate: -2deg; }
+  .pp__copy { display: grid; gap: var(--space-s); justify-items: start; position: relative; }
+  .pp__num { position: absolute; top: -0.65em; right: 0; line-height: 0.8; opacity: 0.9; -webkit-text-stroke-color: var(--rule-strong); pointer-events: none; }
+  .pp__name { margin-top: var(--space-xs); }
+
+  /* ---------- 02 After Dark ---------- */
+  .ad { background: var(--noir-deep); border-block: var(--border-thin); margin-bottom: var(--space-3xl); }
+  .ad__link { position: relative; display: grid; gap: var(--space-l); padding-block: var(--space-xl); }
+  .ad__copy { display: grid; gap: var(--space-s); justify-items: start; }
+  .ad__num { color: var(--pink); }
+  .ad__name {
+    font-family: var(--font-statement); font-weight: 500; text-transform: uppercase;
+    font-size: clamp(3rem, 12vw, 6.5rem); line-height: 1; letter-spacing: 0.08em;
+  }
+  .ad__tag { color: var(--text-muted); max-width: 22rem; }
+  .ad__moon { position: absolute; top: var(--space-m); right: 0; color: var(--gunmetal); }
+  .ad__link:hover :global(.media) { transform: scale(1.02); }
+  .ad__media :global(.media) { transition: transform var(--dur-slow) var(--ease-out); }
+
+  /* ---------- 03 Mystic Minis ---------- */
+  .mm__head { display: grid; gap: var(--space-xs); justify-items: start; margin-bottom: var(--space-l); }
+  .mm__num { color: var(--pink); }
+  .mm__row {
+    display: grid; grid-auto-flow: column; grid-auto-columns: 62%;
+    gap: var(--space-s);
+    margin-inline: calc(var(--gutter) * -1);
+    padding: 0 var(--gutter) var(--space-m);
+    overflow-x: auto; scroll-snap-type: x mandatory; scroll-padding-inline: var(--gutter);
+    scrollbar-width: none;
+    overscroll-behavior-x: contain;
+  }
+  .mm__row::-webkit-scrollbar { display: none; }
+  .mm__item { scroll-snap-align: start; }
+  .mm__item:nth-child(even) { margin-top: 2.25rem; }
+
+  @media (min-width: 48rem) {
+    .ad__link { grid-template-columns: 4fr 7fr; align-items: center; gap: var(--space-xl); }
+    .ad__moon { right: 40%; }
+  }
+
+  @media (min-width: 64rem) {
+    .sig__intro { grid-template-columns: 1fr; }
+    .pp__link { grid-template-columns: 6fr 5fr; align-items: end; gap: var(--space-2xl); }
+    .pp__copy { padding-bottom: var(--space-l); }
+    .pp__num { top: auto; bottom: 100%; right: auto; left: 0; font-size: 12rem; margin-bottom: -2rem; }
+    .pp__sticker { right: -1.25rem; }
+    .mm { display: grid; grid-template-columns: 4fr 8fr; gap: var(--space-2xl); align-items: start; }
+    .mm__head { position: sticky; top: calc(var(--header-h) + var(--space-l)); margin-bottom: 0; }
+    .mm__row { grid-auto-flow: row; grid-template-columns: repeat(4, 1fr); grid-auto-columns: auto; margin-inline: 0; padding: 0; overflow: visible; gap: var(--space-m); }
+    .mm__item:nth-child(even) { margin-top: 3.5rem; }
+  }
+</style>

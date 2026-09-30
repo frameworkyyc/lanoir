@@ -1,0 +1,63 @@
+---
+import { siteConfig } from '~/config/site';
+import Eyebrow from '../brand/Eyebrow.astro';
+import Moon from '../brand/Moon.astro';
+const action = siteConfig.newsletter.action;
+---
+<section class="community section" aria-labelledby="community-title">
+  <div class="container-wide community__grid">
+    <div class="community__head">
+      <Eyebrow>Stay in the circle</Eyebrow>
+      <h2 id="community-title" class="t-display-xl" data-reveal>Fair<br /><span class="text-pink">warning.</span></h2>
+      <p class="t-body t-muted">First word on new collections and releases. Nothing you didn't ask for.</p>
+    </div>
+
+    <form class="signup" action={action ?? undefined} method="post" data-signup novalidate>
+      <label class="t-label signup__label" for="signup-email">Email address</label>
+      <div class="signup__row">
+        <input id="signup-email" name="email" type="email" inputmode="email" autocomplete="email" placeholder="you@email.com" required />
+        <button class="btn" type="submit">Be warned <span class="btn__arrow" aria-hidden="true">→</span></button>
+      </div>
+      <p class="signup__msg t-label" role="status" aria-live="polite" data-signup-msg></p>
+    </form>
+    <Moon class="community__moon" size="3.5rem" />
+  </div>
+</section>
+
+<style>
+  .community { position: relative; border-top: var(--border-thin); }
+  .community__grid { display: grid; gap: var(--space-xl); position: relative; }
+  .community__head { display: grid; gap: var(--space-m); justify-items: start; }
+  .community__moon { position: absolute; top: 0; right: var(--gutter); color: var(--gunmetal); }
+  .signup { display: grid; gap: var(--space-2xs); align-content: end; max-width: 34rem; }
+  .signup__label { color: var(--text-muted); }
+  .signup__row { display: grid; gap: var(--space-xs); }
+  .signup input {
+    min-height: 3.5rem; padding: 0 1rem; width: 100%;
+    background: transparent; color: var(--warm-white);
+    border: 1px solid var(--rule-strong); border-radius: 0;
+    font-size: 1rem; /* 16px prevents iOS zoom on focus */
+    transition: border-color var(--dur-base);
+  }
+  .signup input::placeholder { color: var(--text-muted); opacity: 0.8; }
+  .signup input:hover { border-color: var(--warm-white); }
+  .signup input:focus-visible { outline: 2px solid var(--pink); outline-offset: 2px; border-color: var(--pink); }
+  .signup__row .btn { min-height: 3.5rem; }
+  .signup__msg { min-height: 1.4em; color: var(--pink); }
+  @media (min-width: 48rem) { .signup__row { grid-template-columns: 1fr auto; } }
+  @media (min-width: 64rem) { .community__grid { grid-template-columns: 6fr 5fr; align-items: end; gap: var(--space-2xl); } }
+</style>
+
+<script>
+  // Phase 1: no mailing provider is connected. Until one is configured in
+  // siteConfig.newsletter.action, the form never submits anywhere.
+  const form = document.querySelector<HTMLFormElement>('[data-signup]');
+  const msg = document.querySelector<HTMLElement>('[data-signup-msg]');
+  if (form && msg && !form.getAttribute('action')) {
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
+      if (!form.checkValidity()) { msg.textContent = 'Enter a valid email address.'; return; }
+      msg.textContent = 'Sign-ups open soon.';
+    });
+  }
+</script>

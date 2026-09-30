@@ -1,0 +1,6 @@
+---
+import ListingPage from '~/components/commerce/ListingPage.astro';
+import { commerce } from '~/lib/commerce';
+const products = await commerce.getProducts();
+---
+<ListingPage title="Shop All" heading={['Shop', 'all.']} eyebrow="Everything" intro="A complete view of available LaNoir products." {products} path="/shop" />

@@ -1,0 +1,59 @@
+---
+import type { Product, Collection } from '~/lib/commerce/types';
+import { collectionUrl, productUrl } from '~/lib/routes';
+import { priceLabel } from '~/lib/format';
+import Picture from '../media/Picture.astro';
+import SpectrumRule from '../brand/SpectrumRule.astro';
+import Eyebrow from '../brand/Eyebrow.astro';
+
+interface Props { collection: Collection; products: Product[]; }
+const { collection, products } = Astro.props;
+---
+<!-- LaNoir first, Pride second: Noir ground, LaNoir type, Pride colour only as a thin intentional line + arcs. -->
+<section class="pride section" aria-labelledby="pride-title">
+  <div class="container-wide">
+    <div class="pride__top">
+      <Eyebrow>Pride Exclusive</Eyebrow>
+      <SpectrumRule />
+    </div>
+
+    <h2 id="pride-title" class="pride__title t-display-xl" data-reveal>
+      Not straight.<br /><span class="text-pink">Not sorry.</span>
+    </h2>
+
+    <div class="pride__body">
+      <div class="pride__copy">
+        <p class="t-statement-sm">Pride skull sets, shirts and themed accessories — empowering, inclusive, unmistakably LaNoir.</p>
+        <a class="btn" href={collectionUrl(collection)}>Shop Pride Exclusive <span class="btn__arrow" aria-hidden="true">→</span></a>
+      </div>
+      <ul class="pride__row list-reset" role="list">
+        {products.slice(0, 2).map((p, i) => (
+          <li style={`--reveal-delay:${i * 100}ms`} data-reveal>
+            <a class="pride__item" href={productUrl(p.slug)}>
+              <Picture media={p.images[0]} ratio="4/5" variant="pride" label={`${p.name} — Pride Exclusive product photograph`} sizes="(min-width: 64rem) 22vw, 46vw" />
+              <span class="pride__name">{p.name}</span>
+              <span class="t-label t-muted">{priceLabel(p)}</span>
+            </a>
+          </li>
+        ))}
+      </ul>
+    </div>
+  </div>
+</section>
+<style>
+  .pride__top { display: grid; gap: var(--space-s); margin-bottom: var(--space-l); }
+  .pride__title { font-size: clamp(3.75rem, 17vw, 11rem); }
+  .pride__body { display: grid; gap: var(--space-xl); margin-top: var(--space-xl); }
+  .pride__copy { display: grid; gap: var(--space-m); justify-items: start; align-content: start; max-width: 28rem; }
+  .pride__row { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-s); }
+  .pride__item { display: grid; gap: 0.15rem; overflow: hidden; }
+  .pride__item :global(.media) { transition: transform var(--dur-slow) var(--ease-out); }
+  .pride__item:hover :global(.media) { transform: scale(1.03); }
+  .pride__name { margin-top: var(--space-xs); font-size: var(--fs-small); font-weight: 500; }
+  .pride__row > li:nth-child(2) { margin-top: 2rem; }
+  @media (min-width: 64rem) {
+    .pride__title { font-size: clamp(8rem, 14vw, 15rem); }
+    .pride__body { grid-template-columns: 5fr 7fr; gap: var(--space-2xl); align-items: start; }
+    .pride__row { gap: var(--space-m); }
+  }
+</style>

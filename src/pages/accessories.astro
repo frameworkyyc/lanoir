@@ -1,0 +1,7 @@
+---
+import ListingPage from '~/components/commerce/ListingPage.astro';
+import { commerce } from '~/lib/commerce';
+const collection = (await commerce.getCollection('accessories'))!;
+const products = await commerce.getProducts({ collection: 'accessories' });
+---
+<ListingPage title="Accessories / Jewelry" heading={['Accessories', '/ jewelry.']} eyebrow="Supporting range" intro={collection.description} {products} path="/accessories" {collection} />
