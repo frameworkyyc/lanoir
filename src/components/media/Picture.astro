@@ -7,9 +7,9 @@
  *
  * The wrapper owns the aspect ratio (prevents layout shift) and the crop.
  */
-import { Picture as AstroPicture } from 'astro:assets';
 import type { Media } from '~/lib/commerce/types';
 import Placeholder from './Placeholder.astro';
+import { imageSrc, imageSrcset } from '~/lib/images';
 
 interface Props {
   media?: Media;
@@ -38,29 +38,39 @@ const {
 } = Astro.props;
 
 const src = media?.src;
-const common = {
-  class: 'media__img',
-  alt: media?.alt ?? '',
-  widths,
-  sizes,
-  formats: ['avif', 'webp'] as ('avif' | 'webp')[],
-  loading: eager ? ('eager' as const) : ('lazy' as const),
-  fetchpriority: eager ? ('high' as const) : ('auto' as const),
-  decoding: 'async' as const,
-  style: media?.focal ? `object-position:${media.focal}` : undefined,
-};
 ---
 
 <div class:list={['media', className]} style={`aspect-ratio:${ratio}`} data-reveal={reveal ? 'image' : undefined}>
   {
     typeof src === 'string' ? (
-      media?.width && media?.height ? (
-        <AstroPicture {...common} src={src} width={media.width} height={media.height} />
-      ) : (
-        <AstroPicture {...common} src={src} inferSize />
-      )
+      // Remote image (Square CDN). Served as-is through ~/lib/images so transformations can be added later.
+      <img
+        class="media__img"
+        src={imageSrc(src, { width: widths[widths.length - 1] })}
+        srcset={imageSrcset(src, widths)}
+        sizes={imageSrcset(src, widths) ? sizes : undefined}
+        alt={media?.alt ?? ''}
+        width={media?.width}
+        height={media?.height}
+        loading={eager ? 'eager' : 'lazy'}
+        fetchpriority={eager ? 'high' : 'auto'}
+        decoding="async"
+        referrerpolicy="no-referrer"
+        style={media?.focal ? `object-position:${media.focal}` : undefined}
+      />
     ) : src ? (
-      <AstroPicture {...common} src={src} />
+      // Local imported image: emitted as-is (no runtime transform on Workers). Prefer Square-hosted or public/ images.
+      <img
+        class="media__img"
+        src={src.src}
+        alt={media?.alt ?? ''}
+        width={src.width}
+        height={src.height}
+        loading={eager ? 'eager' : 'lazy'}
+        fetchpriority={eager ? 'high' : 'auto'}
+        decoding="async"
+        style={media?.focal ? `object-position:${media.focal}` : undefined}
+      />
     ) : (
       <Placeholder variant={variant} label={label ?? media?.alt} />
     )

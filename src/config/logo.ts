@@ -1,21 +1,23 @@
 /**
- * THE ONLY FILE THAT KNOWS HOW THE LOGO ASSET IS CONSTRUCTED.
+ * THE ONLY FILE THAT KNOWS HOW THE LOGO ASSETS ARE BUILT.
  *
- * Today: the supplied raster (1920×1080, charcoal ground baked in). It is never
- * modified — we only *display* the region that contains the artwork plus the
- * Brand System's 10% clear space, on the approved Logo Charcoal ground.
+ * Masters (never modified) live in src/assets/brand/:
+ *   logo-original.png  the full script logo (1920×1080 raster, charcoal ground baked in)
+ *   logo-icon.png      the LN monogram (1283×1226, opaque on black)
+ * `npm run brand-images` generates optimised WebP variants into public/brand/ — static files, so
+ * server-rendered pages never need runtime image transformation.
  *
- * When a transparent PNG or SVG master arrives:
- *   1. drop it in src/assets/brand/
- *   2. change the import below
- *   3. set `crop` to `null`
+ * When a transparent PNG/SVG master arrives: replace the master, re-run `npm run brand-images`
+ * (or point `variants` at the SVG), update the dimensions, set `crop: null` / `blend: false`.
  * Layouts stay untouched because they only use <Logo />.
  */
-import src from '~/assets/brand/logo-original.png';
-import iconSrc from '~/assets/brand/logo-icon.png';
+
+export interface LogoVariant { w: number; url: string }
 
 export const logo = {
-  src,
+  variants: [480, 960, 1440, 1920].map((w) => ({ w, url: `/brand/logo-${w}.webp` })) as LogoVariant[],
+  width: 1920,
+  height: 1080,
   alt: 'LaNoir — Bad Ass Witchery',
   /** Ground the raster was designed on (Brand System: Logo Charcoal). */
   ground: '#343131',
@@ -33,15 +35,16 @@ export const logo = {
 
 /**
  * LN monogram — the icon version of the logo, for SMALL placements only
- * (header, mobile menu, favicon). The full logo above stays the master for
- * everything large (footer, packaging, social). Never use both together in one lockup.
+ * (header, mobile menu, favicon). The full logo stays the master for everything large
+ * (footer, packaging, social). Never use both together in one lockup.
  *
- * The supplied file is an opaque PNG on pure black. We never edit it: on dark
- * surfaces it is displayed with `mix-blend-mode: screen`, which makes the black
- * vanish. When a transparent PNG/SVG arrives, swap `src` and set `blend: false`.
+ * The supplied file is an opaque PNG on pure black. We never edit it: on dark surfaces it is
+ * displayed with `mix-blend-mode: screen`, which makes the black vanish.
  */
 export const logoIcon = {
-  src: iconSrc,
+  variants: [112, 168, 224, 336].map((w) => ({ w, url: `/brand/logo-icon-${w}.webp` })) as LogoVariant[],
+  width: 1283,
+  height: 1226,
   alt: 'LaNoir — Bad Ass Witchery',
   /** True while the asset has a black ground that must be blended away (dark surfaces only). */
   blend: true,

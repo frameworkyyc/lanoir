@@ -11,8 +11,10 @@
  *  - plate: draw the approved Logo Charcoal ground (required for the raster).
  *  - eager: for above-the-fold use.
  */
-import { Image } from 'astro:assets';
-import { logo, logoIcon } from '~/config/logo';
+import { logo, logoIcon, type LogoVariant } from '~/config/logo';
+
+const srcset = (v: LogoVariant[]) => v.map((x) => `${x.url} ${x.w}w`).join(', ');
+const pick = (v: LogoVariant[], i = 1) => v[Math.min(i, v.length - 1)].url;
 
 interface Props {
   /** `full` = master artwork (large placements). `icon` = LN monogram (header, menu, small). */
@@ -41,30 +43,32 @@ const style = [
 ---
 
 {variant === 'icon' ? (
-  <Image
+  <img
     class:list={['logo-icon', { 'logo-icon--blend': logoIcon.blend }, className]}
-    src={logoIcon.src}
-    alt={logoIcon.alt}
-    style={`--logo-icon-w:${width}`}
-    widths={[112, 168, 224, 336]}
+    src={pick(logoIcon.variants)}
+    srcset={srcset(logoIcon.variants)}
     sizes={sizes ?? width}
+    alt={logoIcon.alt}
+    width={logoIcon.width}
+    height={logoIcon.height}
+    style={`--logo-icon-w:${width}`}
     loading={eager ? 'eager' : 'lazy'}
     fetchpriority={eager ? 'high' : 'auto'}
     decoding="async"
-    format="webp"
   />
 ) : (
 <span class:list={['logo', { 'logo--plate': plate, 'logo--cropped': !!c }, className]} style={style}>
-  <Image
+  <img
     class="logo__img"
-    src={logo.src}
-    alt={logo.alt}
-    widths={[240, 480, 720, 960, 1440, 1920]}
+    src={pick(logo.variants, 2)}
+    srcset={srcset(logo.variants)}
     sizes={imgSizes}
+    alt={logo.alt}
+    width={logo.width}
+    height={logo.height}
     loading={eager ? 'eager' : 'lazy'}
     fetchpriority={eager ? 'high' : 'auto'}
     decoding="async"
-    format="webp"
   />
 </span>
 )}
