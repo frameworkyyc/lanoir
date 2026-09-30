@@ -1,6 +1,7 @@
 ---
 import BaseLayout from '~/layouts/BaseLayout.astro';
 import { commerce } from '~/lib/commerce';
+import { settle } from '~/lib/catalog-result';
 import { organization, website } from '~/seo/jsonld';
 import { siteConfig } from '~/config/site';
 import Hero from '~/components/sections/Hero.astro';
@@ -12,22 +13,26 @@ import StatementWearFeature from '~/components/sections/StatementWearFeature.ast
 import PrideFeature from '~/components/sections/PrideFeature.astro';
 import AboutPreview from '~/components/sections/AboutPreview.astro';
 import Community from '~/components/sections/Community.astro';
+import CatalogNotice from '~/components/commerce/CatalogNotice.astro';
 
-const [prettyPoison, afterDark, mysticMinis, pride] = await Promise.all([
-  commerce.getCollection('pretty-poison'),
-  commerce.getCollection('after-dark'),
-  commerce.getCollection('mystic-minis'),
-  commerce.getCollection('pride-exclusive'),
-]);
-if (!prettyPoison || !afterDark || !mysticMinis || !pride) throw new Error('Required collections missing from commerce provider');
+export const prerender = false; // product sections use live Square data
 
-const [minis, featured, apparel, prideProducts, afterDarkProducts] = await Promise.all([
-  commerce.getProducts({ collection: 'mystic-minis', limit: 4 }),
-  commerce.getProducts({ featured: true, limit: 4 }),
-  commerce.getProducts({ collection: 'statement-wear', limit: 3 }),
-  commerce.getProducts({ collection: 'pride-exclusive', limit: 2 }),
-  commerce.getProducts({ collection: 'after-dark', limit: 1 }),
-]);
+// Collections are editorial (no Square call). Products come from ONE catalogue snapshot.
+const [prettyPoison, afterDark, mysticMinis, pride] = (await Promise.all(
+  ['pretty-poison', 'after-dark', 'mystic-minis', 'pride-exclusive'].map((s) => commerce.getCollection(s)),
+));
+if (!prettyPoison || !afterDark || !mysticMinis || !pride) throw new Error('Editorial collections missing');
+
+const catalog = await settle(commerce.getProducts());
+const products = catalog.ok ? catalog.data : [];
+if (!catalog.ok) Astro.response.headers.set('Cache-Control', 'no-store');
+
+const inCollection = (slug: string, n: number) => products.filter((p) => p.collections.includes(slug)).slice(0, n);
+const minis = inCollection('mystic-minis', 4);
+const featured = products.filter((p) => p.featured).slice(0, 4); // controlled by the Square "Featured" category
+const apparel = inCollection('statement-wear', 3);
+const prideProducts = inCollection('pride-exclusive', 2);
+const afterDarkProducts = inCollection('after-dark', 1);
 ---
 <BaseLayout
   title={`${siteConfig.name} — ${siteConfig.descriptor} | Wear your power`}
@@ -37,10 +42,11 @@ const [minis, featured, apparel, prideProducts, afterDarkProducts] = await Promi
 >
   <Hero />
   <SignatureCollections {prettyPoison} {afterDark} {mysticMinis} {minis} />
-  <FeaturedProducts products={featured} />
+  {!catalog.ok && <div class="container-wide"><CatalogNotice kind="error" /></div>}
+  {featured.length > 0 && <FeaturedProducts products={featured} />}
   <BrandStatement />
   <AfterDarkFeature collection={afterDark} product={afterDarkProducts[0]} />
-  <StatementWearFeature products={apparel} />
+  {apparel.length > 0 && <StatementWearFeature products={apparel} />}
   <PrideFeature collection={pride} products={prideProducts} />
   <AboutPreview />
   <Community />

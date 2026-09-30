@@ -72,11 +72,13 @@ const { prettyPoison, afterDark, mysticMinis, minis } = Astro.props;
       <p class="t-body t-muted">Smaller treasures. Gifts. Accessible pieces.</p>
       <a class="link-arrow" href={collectionUrl(mysticMinis)}>Explore the minis <span class="btn__arrow" aria-hidden="true">→</span></a>
     </header>
-    <ul class="mm__row list-reset" role="list" tabindex="0" aria-label="Mystic Minis products — scroll for more">
-      {minis.slice(0, 4).map((p) => (
-        <li class="mm__item"><ProductCard product={p} variant="mystic-minis" ratio="1/1" sizes="(min-width: 64rem) 20vw, 60vw" /></li>
-      ))}
-    </ul>
+    {minis.length > 0 && (
+      <ul class="mm__row list-reset" role="list" tabindex="0" aria-label="Mystic Minis products — scroll for more">
+        {minis.slice(0, 4).map((p) => (
+          <li class="mm__item"><ProductCard product={p} variant="mystic-minis" ratio="1/1" sizes="(min-width: 64rem) 20vw, 60vw" /></li>
+        ))}
+      </ul>
+    )}
   </article>
 </section>
 

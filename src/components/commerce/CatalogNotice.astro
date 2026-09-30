@@ -1,0 +1,23 @@
+---
+/**
+ * On-brand empty / error panel for catalogue pages. Never shows provider details.
+ *   error → the shop's data couldn't be loaded (Square unreachable / misconfigured)
+ *   empty → loaded fine, but there is nothing to show
+ */
+import Eyebrow from '../brand/Eyebrow.astro';
+interface Props { kind: 'error' | 'empty'; action?: { href: string; label: string } }
+const { kind, action } = Astro.props;
+const copy = kind === 'error'
+  ? { eyebrow: 'One moment', title: ['The shop is', 'catching its breath.'], body: 'We couldn’t load the products just now. Please try again shortly.', action: action ?? { href: '', label: 'Try again' } }
+  : { eyebrow: 'Coming soon', title: ['New pieces', 'are on the way.'], body: 'Nothing here yet. Explore the collections in the meantime.', action: action ?? { href: '/collections', label: 'Shop the collections' } };
+---
+<section class="notice" role={kind === 'error' ? 'alert' : 'status'}>
+  <Eyebrow tone={kind === 'error' ? 'pink' : 'muted'}>{copy.eyebrow}</Eyebrow>
+  <p class="t-display notice__title">{copy.title[0]}<br /><span class="text-pink">{copy.title[1]}</span></p>
+  <p class="t-body t-muted">{copy.body}</p>
+  <a class="btn btn--ghost" href={copy.action.href || Astro.url.pathname}>{copy.action.label}</a>
+</section>
+<style>
+  .notice { display: grid; gap: var(--space-s); justify-items: start; padding-block: var(--space-xl); }
+  .notice__title { max-width: 14ch; }
+</style>

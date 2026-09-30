@@ -1,0 +1,38 @@
+---
+/** Right-hand cart drawer: a modal <dialog> (focus trap, Esc, inert page for free). Content is rendered by scripts/cart-view.ts. */
+---
+<dialog class="cdrawer" data-cart-drawer aria-labelledby="cdrawer-title">
+  <div class="cdrawer__panel">
+    <header class="cdrawer__head">
+      <h2 id="cdrawer-title" class="t-label">Your cart</h2>
+      <form method="dialog">
+        <button class="cdrawer__close" aria-label="Close cart">
+          <svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M5 5l14 14M19 5L5 19" /></svg>
+        </button>
+      </form>
+    </header>
+    <div class="cdrawer__body" data-cart-view></div>
+  </div>
+</dialog>
+
+<style>
+  .cdrawer {
+    position: fixed; inset: 0 0 0 auto;
+    width: min(28rem, 100%); max-width: none; height: 100dvh; max-height: none;
+    margin: 0; padding: 0; border: 0;
+    background: var(--noir); color: var(--warm-white);
+    border-left: var(--border-thin);
+    overflow: hidden;
+    opacity: 0; transform: translateX(100%);
+    transition: opacity var(--dur-base) var(--ease-out), transform var(--dur-base) var(--ease-out),
+      overlay var(--dur-base) allow-discrete, display var(--dur-base) allow-discrete;
+  }
+  .cdrawer[open] { opacity: 1; transform: none; }
+  @starting-style { .cdrawer[open] { opacity: 0; transform: translateX(100%); } }
+  .cdrawer::backdrop { background: color-mix(in srgb, var(--noir-deep) 70%, transparent); transition: opacity var(--dur-base); }
+
+  .cdrawer__panel { display: flex; flex-direction: column; height: 100%; }
+  .cdrawer__head { display: flex; align-items: center; justify-content: space-between; min-height: var(--header-h); padding-inline: var(--gutter); border-bottom: var(--border-thin); flex: none; }
+  .cdrawer__close { display: grid; place-items: center; width: var(--touch); height: var(--touch); margin-right: -0.75rem; }
+  .cdrawer__body { flex: 1; overflow-y: auto; overscroll-behavior: contain; padding: var(--space-m) var(--gutter) max(var(--space-m), env(safe-area-inset-bottom)); }
+</style>

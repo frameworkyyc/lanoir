@@ -1,12 +1,18 @@
 ---
 import BaseLayout from '~/layouts/BaseLayout.astro';
 import Eyebrow from '~/components/brand/Eyebrow.astro';
+// Static shell: the cart itself is rendered in the browser from /api/cart/quote.
 ---
 <BaseLayout title="Cart" path="/cart" noindex>
-  <section class="container-wide cart">
+  <section class="container-wide cartpage" data-cart-page>
     <Eyebrow>Your cart</Eyebrow>
-    <h1 class="t-display-xl">Nothing<br /><span class="text-pink">yet.</span></h1>
-    <a class="btn" href="/collections">Shop the collections <span class="btn__arrow" aria-hidden="true">→</span></a>
+    <h1 class="t-display-xl">Your<br /><span class="text-pink">cart.</span></h1>
+    <div class="cartpage__view" data-cart-view aria-live="polite">
+      <noscript><p class="t-body t-muted">Your cart needs JavaScript to load.</p></noscript>
+    </div>
   </section>
 </BaseLayout>
-<style>.cart { display: grid; gap: var(--space-m); justify-items: start; padding-block: var(--space-xl) 0; }</style>
+<style>
+  .cartpage { display: grid; gap: var(--space-m); padding-block: var(--space-xl) 0; }
+  .cartpage__view { margin-top: var(--space-m); max-width: 52rem; }
+</style>

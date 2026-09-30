@@ -1,0 +1,189 @@
+---
+/**
+ * Variant picker + quantity + Add to cart. Works for every shape of Square product:
+ * no variations, one option (Size), several options (Size + Colour), sold-out variants.
+ * Server renders the markup; scripts/add-to-cart.ts keeps price/stock/button in sync.
+ * Stock and price shown here are for display only — the server re-validates on checkout.
+ */
+import type { Product } from '~/lib/commerce/types';
+import { CART_LIMITS } from '~/lib/commerce/cart.ts';
+import { formatMoney, priceLabel } from '~/lib/format';
+
+interface Props { product: Product }
+const { product } = Astro.props;
+
+const data = {
+  groups: product.optionGroups.map((g) => g.name),
+  variants: product.variants.map((v) => ({
+    id: v.id,
+    options: v.options,
+    available: v.available,
+    availability: v.availability,
+    price: formatMoney(v.price),
+    max: v.available ? Math.min(CART_LIMITS.maxQuantityPerLine, v.inventory?.tracked ? (v.inventory.quantity ?? 0) : Infinity) : 0,
+  })),
+  defaultPrice: priceLabel(product),
+};
+// Infinity is not JSON: clamp to the global cap (already applied above for untracked).
+const json = JSON.stringify(data, (_k, v) => (v === Infinity ? CART_LIMITS.maxQuantityPerLine : v)).replace(/</g, '\\u003c');
+
+const allSoldOut = product.variants.every((v) => !v.available);
+---
+
+<form class="atc" data-add-to-cart novalidate>
+  <script type="application/json" data-atc-data set:html={json} />
+
+  <p class="atc__price t-statement-sm" data-atc-price>{data.defaultPrice}</p>
+
+  {product.optionGroups.map((group, gi) => (
+    <fieldset class="atc__group" data-group={group.name}>
+      <legend class="t-label">{group.name}<span class="atc__chosen" data-chosen={group.name}></span></legend>
+      <div class="atc__chips">
+        {group.values.map((v) => {
+          const anyAvailable = product.variants.some((x) => x.options[group.name] === v.value && x.available);
+          return (
+            <label class:list={['chip', { 'is-soldout': !anyAvailable }]}>
+              <input type="radio" name={`opt-${gi}`} value={v.value} data-group-name={group.name} />
+              <span class="chip__face">
+                {v.swatch && <i class="chip__swatch" style={`background:${v.swatch}`} aria-hidden="true"></i>}
+                {v.value}
+              </span>
+            </label>
+          );
+        })}
+      </div>
+    </fieldset>
+  ))}
+
+  <div class="atc__buy">
+    <div class="qty" role="group" aria-label="Quantity">
+      <button type="button" class="qty__btn" data-qty-dec aria-label="Decrease quantity" disabled>−</button>
+      <span class="qty__val" data-qty aria-live="polite">1</span>
+      <button type="button" class="qty__btn" data-qty-inc aria-label="Increase quantity">+</button>
+    </div>
+    <button type="submit" class="btn atc__add" data-atc-button disabled={allSoldOut}>
+      <span data-atc-label>{allSoldOut ? 'Sold out' : product.optionGroups.length ? `Select ${product.optionGroups[0].name.toLowerCase()}` : 'Add to cart'}</span>
+    </button>
+  </div>
+  <p class="atc__note t-label" data-atc-note role="status" aria-live="polite"></p>
+  <p class="atc__fine t-label">Shipping and taxes are calculated at checkout.</p>
+</form>
+
+<style>
+  .atc { display: grid; gap: var(--space-m); width: 100%; }
+  .atc__price { color: var(--warm-white); }
+  .atc__group { border: 0; padding: 0; margin: 0; display: grid; gap: var(--space-xs); min-width: 0; }
+  .atc__group legend { padding: 0; margin-bottom: var(--space-xs); color: var(--text-muted); }
+  .atc__chosen { color: var(--warm-white); margin-left: 0.6rem; }
+  .atc__chosen:not(:empty)::before { content: '— '; color: var(--text-muted); }
+  .atc__chips { display: flex; flex-wrap: wrap; gap: var(--space-2xs); }
+
+  .chip { position: relative; }
+  .chip input { position: absolute; inset: 0; opacity: 0; width: 100%; height: 100%; margin: 0; cursor: pointer; }
+  .chip__face {
+    display: inline-flex; align-items: center; gap: 0.5rem;
+    min-width: var(--touch); min-height: var(--touch); padding: 0 1rem; justify-content: center;
+    border: 1px solid var(--rule-strong); font-size: var(--fs-small); font-weight: 500;
+    transition: border-color var(--dur-fast), background var(--dur-fast), color var(--dur-fast);
+  }
+  .chip:hover .chip__face { border-color: var(--warm-white); }
+  .chip input:checked + .chip__face { border-color: var(--pink); background: var(--pink); color: var(--noir); }
+  .chip input:focus-visible + .chip__face { outline: 2px solid var(--pink); outline-offset: 3px; }
+  .chip__swatch { width: 0.85rem; height: 0.85rem; border-radius: 50%; border: 1px solid var(--rule-strong); flex: none; }
+  /* Every variant with this value is sold out: still selectable (so the shopper sees why), but visibly struck. */
+  .chip.is-soldout .chip__face { color: var(--text-muted); text-decoration: line-through; border-style: dashed; }
+  .chip.is-soldout input:checked + .chip__face { background: transparent; color: var(--warm-white); border-color: var(--pink); }
+
+  .atc__buy { display: grid; grid-template-columns: auto 1fr; gap: var(--space-xs); }
+  .atc__add { width: 100%; min-height: var(--touch); }
+  .atc__add:disabled { opacity: 0.5; cursor: not-allowed; }
+  .atc__add:disabled:hover { --btn-bg: var(--pink); --btn-bd: var(--pink); }
+  .atc__note { min-height: 1.4em; color: var(--pink); }
+  .atc__fine { color: var(--text-muted); }
+
+  /* Mobile: the buy row sticks to the bottom of the screen so purchasing is always one tap away. */
+  @media (max-width: 63.99rem) {
+    .atc__buy {
+      position: sticky; bottom: 0; z-index: 5;
+      margin-inline: calc(var(--gutter) * -1); padding: var(--space-xs) var(--gutter) max(var(--space-xs), env(safe-area-inset-bottom));
+      background: var(--noir); border-top: var(--border-thin);
+    }
+  }
+</style>
+
+<script>
+  import { cart } from '~/scripts/cart';
+
+  interface V { id: string; options: Record<string, string>; available: boolean; availability: string; price: string; max: number }
+  const form = document.querySelector<HTMLFormElement>('[data-add-to-cart]');
+  if (form) {
+    const data = JSON.parse(form.querySelector('[data-atc-data]')!.textContent!) as { groups: string[]; variants: V[]; defaultPrice: string };
+    const priceEl = form.querySelector<HTMLElement>('[data-atc-price]')!;
+    const btn = form.querySelector<HTMLButtonElement>('[data-atc-button]')!;
+    const label = form.querySelector<HTMLElement>('[data-atc-label]')!;
+    const note = form.querySelector<HTMLElement>('[data-atc-note]')!;
+    const qtyEl = form.querySelector<HTMLElement>('[data-qty]')!;
+    const dec = form.querySelector<HTMLButtonElement>('[data-qty-dec]')!;
+    const inc = form.querySelector<HTMLButtonElement>('[data-qty-inc]')!;
+
+    const selected: Record<string, string> = {};
+    let qty = 1;
+    let addedTimer: number | undefined;
+
+    const current = (): V | undefined => {
+      if (data.groups.length === 0) return data.variants[0];
+      if (data.groups.some((g) => !selected[g])) return undefined;
+      return data.variants.find((v) => data.groups.every((g) => v.options[g] === selected[g]));
+    };
+
+    function sync() {
+      const v = current();
+      data.groups.forEach((g) => { const c = form!.querySelector<HTMLElement>(`[data-chosen="${CSS.escape(g)}"]`); if (c) c.textContent = selected[g] ?? ''; });
+      note.textContent = '';
+
+      if (data.groups.length && !v) {
+        const missing = data.groups.find((g) => !selected[g]);
+        // Every chosen combination that doesn't exist is treated as unavailable.
+        const allChosen = !missing;
+        label.textContent = allChosen ? 'Unavailable' : `Select ${missing!.toLowerCase()}`;
+        btn.disabled = true; priceEl.textContent = data.defaultPrice; qty = 1;
+      } else if (v && !v.available) {
+        label.textContent = v.availability === 'sold-out' ? 'Sold out' : 'Unavailable';
+        btn.disabled = true; priceEl.textContent = v.price; qty = 1;
+      } else if (v) {
+        label.textContent = 'Add to cart';
+        btn.disabled = false; priceEl.textContent = v.price;
+        const inCart = cart.lines().find((l) => l.variantId === v.id)?.quantity ?? 0;
+        const room = Math.max(v.max - inCart, 0);
+        if (room === 0) { btn.disabled = true; label.textContent = 'Max in cart'; note.textContent = `You have the most available (${v.max}) in your cart.`; qty = 1; }
+        else qty = Math.min(Math.max(qty, 1), room);
+        inc.disabled = qty >= room; dec.disabled = qty <= 1;
+        qtyEl.textContent = String(qty);
+        return;
+      }
+      inc.disabled = true; dec.disabled = true; qtyEl.textContent = String(qty);
+    }
+
+    form.addEventListener('change', (e) => {
+      const t = e.target as HTMLInputElement;
+      if (t.dataset.groupName) { selected[t.dataset.groupName] = t.value; qty = 1; sync(); }
+    });
+    dec.addEventListener('click', () => { qty = Math.max(1, qty - 1); sync(); });
+    inc.addEventListener('click', () => { qty += 1; sync(); });
+
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const v = current();
+      if (!v || !v.available || btn.disabled) { note.textContent = data.groups.length ? 'Please choose your options first.' : ''; return; }
+      cart.add(v.id, qty);
+      window.clearTimeout(addedTimer);
+      label.textContent = 'Added ✓';
+      addedTimer = window.setTimeout(() => { qty = 1; sync(); }, 1400);
+      window.dispatchEvent(new CustomEvent('lanoir:open-cart'));
+    });
+
+    cart.subscribe(() => { if (!addedTimer) sync(); });
+    // Single-variation products need no selection.
+    sync();
+  }
+</script>

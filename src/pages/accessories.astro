@@ -1,7 +1,12 @@
 ---
 import ListingPage from '~/components/commerce/ListingPage.astro';
 import { commerce } from '~/lib/commerce';
+import { markUnavailable, settle } from '~/lib/catalog-result';
+
+export const prerender = false; // live Square data
+
 const collection = (await commerce.getCollection('accessories'))!;
-const products = await commerce.getProducts({ collection: 'accessories' });
+const result = await settle(commerce.getProducts({ collection: 'accessories' }));
+if (!result.ok) markUnavailable(Astro);
 ---
-<ListingPage title="Accessories / Jewelry" heading={['Accessories', '/ jewelry.']} eyebrow="Supporting range" intro={collection.description} {products} path="/accessories" {collection} />
+<ListingPage title="Accessories / Jewelry" heading={['Accessories', '/ jewelry.']} eyebrow="Supporting range" intro={collection.description} products={result.ok ? result.data : []} status={result.ok ? 'ok' : 'error'} path="/accessories" {collection} />

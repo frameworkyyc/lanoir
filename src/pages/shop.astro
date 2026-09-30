@@ -1,6 +1,11 @@
 ---
 import ListingPage from '~/components/commerce/ListingPage.astro';
 import { commerce } from '~/lib/commerce';
-const products = await commerce.getProducts();
+import { markUnavailable, settle } from '~/lib/catalog-result';
+
+export const prerender = false; // live Square data
+
+const result = await settle(commerce.getProducts());
+if (!result.ok) markUnavailable(Astro);
 ---
-<ListingPage title="Shop All" heading={['Shop', 'all.']} eyebrow="Everything" intro="A complete view of available LaNoir products." {products} path="/shop" />
+<ListingPage title="Shop All" heading={['Shop', 'all.']} eyebrow="Everything" intro="A complete view of available LaNoir products." products={result.ok ? result.data : []} status={result.ok ? 'ok' : 'error'} path="/shop" />

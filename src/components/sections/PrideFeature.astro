@@ -26,7 +26,7 @@ const { collection, products } = Astro.props;
         <p class="t-statement-sm">Pride skull sets, shirts and themed accessories — empowering, inclusive, unmistakably LaNoir.</p>
         <a class="btn" href={collectionUrl(collection)}>Shop Pride Exclusive <span class="btn__arrow" aria-hidden="true">→</span></a>
       </div>
-      <ul class="pride__row list-reset" role="list">
+      {products.length > 0 && <ul class="pride__row list-reset" role="list">
         {products.slice(0, 2).map((p, i) => (
           <li style={`--reveal-delay:${i * 100}ms`} data-reveal>
             <a class="pride__item" href={productUrl(p.slug)}>
@@ -36,7 +36,7 @@ const { collection, products } = Astro.props;
             </a>
           </li>
         ))}
-      </ul>
+      </ul>}
     </div>
   </div>
 </section>

@@ -8,6 +8,7 @@ import BaseLayout from '~/layouts/BaseLayout.astro';
 import Eyebrow from '../brand/Eyebrow.astro';
 import Arc from '../brand/Arc.astro';
 import ProductGrid from './ProductGrid.astro';
+import CatalogNotice from './CatalogNotice.astro';
 import { breadcrumbs, collectionPage } from '~/seo/jsonld';
 
 interface Props {
@@ -19,12 +20,14 @@ interface Props {
   path: string;
   collection?: Collection;
   variant?: 'pretty-poison' | 'after-dark' | 'mystic-minis' | 'pride' | 'neutral';
+  /** 'error' = the catalogue could not be loaded (renders the error state instead of a grid). */
+  status?: 'ok' | 'error';
 }
-const { title, heading, eyebrow, intro, products, path, collection, variant = 'neutral' } = Astro.props;
+const { title, heading, eyebrow, intro, products, path, collection, variant = 'neutral', status = 'ok' } = Astro.props;
 const ld = [breadcrumbs([{ name: 'Home', path: '/' }, { name: title, path }], Astro.site)];
 if (collection) ld.push(collectionPage(collection, path, Astro.site) as never);
 ---
-<BaseLayout title={title} description={`${intro}`} path={path} jsonLd={ld}>
+<BaseLayout title={title} description={`${intro}`} path={path} jsonLd={ld} noindex={status === 'error'}>
   <section class:list={['lhero', `lhero--${variant}`]}>
     <div class="lhero__arc" aria-hidden="true"><Arc sweep={0.5} rotate={-30} /></div>
     <div class="container-wide lhero__inner">
@@ -34,9 +37,11 @@ if (collection) ld.push(collectionPage(collection, path, Astro.site) as never);
     </div>
   </section>
   <section class="container-wide lgrid" aria-label={`${title} products`}>
-    {products.length > 0
-      ? <ProductGrid products={products} variant={variant} />
-      : <p class="t-body t-muted">New pieces are on the way.</p>}
+    {status === 'error'
+      ? <CatalogNotice kind="error" />
+      : products.length > 0
+        ? <ProductGrid products={products} variant={variant} />
+        : <CatalogNotice kind="empty" />}
   </section>
 </BaseLayout>
 <style>
