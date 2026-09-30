@@ -42,6 +42,12 @@ Astro inlines them at build):
 | `PUBLIC_ALLOW_INDEXING` | *unset* (site is `noindex`, robots disallows all) | `true` |
 | `PUBLIC_COMMERCE_PROVIDER` | `mock` | `mock` until the Square adapter ships |
 
+### Cloudflare staging setup
+
+- Worker: `lanoir` (config in `wrangler.jsonc`, assets served from `dist/`).
+- Pushes to `staging` build with `npm run build` and deploy a Worker Preview via `npx wrangler preview`.
+- Staging is served `noindex` (leave `PUBLIC_ALLOW_INDEXING` unset there). `main` remains the production branch.
+
 ## Structure
 
 ```
