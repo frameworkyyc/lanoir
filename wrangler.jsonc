@@ -1,7 +1,7 @@
 {
   "$schema": "node_modules/wrangler/config-schema.json",
 
-  // Worker name. TODO(client): must match the Worker created in the Cloudflare dashboard.
+  // Worker name. Confirmed: matches the Worker in the Cloudflare dashboard.
   "name": "lanoir",
   "compatibility_date": "2026-09-01",
 
