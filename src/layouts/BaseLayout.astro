@@ -1,0 +1,47 @@
+---
+import '~/styles/global.css';
+import Seo from '~/seo/Seo.astro';
+import AnnouncementBar from '~/components/layout/AnnouncementBar.astro';
+import Header from '~/components/layout/Header.astro';
+import Footer from '~/components/layout/Footer.astro';
+import { siteConfig } from '~/config/site';
+
+interface Props {
+  title: string;
+  description?: string;
+  path?: string;
+  image?: string;
+  ogType?: 'website' | 'product' | 'article';
+  noindex?: boolean;
+  jsonLd?: object | object[];
+}
+const { title, ...seo } = Astro.props;
+const fullTitle = title.includes(siteConfig.name) ? title : `${title} — ${siteConfig.name} ${siteConfig.descriptor}`;
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="theme-color" content="#171517" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="preload" href="/fonts/bebas-neue.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href="/fonts/inter-var.woff2" as="font" type="font/woff2" crossorigin />
+    <!-- Enables scroll-reveal start states only when JS is running (content is visible without it). -->
+    <script is:inline>document.documentElement.classList.add('js');</script>
+    <Seo title={fullTitle} {...seo} />
+  </head>
+  <body>
+    <a class="skip-link" href="#main">Skip to content</a>
+    <AnnouncementBar />
+    <Header />
+    <main id="main">
+      <slot />
+    </main>
+    <Footer />
+    <script>
+      import '~/scripts/reveal';
+    </script>
+  </body>
+</html>

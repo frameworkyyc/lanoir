@@ -1,0 +1,58 @@
+---
+import type { Product } from '~/lib/commerce/types';
+import { priceLabel, isAvailable } from '~/lib/format';
+import { productUrl } from '~/lib/routes';
+import Picture from '../media/Picture.astro';
+
+interface Props {
+  product: Product;
+  ratio?: string;
+  variant?: 'pretty-poison' | 'after-dark' | 'mystic-minis' | 'pride' | 'neutral';
+  sizes?: string;
+  reveal?: boolean;
+}
+const { product, ratio = '4/5', variant = 'neutral', sizes = '(min-width: 64rem) 25vw, 50vw', reveal = true } = Astro.props;
+const [first, second] = product.images;
+---
+
+<article class="card">
+  <a class="card__link" href={productUrl(product.slug)}>
+    <div class="card__frame">
+      <Picture media={first} {ratio} {variant} {sizes} label={`${product.name} — product photo`} reveal={reveal} class="card__img" />
+      {second && (
+        <Picture media={second} {ratio} {variant} {sizes} label={`${product.name} — detail photo`} class="card__img card__img--alt" />
+      )}
+    </div>
+    <h3 class="card__name">{product.name}</h3>
+    <p class="card__price t-label">
+      {isAvailable(product) ? priceLabel(product) : 'Sold out'}
+    </p>
+  </a>
+</article>
+
+<style>
+  .card__link { display: block; }
+  .card__frame { position: relative; overflow: hidden; }
+  .card__frame :global(.media) { transition: transform var(--dur-slow) var(--ease-out); }
+  .card__link:hover .card__frame :global(.media:not(.card__img--alt)),
+  .card__link:focus-visible .card__frame :global(.media:not(.card__img--alt)) { transform: scale(1.04); }
+  /* Optional second photograph fades in on hover (only when a product has one) */
+  .card__frame :global(.card__img--alt) {
+    position: absolute; inset: 0;
+    opacity: 0;
+    transition: opacity var(--dur-base) var(--ease-out);
+  }
+  @media (hover: hover) {
+    .card__link:hover .card__frame :global(.card__img--alt) { opacity: 1; }
+  }
+  .card__name {
+    margin-top: var(--space-xs);
+    font-family: var(--font-body);
+    font-size: var(--fs-small);
+    font-weight: 500;
+    line-height: 1.35;
+    transition: color var(--dur-base) var(--ease-out);
+  }
+  .card__link:hover .card__name { color: var(--pink); }
+  .card__price { margin-top: 0.15rem; color: var(--text-muted); letter-spacing: 0.1em; }
+</style>

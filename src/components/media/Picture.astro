@@ -1,0 +1,71 @@
+---
+/**
+ * Responsive image wrapper. One component for every photograph on the site.
+ *  - With `media.src` (imported asset or remote URL): AVIF/WebP, srcset, lazy loading.
+ *  - Without it: renders the neutral <Placeholder/>. Swapping in real photography
+ *    therefore needs no layout change — just supply `src`.
+ *
+ * The wrapper owns the aspect ratio (prevents layout shift) and the crop.
+ */
+import { Picture as AstroPicture } from 'astro:assets';
+import type { Media } from '~/lib/commerce/types';
+import Placeholder from './Placeholder.astro';
+
+interface Props {
+  media?: Media;
+  /** CSS aspect-ratio, e.g. "4/5". */
+  ratio?: string;
+  /** `sizes` attribute — describe how wide the image renders. */
+  sizes?: string;
+  widths?: number[];
+  variant?: 'pretty-poison' | 'after-dark' | 'mystic-minis' | 'pride' | 'neutral';
+  /** DEV-FACING description of the photo that belongs here (placeholders only). */
+  label?: string;
+  eager?: boolean;
+  reveal?: boolean;
+  class?: string;
+}
+const {
+  media,
+  ratio = '4/5',
+  sizes = '(min-width: 64rem) 33vw, 100vw',
+  widths = [360, 640, 960, 1440],
+  variant = 'neutral',
+  label,
+  eager = false,
+  reveal = false,
+  class: className,
+} = Astro.props;
+
+const src = media?.src;
+const isRemote = typeof src === 'string';
+---
+
+<div class:list={['media', className]} style={`aspect-ratio:${ratio}`} data-reveal={reveal ? 'image' : undefined}>
+  {
+    src ? (
+      <AstroPicture
+        class="media__img"
+        src={src}
+        alt={media?.alt ?? ''}
+        widths={widths}
+        sizes={sizes}
+        formats={['avif', 'webp']}
+        loading={eager ? 'eager' : 'lazy'}
+        fetchpriority={eager ? 'high' : 'auto'}
+        decoding="async"
+        style={media?.focal ? `object-position:${media.focal}` : undefined}
+        {...(isRemote ? { width: media?.width, height: media?.height } : {})}
+      />
+    ) : (
+      <Placeholder variant={variant} label={label ?? media?.alt} />
+    )
+  }
+</div>
+
+<style>
+  .media { position: relative; overflow: hidden; background: var(--noir-raised); }
+  .media :global(.media__img),
+  .media :global(picture),
+  .media :global(picture img) { width: 100%; height: 100%; object-fit: cover; display: block; }
+</style>

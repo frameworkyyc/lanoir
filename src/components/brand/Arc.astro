@@ -1,0 +1,24 @@
+---
+/**
+ * Thin celestial arc: a circle outline drawn partially. Decorative.
+ *  - sweep: 0–1 fraction of the circle drawn
+ *  - rotate: degrees, to position the gap
+ * Colour comes from `currentColor` so the parent decides (pink / gunmetal).
+ */
+interface Props { sweep?: number; rotate?: number; weight?: number; class?: string; }
+const { sweep = 0.6, rotate = 0, weight = 1, class: className } = Astro.props;
+const r = 49;
+const circ = 2 * Math.PI * r;
+---
+<svg class:list={['arc', className]} viewBox="0 0 100 100" aria-hidden="true" focusable="false" style={`transform:rotate(${rotate}deg)`}>
+  <circle
+    cx="50" cy="50" r={r}
+    fill="none" stroke="currentColor" stroke-width={weight}
+    stroke-linecap="round"
+    vector-effect="non-scaling-stroke"
+    stroke-dasharray={`${circ * sweep} ${circ}`}
+  />
+</svg>
+<style>
+  .arc { display: block; width: 100%; height: 100%; overflow: visible; }
+</style>

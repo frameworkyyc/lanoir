@@ -1,0 +1,15 @@
+---
+/** Thin crescent moon — a celestial accent. Decorative; always aria-hidden. */
+interface Props { size?: string; fill?: boolean; class?: string; }
+const { size = '2rem', fill = false, class: className } = Astro.props;
+---
+<svg class:list={['moon', className]} viewBox="0 0 100 100" width={size} height={size} aria-hidden="true" focusable="false">
+  <path
+    d="M62 12A40 40 0 1 0 62 88A44 44 0 0 1 62 12Z"
+    fill={fill ? 'currentColor' : 'none'}
+    stroke="currentColor"
+    stroke-width="1.5"
+    vector-effect="non-scaling-stroke"
+    stroke-linejoin="round"
+  />
+</svg>

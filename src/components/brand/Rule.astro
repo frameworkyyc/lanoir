@@ -1,0 +1,12 @@
+---
+/** Thin divider. `draw` animates it in from the left on scroll. */
+interface Props { tone?: 'rule' | 'pink' | 'white'; draw?: boolean; class?: string; }
+const { tone = 'rule', draw = false, class: className } = Astro.props;
+---
+<hr class:list={['rule', `rule--${tone}`, className]} data-reveal={draw ? 'rule' : undefined} />
+<style>
+  .rule { border: 0; height: 1px; margin: 0; }
+  .rule--rule { background: var(--rule); }
+  .rule--pink { background: var(--pink); }
+  .rule--white { background: var(--warm-white); }
+</style>

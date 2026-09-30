@@ -1,0 +1,78 @@
+---
+import { primaryNav, footerPolicies, siteConfig } from '~/config/site';
+import Logo from '../brand/Logo.astro';
+import Rule from '../brand/Rule.astro';
+const collections = primaryNav.find((i) => i.children)!.children!;
+const shop = [
+  { label: 'Shop All', href: '/shop' },
+  { label: 'Pride Exclusive', href: '/collections/pride-exclusive' },
+  { label: 'Statement Wear', href: '/statement-wear' },
+  { label: 'Accessories / Jewelry', href: '/accessories' },
+];
+const year = new Date().getFullYear();
+---
+
+<footer class="footer">
+  <div class="container-wide">
+    <div class="footer__top">
+      <div class="footer__brand">
+        <!-- Full artwork at/above the 320px Brand System minimum, on its charcoal ground. -->
+        <Logo width="20rem" />
+        <p class="footer__line t-display-sm">Wear your<br /><span class="text-pink">power.</span></p>
+        <p class="t-statement-sm t-muted">Not their expectations.</p>
+      </div>
+
+      <nav class="footer__nav" aria-label="Footer">
+        <div>
+          <h2 class="t-label footer__h">Shop</h2>
+          <ul class="list-reset" role="list">
+            {shop.map((l) => <li><a href={l.href}>{l.label}</a></li>)}
+          </ul>
+        </div>
+        <div>
+          <h2 class="t-label footer__h">Collections</h2>
+          <ul class="list-reset" role="list">
+            {collections.map((l) => <li><a href={l.href}>{l.label}</a></li>)}
+          </ul>
+        </div>
+        <div>
+          <h2 class="t-label footer__h">LaNoir</h2>
+          <ul class="list-reset" role="list">
+            <li><a href="/about">About LaNoir</a></li>
+            <li><a href="/contact">Contact</a></li>
+            {siteConfig.social.map((s) => <li><a href={s.href} rel="noopener me" target="_blank">{s.label}</a></li>)}
+          </ul>
+        </div>
+        <div>
+          <h2 class="t-label footer__h">Policies</h2>
+          <ul class="list-reset" role="list">
+            {footerPolicies.map((l) => <li><a href={l.href}>{l.label}</a></li>)}
+          </ul>
+        </div>
+      </nav>
+    </div>
+
+    <Rule />
+    <div class="footer__bottom t-label">
+      <p>© {year} {siteConfig.name} — {siteConfig.descriptor}</p>
+      <p>All rights reserved.</p>
+    </div>
+  </div>
+</footer>
+
+<style>
+  .footer { margin-top: var(--space-3xl); padding-top: var(--space-2xl); background: var(--noir-deep); border-top: var(--border-thin); }
+  .footer__top { display: grid; gap: var(--space-xl); padding-bottom: var(--space-2xl); }
+  .footer__brand { display: grid; gap: var(--space-m); justify-items: start; align-content: start; }
+  .footer__line { margin-top: var(--space-s); }
+  .footer__nav { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-l) var(--space-m); }
+  .footer__h { color: var(--pink); margin-bottom: var(--space-xs); }
+  .footer__nav a { display: inline-flex; align-items: center; min-height: 2.5rem; color: var(--text-muted); transition: color var(--dur-base); }
+  .footer__nav a:hover { color: var(--warm-white); }
+  .footer__bottom { display: flex; flex-wrap: wrap; justify-content: space-between; gap: var(--space-2xs) var(--space-m); padding-block: var(--space-m) var(--space-l); color: var(--text-muted); }
+
+  @media (min-width: 64rem) {
+    .footer__top { grid-template-columns: 22rem 1fr; gap: var(--space-2xl); }
+    .footer__nav { grid-template-columns: repeat(4, auto); justify-content: space-between; }
+  }
+</style>

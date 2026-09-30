@@ -1,0 +1,74 @@
+---
+/**
+ * ============================================================================
+ *  TEMPORARY IMAGE PLACEHOLDER — replace with real photography.
+ * ----------------------------------------------------------------------------
+ * A tasteful, neutral stand-in that keeps the layout honest. It renders NO
+ * visible text. The intended photograph is described in `label` and exposed in
+ * the DOM as `data-placeholder` (inspect/search the source for it).
+ *
+ * `variant` only changes the small celestial motif, never the palette:
+ *   pretty-poison  bold pink ring + solid dot
+ *   after-dark     hairline arcs + quiet crescent
+ *   mystic-minis   scattered stars/dots
+ *   pride          thin spectrum arcs (Pride moments only)
+ *   neutral        a single moon
+ * ============================================================================
+ */
+interface Props {
+  variant?: 'pretty-poison' | 'after-dark' | 'mystic-minis' | 'pride' | 'neutral';
+  /** DEV-FACING: describe the photograph that belongs here. */
+  label?: string;
+  class?: string;
+}
+const { variant = 'neutral', label = 'unspecified photograph', class: className } = Astro.props;
+---
+<!-- PLACEHOLDER: {label} -->
+<div class:list={['placeholder', `placeholder--${variant}`, className]} data-placeholder={label} aria-hidden="true">
+  <svg viewBox="0 0 400 500" preserveAspectRatio="xMidYMid slice" focusable="false">
+    {variant === 'pretty-poison' && (
+      <>
+        <circle cx="290" cy="170" r="150" fill="none" stroke="var(--pink)" stroke-width="3" stroke-dasharray="720 1000" transform="rotate(-50 290 170)" vector-effect="non-scaling-stroke" />
+        <circle cx="120" cy="340" r="26" fill="var(--pink)" />
+        <path d="M20 470 L380 330" stroke="var(--rule-strong)" stroke-width="1" vector-effect="non-scaling-stroke" />
+      </>
+    )}
+    {variant === 'after-dark' && (
+      <>
+        <circle cx="200" cy="250" r="110" fill="none" stroke="var(--rule-strong)" stroke-width="1" vector-effect="non-scaling-stroke" />
+        <circle cx="200" cy="250" r="170" fill="none" stroke="var(--rule)" stroke-width="1" stroke-dasharray="300 1000" transform="rotate(20 200 250)" vector-effect="non-scaling-stroke" />
+        <path d="M222 170A80 80 0 1 0 222 330A88 88 0 0 1 222 170Z" fill="var(--warm-white)" opacity="0.14" />
+      </>
+    )}
+    {variant === 'mystic-minis' && (
+      <>
+        {[[70,90],[300,70],[180,200],[330,260],[90,330],[250,390],[150,450],[340,440]].map(([x,y],i) => (
+          <path d={`M${x} ${y-10}L${x+2.5} ${y-2.5}L${x+10} ${y}L${x+2.5} ${y+2.5}L${x} ${y+10}L${x-2.5} ${y+2.5}L${x-10} ${y}L${x-2.5} ${y-2.5}Z`} fill={i === 2 ? 'var(--pink)' : 'none'} stroke={i === 2 ? 'none' : 'var(--rule-strong)'} stroke-width="1" vector-effect="non-scaling-stroke" />
+        ))}
+        <circle cx="240" cy="110" r="3" fill="var(--rule-strong)" /><circle cx="60" cy="230" r="3" fill="var(--rule-strong)" /><circle cx="290" cy="340" r="3" fill="var(--rule-strong)" />
+      </>
+    )}
+    {variant === 'pride' && (
+      <>
+        {['--pride-1','--pride-2','--pride-3','--pride-4','--pride-5','--pride-6'].map((c,i) => (
+          <circle cx="200" cy="330" r={70 + i * 14} fill="none" stroke={`var(${c})`} stroke-width="1.5" stroke-dasharray={`${(70 + i * 14) * 3.14} 2000`} transform="rotate(180 200 330)" vector-effect="non-scaling-stroke" />
+        ))}
+      </>
+    )}
+    {variant === 'neutral' && (
+      <path d="M222 190A60 60 0 1 0 222 310A66 66 0 0 1 222 190Z" fill="none" stroke="var(--rule-strong)" stroke-width="1" vector-effect="non-scaling-stroke" />
+    )}
+  </svg>
+</div>
+<style>
+  .placeholder {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    background: var(--noir-raised-2);
+    overflow: hidden;
+  }
+  .placeholder--after-dark { background: var(--noir-deep); }
+  .placeholder--mystic-minis { background: var(--noir-raised); }
+  .placeholder svg { position: absolute; inset: 0; width: 100%; height: 100%; }
+</style>

@@ -1,0 +1,70 @@
+---
+/**
+ * The official LaNoir logo. Never retype or redraw it — always use this.
+ * How the asset is built lives in ~/config/logo.ts so it can be swapped for a
+ * transparent PNG/SVG without touching any layout.
+ *
+ * Props
+ *  - width: any CSS length. Brand minimum for full artwork is 320px; smaller
+ *           sizes are a compact "seal" use (header) — see report.
+ *  - plate: draw the approved Logo Charcoal ground (required for the raster).
+ *  - eager: for above-the-fold use.
+ */
+import { Image } from 'astro:assets';
+import { logo } from '~/config/logo';
+
+interface Props {
+  width?: string;
+  plate?: boolean;
+  eager?: boolean;
+  /** `sizes` hint; defaults to the width. Must be an absolute length or viewport unit. */
+  sizes?: string;
+  class?: string;
+}
+const { width = '20rem', plate = true, eager = false, sizes, class: className } = Astro.props;
+
+const c = logo.crop;
+const style = [
+  `--logo-w:${width}`,
+  `--logo-ground:${logo.ground}`,
+  c ? `--logo-ratio:${c.w}/${c.h}` : '',
+  c ? `--logo-img-w:${(c.sourceW / c.w) * 100}%` : '',
+  c ? `--logo-img-x:${(-c.x / c.w) * 100}%` : '',
+  c ? `--logo-img-y:${(-c.y / c.w) * 100}%` : '',
+].join(';');
+---
+
+<span class:list={['logo', { 'logo--plate': plate, 'logo--cropped': !!c }, className]} style={style}>
+  <Image
+    class="logo__img"
+    src={logo.src}
+    alt={logo.alt}
+    widths={[160, 320, 480, 640]}
+    sizes={sizes ?? `min(${width}, 100vw)`}
+    loading={eager ? 'eager' : 'lazy'}
+    fetchpriority={eager ? 'high' : 'auto'}
+    decoding="async"
+    format="webp"
+  />
+</span>
+
+<style>
+  .logo {
+    display: block;
+    width: var(--logo-w);
+    max-width: 100%;
+    line-height: 0;
+    overflow: hidden;
+  }
+  .logo--plate { background: var(--logo-ground); }
+  .logo--cropped { aspect-ratio: var(--logo-ratio); position: relative; }
+  .logo__img { width: 100%; height: auto; }
+  .logo--cropped .logo__img {
+    position: absolute;
+    max-width: none;
+    width: var(--logo-img-w);
+    left: var(--logo-img-x);
+    /* percentage margins/offsets resolve against width, hence --logo-img-y is width-based */
+    top: var(--logo-img-y);
+  }
+</style>

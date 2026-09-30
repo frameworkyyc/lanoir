@@ -1,0 +1,46 @@
+---
+/**
+ * Head metadata: title, description, canonical, Open Graph, Twitter, robots,
+ * and JSON-LD. Used by BaseLayout; every page supplies its own values.
+ */
+import { siteConfig } from '~/config/site';
+
+interface Props {
+  title: string;
+  description?: string;
+  /** Path (e.g. "/shop"). Canonical is built from Astro.site. */
+  path?: string;
+  image?: string;
+  ogType?: 'website' | 'product' | 'article';
+  noindex?: boolean;
+  jsonLd?: object | object[];
+}
+const { title, description = siteConfig.description, path, image = '/og-default.png', ogType = 'website', noindex = false, jsonLd } = Astro.props;
+
+const site = Astro.site ?? new URL('https://lanoir.example.com');
+const canonical = new URL(path ?? Astro.url.pathname, site).href.replace(/\/$/, '') || site.href;
+const ogImage = new URL(image, site).href;
+// Indexing is opt-in per environment (production sets PUBLIC_ALLOW_INDEXING=true).
+const allowIndexing = import.meta.env.PUBLIC_ALLOW_INDEXING === 'true';
+const robots = noindex || !allowIndexing ? 'noindex, nofollow' : 'index, follow';
+const ld = jsonLd ? (Array.isArray(jsonLd) ? jsonLd : [jsonLd]) : [];
+---
+
+<title>{title}</title>
+<meta name="description" content={description} />
+<meta name="robots" content={robots} />
+<link rel="canonical" href={canonical} />
+
+<meta property="og:site_name" content={`${siteConfig.name} — ${siteConfig.descriptor}`} />
+<meta property="og:type" content={ogType} />
+<meta property="og:title" content={title} />
+<meta property="og:description" content={description} />
+<meta property="og:url" content={canonical} />
+<meta property="og:image" content={ogImage} />
+<meta property="og:locale" content={siteConfig.locale} />
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content={title} />
+<meta name="twitter:description" content={description} />
+<meta name="twitter:image" content={ogImage} />
+
+{ld.map((data) => <script type="application/ld+json" set:html={JSON.stringify(data)} />)}

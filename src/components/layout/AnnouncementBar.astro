@@ -1,0 +1,20 @@
+---
+import { siteConfig } from '~/config/site';
+import Moon from '../brand/Moon.astro';
+const { enabled, text, href } = siteConfig.announcement;
+---
+{enabled && (
+  <div class="announce" role="region" aria-label="Announcement">
+    <div class="container-wide announce__inner">
+      <Moon size="0.9rem" fill />
+      {href ? <a class="t-label" href={href}>{text}</a> : <p class="t-label">{text}</p>}
+    </div>
+  </div>
+)}
+<style>
+  .announce { background: var(--noir-deep); border-bottom: var(--border-thin); color: var(--text-muted); }
+  .announce__inner { display: flex; align-items: center; gap: 0.7rem; min-height: var(--announce-h); color: var(--pink); }
+  .announce a, .announce p { color: var(--warm-white); transition: color var(--dur-base); }
+  .announce a:hover { color: var(--pink); }
+  .announce a { padding-block: 0.6rem; }
+</style>

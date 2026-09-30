@@ -1,0 +1,31 @@
+---
+import type { Product } from '~/lib/commerce/types';
+import ProductCard from './ProductCard.astro';
+
+interface Props {
+  products: Product[];
+  variant?: 'pretty-poison' | 'after-dark' | 'mystic-minis' | 'pride' | 'neutral';
+  ratio?: string;
+  /** Columns at desktop (mobile is always 2). */
+  cols?: 3 | 4;
+}
+const { products, variant = 'neutral', ratio = '4/5', cols = 4 } = Astro.props;
+---
+<ul class="grid list-reset" data-cols={cols} role="list">
+  {products.map((p, i) => (
+    <li style={`--reveal-delay:${(i % cols) * 70}ms`} data-reveal>
+      <ProductCard product={p} {variant} {ratio} reveal={false} />
+    </li>
+  ))}
+</ul>
+<style>
+  .grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--space-l) var(--space-s); }
+  @media (min-width: 48rem) {
+    .grid { gap: var(--space-xl) var(--space-m); }
+    .grid[data-cols='3'] { grid-template-columns: repeat(3, 1fr); }
+    .grid[data-cols='4'] { grid-template-columns: repeat(3, 1fr); }
+  }
+  @media (min-width: 64rem) {
+    .grid[data-cols='4'] { grid-template-columns: repeat(4, 1fr); }
+  }
+</style>

@@ -1,0 +1,121 @@
+---
+/**
+ * Mobile navigation — a full-screen modal <dialog>. The platform gives us
+ * focus trapping, Esc to close, inert background and top-layer stacking with
+ * no JS library. Designed for thumbs: big type, 3 signature collections first.
+ */
+import { primaryNav } from '~/config/site';
+import Moon from '../brand/Moon.astro';
+const collections = primaryNav.find((i) => i.children)!;
+const others = primaryNav.filter((i) => !i.children);
+const shopAll = others.find((i) => i.href === '/shop')!;
+const rest = others.filter((i) => i.href !== '/shop');
+---
+
+<dialog id="mobile-nav" class="mnav" aria-label="Menu" data-mobile-nav>
+  <div class="mnav__panel">
+    <div class="mnav__top">
+      <span class="mnav__brand t-label"><Moon size="1rem" fill /> LaNoir</span>
+      <form method="dialog">
+        <button class="mnav__close" aria-label="Close menu" autofocus>
+          <svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M5 5l14 14M19 5L5 19" /></svg>
+        </button>
+      </form>
+    </div>
+
+    <nav class="mnav__nav" aria-label="Mobile">
+      <a class="mnav__shopall" href={shopAll.href}>
+        <span>{shopAll.label}</span><span aria-hidden="true">→</span>
+      </a>
+
+      <p class="mnav__group t-label">Collections</p>
+      <ul class="list-reset" role="list">
+        {collections.children!.map((c) => (
+          <li>
+            <a class="mnav__collection" href={c.href}>
+              <span class="mnav__index t-label">{c.index}</span>
+              <span class="mnav__cname">{c.label}</span>
+            </a>
+          </li>
+        ))}
+      </ul>
+
+      <ul class="list-reset mnav__rest" role="list">
+        {rest.map((i) => (
+          <li><a class="mnav__link" href={i.href}>{i.label}</a></li>
+        ))}
+      </ul>
+    </nav>
+
+    <div class="mnav__foot t-label">
+      <a href="/contact">Contact</a>
+      <a href="/cart">Cart</a>
+    </div>
+  </div>
+</dialog>
+
+<style>
+  .mnav {
+    /* full-screen sheet */
+    position: fixed; inset: 0;
+    width: 100%; max-width: none; height: 100dvh; max-height: none;
+    margin: 0; padding: 0; border: 0;
+    background: var(--noir);
+    color: var(--warm-white);
+    overflow: hidden;
+    /* closed state for transition */
+    opacity: 0;
+    transform: translateX(6%);
+    transition: opacity var(--dur-base) var(--ease-out), transform var(--dur-base) var(--ease-out),
+      overlay var(--dur-base) allow-discrete, display var(--dur-base) allow-discrete;
+  }
+  .mnav[open] { opacity: 1; transform: none; }
+  @starting-style { .mnav[open] { opacity: 0; transform: translateX(6%); } }
+  .mnav::backdrop { background: var(--noir); }
+
+  .mnav__panel { display: flex; flex-direction: column; height: 100%; padding: 0 var(--gutter) max(1.25rem, env(safe-area-inset-bottom)); overflow-y: auto; }
+  .mnav__top { display: flex; align-items: center; justify-content: space-between; min-height: var(--header-h); border-bottom: var(--border-thin); margin-inline: calc(var(--gutter) * -1); padding-inline: var(--gutter); }
+  .mnav__brand { display: inline-flex; align-items: center; gap: 0.6rem; color: var(--pink); }
+  .mnav__close { display: grid; place-items: center; width: var(--touch); height: var(--touch); margin-right: -0.75rem; }
+
+  .mnav__nav { padding-block: var(--space-m); }
+  .mnav__shopall {
+    display: flex; align-items: center; justify-content: space-between;
+    min-height: 4rem; border-bottom: var(--border-thin);
+    font-family: var(--font-display); font-size: 2.75rem; line-height: 1; text-transform: uppercase;
+  }
+  .mnav__group { margin-top: var(--space-m); color: var(--text-muted); }
+  .mnav__collection {
+    display: flex; align-items: baseline; gap: 1rem;
+    min-height: 4.25rem; padding-block: 0.5rem; border-bottom: var(--border-thin);
+  }
+  .mnav__index { color: var(--pink); min-width: 1.75rem; }
+  .mnav__cname { font-family: var(--font-display); font-size: clamp(3rem, 15vw, 4.25rem); line-height: 0.95; text-transform: uppercase; }
+  .mnav__rest { margin-top: var(--space-m); }
+  .mnav__link { display: flex; align-items: center; min-height: 3.25rem; font-size: 1.0625rem; font-weight: 500; letter-spacing: 0.02em; }
+  .mnav__foot { margin-top: auto; display: flex; gap: var(--space-l); padding-top: var(--space-m); border-top: var(--border-thin); color: var(--text-muted); }
+  .mnav__foot a { display: inline-flex; align-items: center; min-height: var(--touch); }
+
+  @media (min-width: 64rem) { .mnav { display: none !important; } }
+</style>
+
+<script>
+  const dialog = document.querySelector<HTMLDialogElement>('[data-mobile-nav]');
+  const opener = document.querySelector<HTMLButtonElement>('[data-menu-open]');
+  if (dialog && opener) {
+    opener.addEventListener('click', () => {
+      dialog.showModal();
+      document.documentElement.style.overflow = 'hidden';
+    });
+    dialog.addEventListener('close', () => {
+      document.documentElement.style.overflow = '';
+      opener.focus();
+    });
+    // Links navigate (MPA) but close first so back-navigation restores a clean state.
+    dialog.addEventListener('click', (e) => {
+      if ((e.target as HTMLElement).closest('a')) dialog.close();
+    });
+    // If the viewport grows to desktop while open, close it.
+    matchMedia('(min-width: 64rem)').addEventListener('change', (m) => { if (m.matches && dialog.open) dialog.close(); });
+  }
+</script>

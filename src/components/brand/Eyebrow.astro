@@ -1,0 +1,15 @@
+---
+/** Small spaced label with a leading thin rule. e.g. "01 / Collections". */
+interface Props { tone?: 'pink' | 'muted'; rule?: boolean; class?: string; }
+const { tone = 'pink', rule = true, class: className } = Astro.props;
+---
+<p class:list={['eyebrow t-label', `eyebrow--${tone}`, className]}>
+  {rule && <span class="eyebrow__rule" aria-hidden="true"></span>}
+  <span><slot /></span>
+</p>
+<style>
+  .eyebrow { display: flex; align-items: center; gap: 0.9rem; }
+  .eyebrow--pink { color: var(--pink); }
+  .eyebrow--muted { color: var(--text-muted); }
+  .eyebrow__rule { width: 2.25rem; height: 1px; background: currentColor; flex: none; }
+</style>
