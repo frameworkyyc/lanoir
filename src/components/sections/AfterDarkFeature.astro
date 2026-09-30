@@ -30,14 +30,14 @@ const { collection, product, image } = Astro.props;
   </div>
 </section>
 <style>
-  .feature { position: relative; display: grid; align-items: end; min-height: 38rem; background: var(--noir-deep); overflow: hidden; margin-block: var(--space-2xl); }
+  .feature { --reveal-cover: var(--noir-deep); position: relative; display: grid; align-items: end; min-height: 38rem; background: var(--noir-deep); overflow: hidden; margin-block: var(--space-2xl); }
   .feature__bg { position: absolute; inset: 0; }
   .feature__bg :global(.media), .feature__bg :global(.feature__pic) { height: 100%; aspect-ratio: auto !important; }
   /* readability scrim for copy over photography (flat, no gradient) — only applies once a real photo is in */
   .feature__scrim { position: absolute; inset: 0; background: color-mix(in srgb, var(--noir-deep) 35%, transparent); pointer-events: none; }
   .feature__inner { position: relative; padding-block: var(--space-2xl); }
   .feature__copy { display: grid; gap: var(--space-s); justify-items: start; }
-  .feature__moon { color: var(--warm-white); opacity: 0.8; }
+  :global(.feature__moon) { color: var(--warm-white); opacity: 0.8; }
   .feature__title { font-family: var(--font-statement); font-weight: 500; text-transform: uppercase; font-size: clamp(2.75rem, 11vw, 7rem); line-height: 1; letter-spacing: 0.06em; text-wrap: balance; }
   .feature__tag { color: var(--text-muted); max-width: 24rem; }
   .feature__cta { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-s) var(--space-m); margin-top: var(--space-xs); }

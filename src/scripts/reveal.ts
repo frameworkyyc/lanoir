@@ -11,7 +11,7 @@ if (!('IntersectionObserver' in window)) {
   const io = new IntersectionObserver(
     (entries) => {
       for (const e of entries) {
-        if (e.isIntersecting) {
+        if (e.isIntersecting || e.boundingClientRect.top < 0) {
           e.target.classList.add('is-in');
           io.unobserve(e.target);
         }

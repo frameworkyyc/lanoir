@@ -13,14 +13,18 @@ interface Props {
 }
 const { product, ratio = '4/5', variant = 'neutral', sizes = '(min-width: 64rem) 25vw, 50vw', reveal = true } = Astro.props;
 const [first, second] = product.images;
+// Placeholder motif follows the product's collection so the grid has character even before photography exists.
+const motif = variant !== 'neutral' ? variant
+  : product.collections.includes('pride-exclusive') ? 'pride'
+  : (['pretty-poison', 'after-dark', 'mystic-minis'] as const).find((c) => product.collections.includes(c)) ?? 'neutral';
 ---
 
 <article class="card">
   <a class="card__link" href={productUrl(product.slug)}>
     <div class="card__frame">
-      <Picture media={first} {ratio} {variant} {sizes} label={`${product.name} — product photo`} reveal={reveal} class="card__img" />
+      <Picture media={first} {ratio} variant={motif} {sizes} label={`${product.name} — product photo`} reveal={reveal} class="card__img" />
       {second && (
-        <Picture media={second} {ratio} {variant} {sizes} label={`${product.name} — detail photo`} class="card__img card__img--alt" />
+        <Picture media={second} {ratio} variant={motif} {sizes} label={`${product.name} — detail photo`} class="card__img card__img--alt" />
       )}
     </div>
     <h3 class="card__name">{product.name}</h3>

@@ -81,7 +81,7 @@ const { prettyPoison, afterDark, mysticMinis, minis } = Astro.props;
 </section>
 
 <style>
-  .sig { padding-block: var(--space-2xl) 0; }
+  .sig { padding-block: var(--space-xl) 0; }
   .sig__intro { display: grid; gap: var(--space-s); margin-bottom: var(--space-xl); }
 
   /* ---------- 01 Pretty Poison ---------- */
@@ -95,11 +95,11 @@ const { prettyPoison, afterDark, mysticMinis, minis } = Astro.props;
   }
   .pp__link:hover .pp__sticker { rotate: -2deg; }
   .pp__copy { display: grid; gap: var(--space-s); justify-items: start; position: relative; }
-  .pp__num { position: absolute; top: -0.65em; right: 0; line-height: 0.8; opacity: 0.9; -webkit-text-stroke-color: var(--rule-strong); pointer-events: none; }
+  .pp__num { position: absolute; top: -0.35em; right: 0; line-height: 0.8; opacity: 0.9; -webkit-text-stroke-color: var(--rule-strong); pointer-events: none; }
   .pp__name { margin-top: var(--space-xs); }
 
   /* ---------- 02 After Dark ---------- */
-  .ad { background: var(--noir-deep); border-block: var(--border-thin); margin-bottom: var(--space-3xl); }
+  .ad { --reveal-cover: var(--noir-deep); background: var(--noir-deep); border-block: var(--border-thin); margin-bottom: var(--space-3xl); }
   .ad__link { position: relative; display: grid; gap: var(--space-l); padding-block: var(--space-xl); }
   .ad__copy { display: grid; gap: var(--space-s); justify-items: start; }
   .ad__num { color: var(--pink); }
@@ -108,7 +108,7 @@ const { prettyPoison, afterDark, mysticMinis, minis } = Astro.props;
     font-size: clamp(3rem, 12vw, 6.5rem); line-height: 1; letter-spacing: 0.08em;
   }
   .ad__tag { color: var(--text-muted); max-width: 22rem; }
-  .ad__moon { position: absolute; top: var(--space-m); right: 0; color: var(--gunmetal); }
+  :global(.ad__moon) { position: absolute; top: var(--space-m); right: 0; color: var(--gunmetal); }
   .ad__link:hover :global(.media) { transform: scale(1.02); }
   .ad__media :global(.media) { transition: transform var(--dur-slow) var(--ease-out); }
 
@@ -130,7 +130,7 @@ const { prettyPoison, afterDark, mysticMinis, minis } = Astro.props;
 
   @media (min-width: 48rem) {
     .ad__link { grid-template-columns: 4fr 7fr; align-items: center; gap: var(--space-xl); }
-    .ad__moon { right: 40%; }
+    :global(.ad__moon) { right: 40%; }
   }
 
   @media (min-width: 64rem) {

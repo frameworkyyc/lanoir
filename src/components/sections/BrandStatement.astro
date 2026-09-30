@@ -10,7 +10,7 @@ const words = ['Bold.', 'Dark.', 'Empowered.', 'Unapologetic.'];
     <h2 id="statement-title" class="visually-hidden">Bold. Dark. Empowered. Unapologetic.</h2>
     <p class="statement__words t-display-xl" aria-hidden="true">
       {words.map((w, i) => (
-        <span class:list={['statement__word', { 'is-outline': i % 2 === 1, 'is-pink': i === 3 }]} data-reveal style={`--reveal-delay:${i * 90}ms`}>{w}</span>
+        <span class:list={['statement__word', { 'is-outline': i === 1, 'is-pink': i === 3 }]} data-reveal style={`--reveal-delay:${i * 90}ms`}>{w}</span>
       ))}
     </p>
     <div class="statement__foot" data-reveal>
@@ -22,18 +22,18 @@ const words = ['Bold.', 'Dark.', 'Empowered.', 'Unapologetic.'];
   .statement { position: relative; overflow: hidden; padding-block: var(--space-3xl); }
   .statement__arc { position: absolute; width: 120vw; aspect-ratio: 1; left: -40vw; top: 12%; color: var(--gunmetal); opacity: 0.6; pointer-events: none; }
   .statement__inner { position: relative; display: grid; gap: var(--space-l); }
-  .statement__words { display: grid; font-size: clamp(4rem, 19vw, 13rem); line-height: 0.88; }
+  .statement__words { display: grid; font-size: clamp(3.75rem, 17.5vw, 13rem); line-height: 0.88; }
   .statement__word { display: block; }
   .statement__word.is-outline { color: transparent; -webkit-text-stroke: 1.5px var(--warm-white); }
   .statement__word.is-pink { color: var(--pink); }
   .statement__word:nth-child(2) { padding-left: 8%; }
   .statement__word:nth-child(3) { padding-left: 0; }
-  .statement__word:nth-child(4) { padding-left: 4%; }
+  
   .statement__foot { max-width: 34rem; border-top: var(--border-thin); padding-top: var(--space-m); }
   @media (min-width: 64rem) {
-    .statement__words { font-size: clamp(9rem, 15vw, 17rem); }
+    .statement__words { font-size: clamp(8rem, 13vw, 15rem); }
     .statement__word:nth-child(2) { padding-left: 14%; }
-    .statement__word:nth-child(4) { padding-left: 28%; }
+    .statement__word:nth-child(4) { padding-left: 16%; }
     .statement__foot { margin-left: auto; margin-right: 0; }
     .statement__arc { width: 70vw; left: auto; right: -10vw; top: 5%; }
   }

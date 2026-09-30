@@ -14,7 +14,7 @@ const { image } = Astro.props;
 
 <section class="hero" aria-labelledby="hero-title">
   <div class="hero__sky" aria-hidden="true">
-    <div class="hero__arc"><Arc sweep={0.62} rotate={-20} weight={1.25} /></div>
+    <div class="hero__arc"><Arc sweep={0.5} rotate={95} weight={1.25} /></div>
     <div class="hero__arc hero__arc--sm"><Arc sweep={0.4} rotate={110} weight={1} /></div>
     <Moon class="hero__moon" size="2.25rem" fill />
   </div>
@@ -61,9 +61,9 @@ const { image } = Astro.props;
 
   /* --- celestial layer: thin arcs + a moon; pure decoration --- */
   .hero__sky { position: absolute; inset: 0; pointer-events: none; color: var(--pink); }
-  .hero__arc { position: absolute; width: 150vw; aspect-ratio: 1; right: -72vw; top: -16vw; opacity: 0.55; }
+  .hero__arc { position: absolute; width: 150vw; aspect-ratio: 1; right: -138vw; top: 4vh; opacity: 0.55; }
   .hero__arc--sm { width: 62vw; right: auto; left: -34vw; top: auto; bottom: 8%; color: var(--gunmetal); opacity: 1; }
-  .hero__moon { position: absolute; top: 1.5rem; right: var(--gutter); }
+  :global(.hero__moon) { position: absolute; top: 1.5rem; right: var(--gutter); }
 
   .hero__grid { position: relative; display: grid; gap: var(--space-xl); }
 
@@ -80,7 +80,7 @@ const { image } = Astro.props;
 
   /* Mobile crop: image bleeds off the right edge and is offset left — asymmetry without clutter */
   .hero__media { position: relative; margin-left: 18%; margin-right: calc(var(--gutter) * -1); }
-  .hero__cap { position: absolute; left: -18%; bottom: 0; transform-origin: left bottom; writing-mode: vertical-rl; rotate: 180deg; color: var(--text-muted); padding-left: 0.25rem; }
+  .hero__cap { display: none; position: absolute; top: 0; writing-mode: vertical-rl; color: var(--text-muted); }
 
   @media (prefers-reduced-motion: no-preference) {
     .hero__line > span { animation: rise 0.9s var(--ease-out) both; }
@@ -92,14 +92,14 @@ const { image } = Astro.props;
 
   @media (min-width: 64rem) {
     .hero { padding-block: var(--space-xl) var(--space-2xl); min-height: calc(100svh - var(--header-h) - var(--announce-h)); display: flex; align-items: center; }
-    .hero__grid { grid-template-columns: 7fr 5fr; align-items: end; gap: var(--space-xl); width: 100%; }
-    .hero__title { font-size: clamp(9rem, 15vw, 15rem); }
+    .hero__grid { grid-template-columns: 8fr 4.25fr; align-items: end; gap: var(--space-xl); width: 100%; }
+    .hero__title { font-size: clamp(7rem, 12.5vw, 14rem); }
     .hero__media { margin: 0 0 0 auto; width: 100%; max-width: 30rem; }
     .hero__media :global(.media) { aspect-ratio: 3/4 !important; }
-    .hero__cap { left: auto; right: calc(100% + 1rem); bottom: 0; }
+    .hero__cap { display: block; right: calc(100% + 1rem); }
     .hero__arc { width: 78vw; right: -20vw; top: -14vw; }
-    .hero__arc--sm { width: 26vw; left: -8vw; bottom: 4%; }
-    .hero__moon { top: 2.5rem; }
+    .hero__arc--sm { display: none; }
+    :global(.hero__moon) { top: 2.5rem; }
     .hero__cta .btn { flex: 0 0 auto; }
   }
 </style>

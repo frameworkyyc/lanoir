@@ -28,7 +28,7 @@ const action = siteConfig.newsletter.action;
   .community { position: relative; border-top: var(--border-thin); }
   .community__grid { display: grid; gap: var(--space-xl); position: relative; }
   .community__head { display: grid; gap: var(--space-m); justify-items: start; }
-  .community__moon { position: absolute; top: 0; right: var(--gutter); color: var(--gunmetal); }
+  :global(.community__moon) { position: absolute; top: 0; right: var(--gutter); color: var(--gunmetal); }
   .signup { display: grid; gap: var(--space-2xs); align-content: end; max-width: 34rem; }
   .signup__label { color: var(--text-muted); }
   .signup__row { display: grid; gap: var(--space-xs); }

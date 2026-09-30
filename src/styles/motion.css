@@ -11,15 +11,22 @@
   }
   .js [data-reveal].is-in { opacity: 1; transform: none; }
 
-  /* Image wipe: a clip-path reveal, then the picture settles from a slight scale */
-  .js [data-reveal='image'] {
-    opacity: 1;
-    transform: none;
-    clip-path: inset(0 0 100% 0);
-    transition: clip-path 1.1s var(--ease-in-out);
+  /* Image curtain: a cover of the surrounding surface lifts away, then the picture
+     settles from a slight scale. (A cover, not clip-path: IntersectionObserver must
+     still see the element's full box.) */
+  .js [data-reveal='image'] { opacity: 1; transform: none; }
+  .js [data-reveal='image']::after {
+    content: '';
+    position: absolute;
+    inset: -1px;
+    z-index: 2;
+    background: var(--reveal-cover, var(--noir));
+    transform-origin: top;
+    transition: transform 1.1s var(--ease-in-out);
     transition-delay: var(--reveal-delay, 0s);
+    pointer-events: none;
   }
-  .js [data-reveal='image'].is-in { clip-path: inset(0 0 0 0); }
+  .js [data-reveal='image'].is-in::after { transform: scaleY(0); }
   .js [data-reveal='image'] .media__img,
   .js [data-reveal='image'] .placeholder {
     transform: scale(1.06);
