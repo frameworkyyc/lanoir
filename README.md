@@ -46,6 +46,7 @@ Astro inlines them at build):
 
 - Worker: `lanoir` (config in `wrangler.jsonc`, assets served from `dist/`).
 - Pushes to `staging` build with `npm run build` and deploy a Worker Preview via `npx wrangler preview`.
+- Staging build settings: build command `npm run build`, deploy command `npx wrangler preview`, Node 22. Wrangler is a local dev dependency (no per-build install).
 - Staging is served `noindex` (leave `PUBLIC_ALLOW_INDEXING` unset there). `main` remains the production branch.
 
 ## Structure
