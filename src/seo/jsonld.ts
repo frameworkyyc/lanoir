@@ -34,17 +34,23 @@ export const collectionPage = (c: Collection, path: string, site?: URL) => ({
   url: abs(path, site),
 });
 
-export const productLd = (p: Product, path: string, site?: URL) => ({
-  '@context': 'https://schema.org',
-  '@type': 'Product',
-  name: p.name,
-  url: abs(path, site),
-  ...(p.description ? { description: p.description } : {}),
-  offers: p.variants.map((v) => ({
-    '@type': 'Offer',
-    price: (v.price.amount / 100).toFixed(2),
-    priceCurrency: v.price.currency,
-    availability: v.available ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock',
+export const productLd = (p: Product, path: string, site?: URL) => {
+  const images = p.images.map((i) => (typeof i.src === 'string' ? i.src : undefined)).filter((x): x is string => !!x);
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'Product',
+    name: p.name,
     url: abs(path, site),
-  })),
-});
+    ...(images.length ? { image: images } : {}),
+    ...(p.description ? { description: p.description } : {}),
+    offers: p.variants.map((v) => ({
+      '@type': 'Offer',
+      ...(v.sku ? { sku: v.sku } : {}),
+      name: v.title,
+      price: (v.price.amount / 100).toFixed(2),
+      priceCurrency: v.price.currency,
+      availability: v.available ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock',
+      url: abs(path, site),
+    })),
+  };
+};

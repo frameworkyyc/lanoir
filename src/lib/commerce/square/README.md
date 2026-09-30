@@ -1,12 +1,11 @@
-# Square adapter (planned — Phase 3)
+# Square adapter
 
-Not implemented. Nothing in the UI depends on Square.
+Implemented. See `docs/SQUARE.md` for behaviour, Cloudflare setup and the Sandbox checklist.
 
-When the Square architecture is decided, add `index.ts` here exporting a
-`CommerceProvider` (see `../types.ts`) that maps Square Catalog objects →
-`Product` / `Variant` / `Collection` (Square categories/items/variations) and
-inventory → `Variant.available`. Register it in `../index.ts`.
+- `config.ts` environment resolution (fails closed; never defaults to sandbox/production)
+- `client.ts` minimal fetch client (bearer auth, pinned version, safe errors)
+- `cache.ts` per-isolate + Cache API caching
+- `inventory.ts` / `mapper.ts` pure Square → `Product` mapping (unit-tested)
+- `catalog.ts` catalogue + inventory loading · `checkout.ts` Payment Links request · `index.ts` provider
 
-Credentials must stay server-side (Cloudflare environment secrets, never
-`PUBLIC_*`). The exact checkout approach (Square-hosted Checkout links vs. Web
-Payments SDK + a Cloudflare Worker) is a separate decision.
+Everything here is server-side only. The UI imports `~/lib/commerce`, never this folder.

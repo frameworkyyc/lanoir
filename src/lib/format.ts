@@ -20,4 +20,5 @@ export function priceLabel(product: Product): string {
   return min === max ? formatMoney(money) : `From ${formatMoney(money)}`;
 }
 
+/** True when at least one variant can be bought. */
 export const isAvailable = (product: Product) => product.variants.some((v) => v.available);

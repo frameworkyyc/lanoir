@@ -1,9 +1,14 @@
-import type { CommerceProvider, Product, ProductQuery } from '../types';
-import { collections, products } from './data';
+import { assertCheckoutable, parseCartLines, quoteLines } from '../cart.ts';
+import { CommerceError } from '../types.ts';
+import type { CommerceProvider, Product, ProductQuery } from '../types.ts';
+import { collections, products } from './data.ts';
 
 const byPrice = (p: Product) => Math.min(...p.variants.map((v) => v.price.amount));
 
-/** In-memory provider backed by ./data.ts. Phase 1 only. */
+/**
+ * In-memory provider backed by ./data.ts. For local design work only
+ * (COMMERCE_PROVIDER=mock). The cart works against it; checkout does not.
+ */
 export const mockProvider: CommerceProvider = {
   name: 'mock',
 
@@ -20,10 +25,6 @@ export const mockProvider: CommerceProvider = {
       if (query.collection && !p.collections.includes(query.collection)) return false;
       if (query.featured && !p.featured) return false;
       if (query.excludeSlug && p.slug === query.excludeSlug) return false;
-      if (query.category) {
-        const cats = Array.isArray(query.category) ? query.category : [query.category];
-        if (!cats.includes(p.category)) return false;
-      }
       return true;
     });
 
@@ -38,5 +39,14 @@ export const mockProvider: CommerceProvider = {
 
   async getProduct(slug) {
     return products.find((p) => p.slug === slug);
+  },
+
+  async quoteCart(lines) {
+    return quoteLines(lines, products);
+  },
+
+  async createCheckout(request) {
+    assertCheckoutable(quoteLines(parseCartLines(request.lines), products));
+    throw new CommerceError('checkout_unavailable', 'Checkout is not available in this environment.', 503);
   },
 };
