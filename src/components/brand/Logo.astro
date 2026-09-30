@@ -5,15 +5,18 @@
  * transparent PNG/SVG without touching any layout.
  *
  * Props
- *  - width: any CSS length. Brand minimum for full artwork is 320px; smaller
- *           sizes are a compact "seal" use (header) — see report.
+ *  - variant: `full` (master artwork, large placements, >=320px) or `icon` (LN monogram,
+ *            small placements such as header, menu, favicon).
+ *  - width: any CSS length.
  *  - plate: draw the approved Logo Charcoal ground (required for the raster).
  *  - eager: for above-the-fold use.
  */
 import { Image } from 'astro:assets';
-import { logo } from '~/config/logo';
+import { logo, logoIcon } from '~/config/logo';
 
 interface Props {
+  /** `full` = master artwork (large placements). `icon` = LN monogram (header, menu, small). */
+  variant?: 'full' | 'icon';
   width?: string;
   plate?: boolean;
   eager?: boolean;
@@ -21,7 +24,7 @@ interface Props {
   sizes?: string;
   class?: string;
 }
-const { width = '20rem', plate = true, eager = false, sizes, class: className } = Astro.props;
+const { variant = 'full', width = '20rem', plate = true, eager = false, sizes, class: className } = Astro.props;
 
 const c = logo.crop;
 // The cropped <img> renders wider than its container, so scale the `sizes` hint to match.
@@ -37,6 +40,20 @@ const style = [
 ].join(';');
 ---
 
+{variant === 'icon' ? (
+  <Image
+    class:list={['logo-icon', { 'logo-icon--blend': logoIcon.blend }, className]}
+    src={logoIcon.src}
+    alt={logoIcon.alt}
+    style={`--logo-icon-w:${width}`}
+    widths={[112, 168, 224, 336]}
+    sizes={sizes ?? width}
+    loading={eager ? 'eager' : 'lazy'}
+    fetchpriority={eager ? 'high' : 'auto'}
+    decoding="async"
+    format="webp"
+  />
+) : (
 <span class:list={['logo', { 'logo--plate': plate, 'logo--cropped': !!c }, className]} style={style}>
   <Image
     class="logo__img"
@@ -50,8 +67,12 @@ const style = [
     format="webp"
   />
 </span>
+)}
 
 <style>
+  .logo-icon { display: block; width: var(--logo-icon-w); max-width: 100%; height: auto; }
+  /* The supplied icon has a black ground; on dark surfaces `screen` makes black transparent. */
+  .logo-icon--blend { mix-blend-mode: screen; }
   .logo {
     display: block;
     width: var(--logo-w);

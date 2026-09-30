@@ -74,7 +74,10 @@ src/
 - **Temporary content is flagged in source:** `MOCK DATA` banner in `lib/commerce/mock/data.ts`,
   `PLACEHOLDER:` comments + `data-placeholder` attributes on image placeholders, `TODO(client)` for
   missing business information. Nothing developer-facing is shown to visitors.
-- **Logo:** always `<Logo />`. Swap the asset in `config/logo.ts` only.
+- **Logo:** always `<Logo />`. Swap assets in `config/logo.ts` only.
+  `variant="full"` (master artwork, ≥320px: footer, large placements) vs `variant="icon"` (LN monogram:
+  header, mobile menu, favicon). The icon is an opaque PNG on black, so it is only for dark surfaces
+  (shown with `mix-blend-mode: screen`; no `backdrop-filter` on its ancestors). Never combine both in one lockup.
 - **Replacing a placeholder with a photo:** give the media `src` (imported image or remote URL); no layout change.
 - **Announcement bar:** `siteConfig.announcement.enabled` in `config/site.ts`.
 - Breakpoints (mobile-first): 40rem / 48rem / 64rem / 80rem. Desktop nav starts at 64rem.

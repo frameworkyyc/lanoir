@@ -12,6 +12,7 @@
  * Layouts stay untouched because they only use <Logo />.
  */
 import src from '~/assets/brand/logo-original.png';
+import iconSrc from '~/assets/brand/logo-icon.png';
 
 export const logo = {
   src,
@@ -28,4 +29,20 @@ export const logo = {
     | null,
   /** Brand System minimum for full artwork on screen. */
   minWidthPx: 320,
+};
+
+/**
+ * LN monogram — the icon version of the logo, for SMALL placements only
+ * (header, mobile menu, favicon). The full logo above stays the master for
+ * everything large (footer, packaging, social). Never use both together in one lockup.
+ *
+ * The supplied file is an opaque PNG on pure black. We never edit it: on dark
+ * surfaces it is displayed with `mix-blend-mode: screen`, which makes the black
+ * vanish. When a transparent PNG/SVG arrives, swap `src` and set `blend: false`.
+ */
+export const logoIcon = {
+  src: iconSrc,
+  alt: 'LaNoir — Bad Ass Witchery',
+  /** True while the asset has a black ground that must be blended away (dark surfaces only). */
+  blend: true,
 };

@@ -9,7 +9,7 @@ const isCurrent = (href: string) => current === href || (href !== '/' && current
 <header class="site-header" data-header>
   <div class="container-wide site-header__inner">
     <a class="site-header__logo" href="/" aria-label="LaNoir — home">
-      <Logo width="var(--seal)" sizes="64px" eager />
+      <Logo variant="icon" width="var(--seal)" sizes="56px" eager />
     </a>
 
     <!-- Desktop navigation (≥ lg). Designed separately from the mobile panel. -->
@@ -73,13 +73,12 @@ const isCurrent = (href: string) => current === href || (href !== '/' && current
 
 <style>
   .site-header {
-    --seal: 3.25rem;
+    --seal: 2.75rem;
     position: sticky;
     top: 0;
     z-index: var(--z-header);
-    background: color-mix(in srgb, var(--noir) 94%, transparent);
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
+    /* Solid (no backdrop-filter): a filter isolates the icon's `screen` blend and would show its black ground. */
+    background: var(--noir);
     border-bottom: var(--border-thin);
   }
   .site-header__inner {
@@ -107,11 +106,12 @@ const isCurrent = (href: string) => current === href || (href !== '/' && current
     display: grid; place-items: center;
     background: var(--pink); color: var(--noir); font-size: 0.6875rem; letter-spacing: 0;
   }
+  .icon-btn__count[hidden] { display: none; }
 
   .dnav { display: none; }
 
   @media (min-width: 64rem) {
-    .site-header { --seal: 3.75rem; }
+    .site-header { --seal: 3.25rem; }
     .dnav { display: block; flex: 1; margin-left: var(--space-l); }
     .menu-btn { display: none; }
     .site-header__actions { margin-right: -0.5rem; }

@@ -5,7 +5,7 @@
  * no JS library. Designed for thumbs: big type, 3 signature collections first.
  */
 import { primaryNav } from '~/config/site';
-import Moon from '../brand/Moon.astro';
+import Logo from '../brand/Logo.astro';
 const collections = primaryNav.find((i) => i.children)!;
 const others = primaryNav.filter((i) => !i.children);
 const shopAll = others.find((i) => i.href === '/shop')!;
@@ -15,7 +15,7 @@ const rest = others.filter((i) => i.href !== '/shop');
 <dialog id="mobile-nav" class="mnav" aria-label="Menu" data-mobile-nav>
   <div class="mnav__panel">
     <div class="mnav__top">
-      <span class="mnav__brand t-label"><Moon size="1rem" fill /> LaNoir</span>
+      <a class="mnav__brand" href="/" aria-label="LaNoir — home"><Logo variant="icon" width="2.75rem" sizes="44px" /></a>
       <form method="dialog">
         <button class="mnav__close" aria-label="Close menu" autofocus>
           <svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M5 5l14 14M19 5L5 19" /></svg>
@@ -75,7 +75,7 @@ const rest = others.filter((i) => i.href !== '/shop');
 
   .mnav__panel { display: flex; flex-direction: column; height: 100%; padding: 0 var(--gutter) max(1.25rem, env(safe-area-inset-bottom)); overflow-y: auto; }
   .mnav__top { display: flex; align-items: center; justify-content: space-between; min-height: var(--header-h); border-bottom: var(--border-thin); margin-inline: calc(var(--gutter) * -1); padding-inline: var(--gutter); }
-  .mnav__brand { display: inline-flex; align-items: center; gap: 0.6rem; color: var(--pink); }
+  .mnav__brand { display: inline-flex; align-items: center; }
   .mnav__close { display: grid; place-items: center; width: var(--touch); height: var(--touch); margin-right: -0.75rem; }
 
   .mnav__nav { padding-block: var(--space-m); }
