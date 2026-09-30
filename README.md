@@ -31,7 +31,7 @@ installed version instead of downloading one on every build. Config: `wrangler.j
 - `previews: {}` in `wrangler.jsonc` is required by `wrangler preview`. It is intentionally empty: name,
   assets and compatibility date are inherited from the top level. Put **only** preview-specific
   vars/bindings there (e.g. a Square *sandbox* binding), never anything that should reach production.
-- Worker name in `wrangler.jsonc` must match the Worker in the Cloudflare dashboard.
+- Worker name `lanoir` (confirmed) must stay in sync with the Worker in the Cloudflare dashboard.
 
 Build-time environment variables (set in the Cloudflare build settings, not `wrangler.jsonc`, because
 Astro inlines them at build):
