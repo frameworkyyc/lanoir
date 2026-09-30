@@ -1,0 +1,17 @@
+# Copy to .dev.vars (git-ignored) for local development. NEVER commit real secrets.
+#
+# Option A — no credentials at all, fake products for design work:
+COMMERCE_PROVIDER=mock
+
+# Option B — the local fixture server (npm run fake-square), no real Square calls:
+# SQUARE_ENVIRONMENT=sandbox
+# SQUARE_LOCATION_ID=L0SZPKA80GMNA
+# SQUARE_ACCESS_TOKEN=local-fixture
+# SQUARE_API_BASE_URL=http://localhost:4010
+# SQUARE_CACHE_SECONDS=0
+
+# Option C — real Square SANDBOX (paste your own sandbox token here, only in your local .dev.vars):
+# SQUARE_ENVIRONMENT=sandbox
+# SQUARE_LOCATION_ID=L0SZPKA80GMNA
+# SQUARE_ACCESS_TOKEN=
+# SQUARE_APPLICATION_ID=
