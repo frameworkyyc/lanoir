@@ -7,44 +7,38 @@ Source of truth for design/voice: the *LaNoir Brand System* (Framework, Sept 202
 
 ```bash
 npm install
-npm run dev        # http://localhost:4321
-npm run check      # type-check (.astro + .ts)
-npm run build      # static build → dist/
-npm run preview    # serve dist/ locally
+cp .dev.vars.example .dev.vars   # git-ignored. COMMERCE_PROVIDER=mock needs no credentials
+npm run dev                      # http://localhost:4321
+npm run check                    # type-check (.astro + .ts)
+npm test                         # unit tests (Square mapping, inventory, cart, checkout, config)
+npm run build                    # → dist/ (static client + Worker)
+npm run preview                  # run the built Worker locally
 ```
 
-Node 22+. Copy `.env.example` to `.env` if you need to override anything (optional locally).
+Node 22+. Commerce runs on **Square** (Sandbox on staging, Production on main) — see
+[`docs/SQUARE.md`](docs/SQUARE.md) for architecture, the exact Cloudflare variables/secrets, and the
+Sandbox testing checklist. Secrets live in Cloudflare / your local `.dev.vars`, never in git.
 
 ## Branches & deploy
 
-`staging` (development, Cloudflare preview) → `main` (production).
+`staging` (development, Cloudflare Worker Preview, **Square Sandbox**) → `main` (production, **live Square**).
 
-Wrangler is a local dev dependency (pinned in `package-lock.json`), so `npx wrangler …` runs the
-installed version instead of downloading one on every build. Config: `wrangler.jsonc`
-(assets-only Worker serving `dist/`).
+Astro runs in hybrid mode on a Cloudflare Worker (`@astrojs/cloudflare`): static pages are prerendered,
+catalogue pages and `/api/*` run on the Worker. `main` and the Worker/assets config are generated at
+build time; `wrangler.jsonc` holds only the name, `keep_vars`, and the sandbox-only `previews` block.
 
 | Branch | Cloudflare build | Deploy command |
 |---|---|---|
 | `main` (production) | `npm run build` | `npx wrangler deploy` |
 | `staging` (preview) | `npm run build` | `npx wrangler preview` |
 
-- `previews: {}` in `wrangler.jsonc` is required by `wrangler preview`. It is intentionally empty: name,
-  assets and compatibility date are inherited from the top level. Put **only** preview-specific
-  vars/bindings there (e.g. a Square *sandbox* binding), never anything that should reach production.
+- `previews` in `wrangler.jsonc` is required by `wrangler preview` and holds **only** Sandbox values. Never put
+  anything there that should reach production, and never put secrets in `wrangler.jsonc`.
 - Worker name `lanoir` (confirmed) must stay in sync with the Worker in the Cloudflare dashboard.
-
-Build-time environment variables (set in the Cloudflare build settings, not `wrangler.jsonc`, because
-Astro inlines them at build):
-
-| Variable | Staging | Production |
-|---|---|---|
-| `SITE_URL` | staging URL | real domain |
-| `PUBLIC_ALLOW_INDEXING` | *unset* (site is `noindex`, robots disallows all) | `true` |
-| `PUBLIC_COMMERCE_PROVIDER` | `mock` | `mock` until the Square adapter ships |
 
 ### Cloudflare staging setup
 
-- Worker: `lanoir` (config in `wrangler.jsonc`, assets served from `dist/`).
+- Worker: `lanoir` (config in `wrangler.jsonc`; the Worker and assets config are generated into `dist/` at build).
 - Pushes to `staging` build with `npm run build` and deploy a Worker Preview via `npx wrangler preview`.
 - Staging build settings: build command `npm run build`, deploy command `npx wrangler preview`, Node 22. Wrangler is a local dev dependency (no per-build install).
 - Staging deploys come only from the `staging` branch; `main` is not touched by staging builds.
@@ -56,7 +50,7 @@ Astro inlines them at build):
 src/
   config/        site.ts (nav, announcement flag, TODO business info), logo.ts (logo asset + crop)
   styles/        tokens.css → fonts → base → typography → utilities → motion
-  lib/commerce/  types.ts (provider-neutral), index.ts (provider switch), mock/, square/ (planned)
+  lib/commerce/  types.ts (provider-neutral), cart.ts (validation), square/ (Square adapter), mock/ (local design only)
   components/
     brand/       Logo, Moon, Arc, Eyebrow, Rule, SpectrumRule
     media/       Picture (responsive), Placeholder (temporary art)
