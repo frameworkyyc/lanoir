@@ -46,7 +46,8 @@ export const card: CardConfig = {
   familyName: 'Pinard',
   role: 'Owner',
   business: 'LaNoir | Bad Ass Witchery',
-  phone: null,
+  // (519) 965-3429 — 519 is an Ontario, Canada area code, so +1. Both Call and Text enabled.
+  phone: { number: '+15199653429', call: true, text: true },
   email: 'lanoirbadasswitchery@gmail.com',
   website: 'https://lanoir.frameworkco.ca',
   productionUrl: 'https://lanoir.frameworkco.ca/card',

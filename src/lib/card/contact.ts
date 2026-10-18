@@ -16,6 +16,13 @@ export function normalizePhone(raw: string): string {
   return compact;
 }
 
+/** Friendly display: +1 numbers as "(519) 965-3429"; anything else stays in international format. */
+export function formatPhone(raw: string): string {
+  const n = normalizePhone(raw);
+  const m = /^\+1(\d{3})(\d{3})(\d{4})$/.exec(n);
+  return m ? `(${m[1]}) ${m[2]}-${m[3]}` : n;
+}
+
 export function contactMethods(c: Pick<CardConfig, 'phone' | 'email'>): ContactMethod[] {
   const out: ContactMethod[] = [];
   if (c.phone) {

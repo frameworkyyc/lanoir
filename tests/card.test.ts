@@ -3,13 +3,13 @@ import { describe, it } from 'node:test';
 import jsQR from 'jsqr';
 import sharp from 'sharp';
 import { card, fullName } from '../src/config/card.ts';
-import { contactMethods, normalizePhone } from '../src/lib/card/contact.ts';
+import { contactMethods, formatPhone, normalizePhone } from '../src/lib/card/contact.ts';
 import { qrSvg } from '../src/lib/card/qr.ts';
 import { resolveCardUrl, sameOrigin } from '../src/lib/card/url.ts';
 import { buildVCard, escapeText, fold, vcardFilename } from '../src/lib/card/vcard.ts';
 
 const prod = 'https://lanoir.frameworkco.ca/card';
-const input = (over: object = {}) => ({ ...card, cardUrl: prod, ...over });
+const input = (over: object = {}) => ({ ...card, phone: null, cardUrl: prod, ...over });
 const unfold = (v: string) => v.replace(/\r\n /g, '');
 
 describe('card URL per environment', () => {
@@ -30,7 +30,7 @@ describe('card URL per environment', () => {
 
 describe('contact methods', () => {
   it('no phone → only Email; no tel:/sms: links exist', () => {
-    const m = contactMethods(card);
+    const m = contactMethods({ ...card, phone: null });
     assert.deepEqual(m.map((x) => x.kind), ['email']);
     assert.equal(m[0].href, 'mailto:lanoirbadasswitchery@gmail.com');
     assert.ok(!m.some((x) => /^(tel|sms):/.test(x.href)));
@@ -41,6 +41,14 @@ describe('contact methods', () => {
     assert.deepEqual(phone(true, false), ['call:tel:+14035550123', 'email:mailto:a@b.co']);
     assert.deepEqual(phone(false, true), ['text:sms:+14035550123', 'email:mailto:a@b.co']);
     assert.deepEqual(phone(false, false), ['email:mailto:a@b.co']);
+  });
+  it('the configured card: Call + Text + Email for (519) 965-3429, in that order', () => {
+    assert.deepEqual(contactMethods(card).map((x) => `${x.kind}:${x.href}`), ['call:tel:+15199653429', 'text:sms:+15199653429', 'email:mailto:lanoirbadasswitchery@gmail.com']);
+    assert.equal(formatPhone(card.phone!.number), '(519) 965-3429');
+    assert.equal(formatPhone('+44 20 7946 0958'), '+442079460958');
+  });
+  it('the configured card\'s saved contact includes the phone', () => {
+    assert.ok(buildVCard({ ...card, cardUrl: prod }).includes('\r\nTEL;TYPE=CELL,VOICE:+15199653429\r\n'));
   });
   it('requires a country code', () => {
     assert.throws(() => normalizePhone('403 555 0123'), /country code/);
