@@ -36,6 +36,25 @@ const rows = [
 ];
 const qr = qrSvg(cardUrl, `QR code that opens ${name}'s card at ${cardUrl}`);
 
+// Launch-animation layout (decorative). x/y are % of the logo stage; delays stagger the twinkles.
+const PINK = 'var(--pink)';
+const WHITE = 'var(--warm-white)';
+const sparks = [
+  { x: 9, y: 27, size: 1.15, delay: 0.45, tone: PINK },
+  { x: 91, y: 21, size: 1.6, delay: 0.6, tone: WHITE },
+  { x: 97, y: 63, size: 0.8, delay: 0.95, tone: PINK },
+  { x: 4, y: 71, size: 1.3, delay: 0.8, tone: PINK },
+  { x: 24, y: 7, size: 0.9, delay: 1.05, tone: WHITE },
+  { x: 80, y: 91, size: 1.05, delay: 0.5, tone: PINK },
+  { x: 52, y: 3, size: 0.75, delay: 1.1, tone: PINK },
+  { x: 66, y: 12, size: 0.6, delay: 0.7, tone: WHITE },
+];
+const dust = [
+  { x: 14, y: 82, delay: 0.6 }, { x: 28, y: 90, delay: 0.85 }, { x: 44, y: 94, delay: 0.7 },
+  { x: 60, y: 88, delay: 1.0 }, { x: 74, y: 80, delay: 0.65 }, { x: 88, y: 74, delay: 0.95 },
+  { x: 8, y: 52, delay: 0.9 }, { x: 93, y: 44, delay: 0.75 },
+];
+
 const icons: Record<string, string> = {
   call: 'M6.5 4h3L11 8l-2 1.5a11 11 0 0 0 5.5 5.5L16 13l4 1.5v3a2 2 0 0 1-2 2A14 14 0 0 1 4.5 6a2 2 0 0 1 2-2z',
   text: 'M4 5h16v11H9l-5 4z',
@@ -53,7 +72,7 @@ const icons: Record<string, string> = {
   <main id="main" class="card">
     <header class="top">
       <!-- Share / QR need JavaScript, so they only appear when it is available. -->
-      <div class="top__utils" data-js-only>
+      <div class="top__utils rise-soft" data-js-only>
         <button type="button" class="util" data-share data-url={cardUrl} data-title={title} data-text={shareText}>
           <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 15V4m0 0L8 8m4-4 4 4M5 12v7h14v-7" /></svg>
           <span>Share card</span>
@@ -63,18 +82,33 @@ const icons: Record<string, string> = {
           <span>Show QR code</span>
         </button>
       </div>
-      <Logo variant="full" width="20rem" eager class="top__logo" />
+      <div class="stage">
+        <Logo variant="full" width="20rem" eager class="top__logo" />
+        <!-- Launch animation: purely decorative, plays once, then disappears (the finished logo is held). -->
+        <div class="magic" aria-hidden="true">
+          <svg class="magic__ring" viewBox="0 0 100 100" focusable="false">
+            <circle cx="50" cy="50" r="46" pathLength="1" />
+            <circle class="magic__ring--b" cx="50" cy="50" r="49" pathLength="1" />
+          </svg>
+          {sparks.map((s) => (
+            <svg class="magic__spark" viewBox="-10 -10 20 20" focusable="false" style={`left:${s.x}%;top:${s.y}%;--s:${s.size}rem;--d:${s.delay}s;--c:${s.tone}`}>
+              <path d="M0-10 2.5-2.5 10 0 2.5 2.5 0 10-2.5 2.5-10 0-2.5-2.5Z" />
+            </svg>
+          ))}
+          {dust.map((d) => <i class="magic__dust" style={`left:${d.x}%;top:${d.y}%;--d:${d.delay}s`}></i>)}
+        </div>
+      </div>
     </header>
 
     <div class="body">
       <section class="who" aria-labelledby="card-name">
-        <h1 id="card-name" class="t-display who__name">{name}</h1>
-        <p class="who__role t-label">{card.role}</p>
-        <p class="who__biz t-statement-sm">{card.business}</p>
+        <h1 id="card-name" class="t-display who__name rise" style="--i:0">{name}</h1>
+        <p class="who__role t-label rise" style="--i:1">{card.role}</p>
+        <p class="who__biz t-statement-sm rise" style="--i:2">{card.business}</p>
         {card.description && <p class="who__desc t-body t-muted">{card.description}</p>}
       </section>
 
-      <div class="save">
+      <div class="save rise" style="--i:4">
         <a class="btn save__btn" href={`/card/${vcfName}`} download={vcfName}>
           <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v11m0 0-4-4m4 4 4-4M5 19h14" /></svg>
           Save contact
@@ -83,7 +117,7 @@ const icons: Record<string, string> = {
       </div>
 
       {methods.length > 0 && (
-        <nav class="methods" aria-label={`Contact ${name}`}>
+        <nav class="methods rise" style="--i:6" aria-label={`Contact ${name}`}>
           {methods.map((m) => (
             <a class="method" href={m.href}>
               <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" aria-hidden="true"><path d={icons[m.kind]} /></svg>
@@ -93,14 +127,14 @@ const icons: Record<string, string> = {
         </nav>
       )}
       {(card.phone || card.email) && (
-        <p class="address">
+        <p class="address rise" style="--i:7">
           {card.phone && <span>{formatPhone(card.phone.number)}</span>}
           {card.email && <span>{card.email}</span>}
         </p>
       )}
 
       {rows.length > 0 && (
-        <ul class="rows list-reset" role="list">
+        <ul class="rows list-reset rise" style="--i:8" role="list">
           {rows.map((r) => (
             <li>
               <a class="row" href={r.href}>
@@ -142,7 +176,60 @@ const icons: Record<string, string> = {
   .top__utils { justify-self: end; display: flex; gap: var(--space-2xs); margin-right: -0.5rem; }
   .util { display: inline-flex; align-items: center; gap: 0.5rem; min-height: var(--touch); padding: 0 0.6rem; color: var(--warm-white); font-size: 0.8125rem; font-weight: 500; letter-spacing: 0.04em; transition: color var(--dur-base); }
   .util:hover { color: var(--pink); }
-  .top :global(.top__logo) { width: min(20rem, 100%); }
+  .stage { position: relative; width: min(20rem, 100%); }
+  .top :global(.top__logo) { width: 100%; }
+
+  /* ---------- Launch animation (decorative, one-time, CSS only: transform + opacity) ---------- */
+  .magic { position: absolute; inset: 0; pointer-events: none; }
+  .magic__ring { position: absolute; left: 50%; top: 50%; width: 94%; aspect-ratio: 1; translate: -50% -50%; overflow: visible; fill: none; stroke: var(--pink); stroke-width: 0.5; stroke-linecap: round; }
+  .magic__ring circle { stroke-dasharray: 1; stroke-dashoffset: 1; transform-origin: 50% 50%; }
+  .magic__ring--b { stroke: var(--warm-white); stroke-opacity: 0.7; }
+
+  .magic__spark { position: absolute; width: var(--s); height: var(--s); translate: -50% -50%; fill: var(--c); opacity: 0; }
+  .magic__dust { position: absolute; width: 3px; height: 3px; border-radius: 50%; background: var(--pink); opacity: 0; }
+
+  @media (prefers-reduced-motion: no-preference) {
+    /* The logo materialises, the spell-circle is traced around it, stars twinkle in, then it all clears
+       and the finished logo is held. Whole sequence ≈ 2.7s; nothing blocks the buttons.
+       `backwards` fill = elements return to their ordinary, un-animated state when they finish. */
+    .top :global(.top__logo) { animation: logo-in 1.1s var(--ease-out) backwards; }
+    .magic__ring { animation: ring-turn 2.5s linear 0.15s backwards; }
+    .magic__ring circle { animation: ring-trace 2.5s var(--ease-in-out) 0.15s backwards; }
+    .magic__ring .magic__ring--b { animation-delay: 0.4s; }
+    .magic__spark { animation: twinkle 1.5s ease-in-out var(--d) backwards; }
+    .magic__dust { animation: drift 1.7s ease-out var(--d) backwards; }
+    .rise { animation: rise 0.8s var(--ease-out) backwards; animation-delay: calc(0.5s + var(--i, 0) * 0.1s); }
+    .rise-soft { animation: fade-in 0.8s ease backwards; animation-delay: 0.9s; }
+
+    @keyframes logo-in { from { opacity: 0; transform: scale(0.9); } }
+    /* trace the circle (0–55%), hold, then fade it away (75–100%) */
+    @keyframes ring-trace {
+      0% { stroke-dashoffset: 1; stroke-opacity: 1; }
+      55% { stroke-dashoffset: 0; stroke-opacity: 1; }
+      72% { stroke-dashoffset: 0; stroke-opacity: 1; }
+      100% { stroke-dashoffset: 0; stroke-opacity: 0; }
+    }
+    @keyframes ring-turn { from { rotate: -70deg; } to { rotate: 20deg; } }
+    @keyframes twinkle {
+      0% { opacity: 0; transform: scale(0) rotate(-40deg); }
+      22% { opacity: 1; transform: scale(1) rotate(0deg); }
+      50% { opacity: 0.55; transform: scale(0.6) rotate(15deg); }
+      72% { opacity: 1; transform: scale(1.1) rotate(30deg); }
+      100% { opacity: 0; transform: scale(0) rotate(60deg); }
+    }
+    @keyframes drift {
+      0% { opacity: 0; transform: translateY(0) scale(0.6); }
+      25% { opacity: 0.95; }
+      100% { opacity: 0; transform: translateY(-2.75rem) scale(1.1); }
+    }
+    @keyframes rise { from { opacity: 0; transform: translateY(1rem); } }
+    @keyframes fade-in { from { opacity: 0; } }
+  }
+
+  /* Reduced motion: no launch sequence at all — the finished card is shown immediately. */
+  @media (prefers-reduced-motion: reduce) {
+    .magic { display: none; }
+  }
 
   .body { width: 100%; max-width: 30rem; margin-inline: auto; padding: var(--space-l) var(--gutter) max(var(--space-2xl), env(safe-area-inset-bottom)); display: grid; gap: var(--space-m); align-content: start; flex: 1; }
 

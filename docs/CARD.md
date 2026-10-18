@@ -34,8 +34,13 @@ the QR code — so they cannot drift apart. Optional fields left `null` / empty 
   service, no expiry. The destination is always printed under the code.
 - **NFC:** this webpage does not itself enable phone-to-phone NFC sharing. An NFC card or sticker can store
   the public card URL; tapping it opens this page.
-- **Logo:** the full script logo on its own charcoal ground (Brand System: 320px wide). No logo animation is
-  used because the site has none to reuse.
+- **Logo:** the full script logo on its own charcoal ground (Brand System: 320px wide).
+- **Launch animation:** a one-time ≈2.7s sequence (CSS only, transform/opacity): the logo materialises, a thin
+  spell-circle is traced around its ring, four-point stars and drifting glints twinkle in, and the name, role and
+  buttons rise into place. It then clears and the clean logo is held. Buttons stay tappable throughout. With
+  `prefers-reduced-motion: reduce` there is no sequence — the finished card shows immediately. To tune it, edit
+  `sparks` / `dust` (positions, sizes, delays) and the `@keyframes` in `src/pages/card.astro`; to remove it,
+  delete the `.magic` block and the `.rise` classes.
 - **Saved contact:** served as `text/vcard`, named `Cindy-Pinard-LaNoir.vcf`. What happens after the file
   opens is up to the device; the page never claims the contact was saved.
 
