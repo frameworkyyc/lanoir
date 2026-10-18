@@ -1,0 +1,60 @@
+---
+/**
+ * Minimal shell for the digital business card: global brand styles, fonts and favicons, but no
+ * site header / footer / cart. All link-preview metadata is rendered in the INITIAL HTML so
+ * messaging apps can read it without running JavaScript.
+ */
+import '~/styles/global.css';
+
+interface Props {
+  title: string;
+  description: string;
+  /** Absolute URL this card shares in the current environment. */
+  url: string;
+  /** Absolute URL of the link-preview image (same origin as `url`). */
+  image: string;
+  imageAlt: string;
+  siteName: string;
+}
+const { title, description, url, image, imageAlt, siteName } = Astro.props;
+---
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="theme-color" content="#343131" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <!-- A personal contact page: shareable by link/QR, but kept out of search results. -->
+    <meta name="robots" content="noindex" />
+    <link rel="canonical" href={url} />
+    <link rel="icon" href="/favicon-32.png" type="image/png" sizes="32x32" />
+    <link rel="icon" href="/favicon-192.png" type="image/png" sizes="192x192" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <link rel="preload" href="/fonts/bebas-neue.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href="/fonts/inter-var.woff2" as="font" type="font/woff2" crossorigin />
+
+    <meta property="og:type" content="profile" />
+    <meta property="og:site_name" content={siteName} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={url} />
+    <meta property="og:image" content={image} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content={imageAlt} />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={image} />
+    <meta name="twitter:image:alt" content={imageAlt} />
+
+    <!-- Marks JS as available so JS-only controls (Share, QR) appear; the page works without it. -->
+    <script is:inline>document.documentElement.classList.add('js');</script>
+  </head>
+  <body>
+    <a class="skip-link" href="#main">Skip to content</a>
+    <slot />
+  </body>
+</html>

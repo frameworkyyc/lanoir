@@ -19,6 +19,8 @@ Node 22+. Commerce runs on **Square** (Sandbox on staging, Production on main) �
 [`docs/SQUARE.md`](docs/SQUARE.md) for architecture, the exact Cloudflare variables/secrets, and the
 Sandbox testing checklist. Secrets live in Cloudflare / your local `.dev.vars`, never in git.
 
+The digital business card lives at `/card` — see [`docs/CARD.md`](docs/CARD.md) (edit `src/config/card.ts`).
+
 ## Branches & deploy
 
 `staging` (development, Cloudflare Worker Preview, **Square Sandbox**) → `main` (production, **live Square**).

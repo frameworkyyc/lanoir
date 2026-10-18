@@ -1,0 +1,195 @@
+---
+/**
+ * Digital business card. Everything shown here comes from ~/config/card (the single source),
+ * so the page, the saved contact, the QR code and the link preview stay consistent.
+ * Rendered per request so staging shows (and shares) its own address while production always
+ * shares the permanent public URL.
+ */
+import CardLayout from '~/layouts/CardLayout.astro';
+import Logo from '~/components/brand/Logo.astro';
+import { card, fullName } from '~/config/card';
+import { siteConfig } from '~/config/site';
+import { contactMethods } from '~/lib/card/contact.ts';
+import { qrSvg } from '~/lib/card/qr.ts';
+import { resolveCardUrl, sameOrigin } from '~/lib/card/url.ts';
+import { vcardFilename } from '~/lib/card/vcard.ts';
+
+export const prerender = false;
+
+const cardUrl = resolveCardUrl({
+  requestUrl: Astro.url.href,
+  isProduction: import.meta.env.PUBLIC_ALLOW_INDEXING === 'true',
+  productionUrl: card.productionUrl,
+});
+const name = fullName();
+const methods = contactMethods(card);
+const vcfName = vcardFilename(card.fileBase);
+const shareText = `${name} — ${card.role}, ${card.business}`;
+const title = `${name} — ${card.role}, ${card.business}`;
+const description = card.description ?? `Digital business card for ${name}, ${card.role} of ${card.business}.`;
+const hostLabel = (href: string) => new URL(href).host;
+
+// Rows: the website first, then any configured links (labels/order come from the config).
+const rows = [
+  ...(card.website ? [{ label: 'Website', detail: hostLabel(card.website), href: card.website }] : []),
+  ...card.links.map((l) => ({ label: l.label, detail: '', href: l.href })),
+];
+const qr = qrSvg(cardUrl, `QR code that opens ${name}'s card at ${cardUrl}`);
+
+const icons: Record<string, string> = {
+  call: 'M6.5 4h3L11 8l-2 1.5a11 11 0 0 0 5.5 5.5L16 13l4 1.5v3a2 2 0 0 1-2 2A14 14 0 0 1 4.5 6a2 2 0 0 1 2-2z',
+  text: 'M4 5h16v11H9l-5 4z',
+  email: 'M4 6h16v12H4zM4 7l8 6 8-6',
+};
+---
+<CardLayout
+  {title}
+  {description}
+  url={cardUrl}
+  image={sameOrigin(cardUrl, card.previewImage)}
+  imageAlt={card.previewImageAlt}
+  siteName={`${siteConfig.name} — ${siteConfig.descriptor}`}
+>
+  <main id="main" class="card">
+    <header class="top">
+      <!-- Share / QR need JavaScript, so they only appear when it is available. -->
+      <div class="top__utils" data-js-only>
+        <button type="button" class="util" data-share data-url={cardUrl} data-title={title} data-text={shareText}>
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 15V4m0 0L8 8m4-4 4 4M5 12v7h14v-7" /></svg>
+          <span>Share card</span>
+        </button>
+        <button type="button" class="util" data-qr-open aria-haspopup="dialog">
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" aria-hidden="true"><path d="M4 4h6v6H4zM14 4h6v6h-6zM4 14h6v6H4zM14 14h2v2h-2zM18 14h2v2h-2zM14 18h2v2h-2zM18 18h2v2h-2z" /></svg>
+          <span>Show QR code</span>
+        </button>
+      </div>
+      <Logo variant="full" width="20rem" eager class="top__logo" />
+    </header>
+
+    <div class="body">
+      <section class="who" aria-labelledby="card-name">
+        <h1 id="card-name" class="t-display who__name">{name}</h1>
+        <p class="who__role t-label">{card.role}</p>
+        <p class="who__biz t-statement-sm">{card.business}</p>
+        {card.description && <p class="who__desc t-body t-muted">{card.description}</p>}
+      </section>
+
+      <div class="save">
+        <a class="btn save__btn" href={`/card/${vcfName}`} download={vcfName}>
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v11m0 0-4-4m4 4 4-4M5 19h14" /></svg>
+          Save contact
+        </a>
+        <p class="save__hint">Downloads a contact file. Open it to add {card.givenName} to your contacts.</p>
+      </div>
+
+      {methods.length > 0 && (
+        <nav class="methods" aria-label={`Contact ${name}`}>
+          {methods.map((m) => (
+            <a class="method" href={m.href}>
+              <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" aria-hidden="true"><path d={icons[m.kind]} /></svg>
+              <span>{m.label}</span>
+            </a>
+          ))}
+        </nav>
+      )}
+      {card.email && <p class="address">{card.email}</p>}
+
+      {rows.length > 0 && (
+        <ul class="rows list-reset" role="list">
+          {rows.map((r) => (
+            <li>
+              <a class="row" href={r.href}>
+                <span class="row__label">{r.label}{r.detail && <span class="row__detail">{r.detail}</span>}</span>
+                <span class="row__arrow" aria-hidden="true">→</span>
+              </a>
+            </li>
+          ))}
+        </ul>
+      )}
+
+      {card.social.length > 0 && (
+        <ul class="social list-reset" role="list" aria-label="Social profiles">
+          {card.social.map((s) => <li><a class="social__link t-label" href={s.href} rel="me noopener">{s.label}</a></li>)}
+        </ul>
+      )}
+    </div>
+
+    <p class="toast t-label" role="status" aria-live="polite" data-toast></p>
+  </main>
+
+  <dialog class="qr" data-qr aria-labelledby="qr-title" data-js-only>
+    <div class="qr__panel">
+      <h2 id="qr-title" class="t-statement-sm">Scan to open this card</h2>
+      <div class="qr__code" set:html={qr} />
+      <p class="qr__url" data-qr-url>{cardUrl}</p>
+      <form method="dialog"><button class="btn qr__close" autofocus>Close</button></form>
+    </div>
+  </dialog>
+</CardLayout>
+
+<style>
+  html:not(.js) [data-js-only] { display: none !important; }
+
+  .card { min-height: 100dvh; display: flex; flex-direction: column; }
+
+  /* The logo's own charcoal ground runs edge to edge, so the artwork sits seamlessly on it. */
+  .top { background: var(--charcoal); padding: max(0.25rem, env(safe-area-inset-top)) var(--gutter) var(--space-s); display: grid; justify-items: center; }
+  .top__utils { justify-self: end; display: flex; gap: var(--space-2xs); margin-right: -0.5rem; }
+  .util { display: inline-flex; align-items: center; gap: 0.5rem; min-height: var(--touch); padding: 0 0.6rem; color: var(--warm-white); font-size: 0.8125rem; font-weight: 500; letter-spacing: 0.04em; transition: color var(--dur-base); }
+  .util:hover { color: var(--pink); }
+  .top :global(.top__logo) { width: min(20rem, 100%); }
+
+  .body { width: 100%; max-width: 30rem; margin-inline: auto; padding: var(--space-l) var(--gutter) max(var(--space-2xl), env(safe-area-inset-bottom)); display: grid; gap: var(--space-m); align-content: start; flex: 1; }
+
+  .who { display: grid; gap: var(--space-2xs); }
+  .who__name { font-size: clamp(3.25rem, 15vw, 4.75rem); overflow-wrap: anywhere; }
+  .who__role { color: var(--pink); margin-top: var(--space-2xs); }
+  .who__biz { color: var(--warm-white); }
+  .who__desc { margin-top: var(--space-xs); }
+
+  .save { display: grid; gap: var(--space-xs); margin-top: var(--space-xs); }
+  .save__btn { min-height: 3.5rem; width: 100%; }
+  .save__hint { color: var(--text-muted); font-size: var(--fs-small); }
+
+  /* Contact methods: no boxes — icon over label, only the enabled ones. */
+  .methods { display: flex; flex-wrap: wrap; gap: var(--space-l); margin-top: var(--space-s); }
+  .method { display: grid; justify-items: center; gap: 0.35rem; min-width: 2.75rem; min-height: 3.5rem; padding: 0.25rem 0; font-size: 0.8125rem; font-weight: 500; letter-spacing: 0.06em; transition: color var(--dur-base); }
+  .method:hover { color: var(--pink); }
+  .address { color: var(--text-muted); font-size: var(--fs-small); overflow-wrap: anywhere; margin-top: -0.5rem; }
+
+  /* Links: plain text rows separated by hairlines, with a discreet arrow. */
+  .rows { border-top: var(--border-thin); margin-top: var(--space-s); }
+  .row { display: flex; align-items: center; justify-content: space-between; gap: var(--space-s); min-height: 3.5rem; border-bottom: var(--border-thin); transition: color var(--dur-base); }
+  .row__label { font-weight: 500; display: grid; }
+  .row__detail { color: var(--text-muted); font-size: var(--fs-small); font-weight: 400; overflow-wrap: anywhere; }
+  .row__arrow { color: var(--text-muted); transition: transform var(--dur-base) var(--ease-out), color var(--dur-base); }
+  .row:hover { color: var(--pink); }
+  .row:hover .row__arrow { color: var(--pink); transform: translateX(0.25rem); }
+
+  .social { display: flex; flex-wrap: wrap; gap: 0 var(--space-m); margin-top: var(--space-xs); }
+  .social__link { display: inline-flex; align-items: center; min-height: var(--touch); color: var(--text-muted); transition: color var(--dur-base); }
+  .social__link:hover { color: var(--pink); }
+
+  /* Feedback toast (Share / copy): fixed, so it never shifts the layout. */
+  .toast { position: fixed; left: 50%; bottom: max(1rem, env(safe-area-inset-bottom)); transform: translate(-50%, 0.5rem); max-width: calc(100% - 2rem); padding: 0.8rem 1.1rem; background: var(--warm-white); color: var(--noir); opacity: 0; pointer-events: none; text-align: center; transition: opacity var(--dur-base), transform var(--dur-base) var(--ease-out); z-index: 20; }
+  .toast.is-on { opacity: 1; transform: translate(-50%, 0); }
+  .toast:empty { display: none; }
+
+  /* QR overlay */
+  .qr { margin: auto; padding: 0; border: 1px solid var(--rule-strong); background: var(--noir); color: var(--warm-white); width: min(26rem, calc(100% - 2rem)); max-height: calc(100dvh - 2rem); overflow: auto; }
+  .qr::backdrop { background: color-mix(in srgb, var(--noir-deep) 82%, transparent); }
+  .qr__panel { display: grid; gap: var(--space-s); justify-items: center; padding: var(--space-m); text-align: center; }
+  /* White tile + black modules: maximum contrast and reliable camera scanning. */
+  .qr__code { width: min(100%, 20rem); background: #fff; line-height: 0; }
+  .qr__code :global(svg) { width: 100%; height: auto; display: block; }
+  .qr__url { font-size: var(--fs-small); color: var(--warm-white); overflow-wrap: anywhere; user-select: all; }
+  .qr__close { width: 100%; min-height: 3rem; }
+
+  @media (prefers-reduced-motion: reduce) {
+    .toast, .row__arrow { transition: none; }
+  }
+</style>
+
+<script>
+  import '~/scripts/card';
+</script>

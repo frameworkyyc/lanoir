@@ -1,0 +1,49 @@
+# Digital business card (`/card`)
+
+A minimal, mobile-first contact page: logo, name, role, **Save contact**, Email (and Call / Text when a
+phone number is added), the website link, and **Share card** / **Show QR code**. No app or account needed.
+
+## Edit it in one place
+`src/config/card.ts` drives everything — the page, the saved contact (`.vcf`), the link preview tags and
+the QR code — so they cannot drift apart. Optional fields left `null` / empty render nothing.
+
+| To… | Change |
+|---|---|
+| Add a phone | `phone: { number: '+1…', call: true, text: true }` (country code required; set `call`/`text` independently). Call/Text buttons and the saved TEL appear automatically. |
+| Add a description | `description: '…'` |
+| Add business links | `links: [{ label: 'Book a call', href: 'https://…' }]` (shown in order, after the website row) |
+| Add social profiles | `social: [{ label: 'Instagram', href: 'https://…' }]` |
+| Save extra details only in the contact | `vcardNote: '…'` |
+| Switch to the final domain | `productionUrl` (and `website`). **Currently the temporary `https://lanoir.frameworkco.ca/card`.** |
+
+## Which URL does the card share?
+| Environment | Shared address (QR code, Share, saved contact, canonical, link preview) |
+|---|---|
+| **Production** (`PUBLIC_ALLOW_INDEXING=true` at build) | Always the permanent `productionUrl`, even if the page was opened on another host |
+| **Staging / local** | The address the page was opened on, so tests never point at an unavailable production page |
+
+`/card` is rendered per request on the Worker. It is `noindex` and not in the sitemap. `/card/` redirects to `/card`.
+
+## Files
+`src/pages/card.astro` page · `src/pages/card/[file].vcf.ts` saved contact · `src/layouts/CardLayout.astro`
+· `src/scripts/card.ts` (Share + QR overlay; everything else works without JavaScript) · `src/lib/card/*`
+(contact methods, vCard 3.0 builder, URL rules, local QR via the `uqr` package) · `tests/card.test.ts`.
+
+## Notes
+- **QR codes** are generated locally on the server as inline SVG (black on white, error-correction M): no
+  service, no expiry. The destination is always printed under the code.
+- **NFC:** this webpage does not itself enable phone-to-phone NFC sharing. An NFC card or sticker can store
+  the public card URL; tapping it opens this page.
+- **Logo:** the full script logo on its own charcoal ground (Brand System: 320px wide). No logo animation is
+  used because the site has none to reuse.
+- **Saved contact:** served as `text/vcard`, named `Cindy-Pinard-LaNoir.vcf`. What happens after the file
+  opens is up to the device; the page never claims the contact was saved.
+
+## Release / device checks (not done in the automated pass)
+- [ ] iPhone (Safari): tap **Save contact** → contact sheet appears; fields correct.
+- [ ] Android (Chrome): **Save contact** downloads and opens in Contacts; fields correct.
+- [ ] Share card opens the native share sheet on iOS and Android; copy fallback on desktop.
+- [ ] Phone camera scans the QR code from another screen / print, and opens the right page.
+- [ ] Link preview (title, description, image) in iMessage / WhatsApp / Facebook / LinkedIn — these services cache, so test with a fresh URL.
+- [ ] NFC tag written with the public URL opens the card (device test).
+- [ ] When the final domain is live: update `productionUrl`/`website`, set `SITE_URL`, and re-check the above on production.
