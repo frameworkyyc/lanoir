@@ -23,7 +23,7 @@ export interface CardConfig {
   /**
    * Permanent PUBLIC address of this card. Production always shares this (QR code, Share, saved
    * contact). Staging/local use their own address so testing never points at production.
-   * TODO(release): TEMPORARY domain — replace with the final domain when it goes live.
+   * Final production domain: lanoir.ca.
    */
   productionUrl: string;
   /** Short description under the name. null = none shown. */
@@ -49,8 +49,8 @@ export const card: CardConfig = {
   // (519) 965-3429 — 519 is an Ontario, Canada area code, so +1. Both Call and Text enabled.
   phone: { number: '+15199653429', call: true, text: true },
   email: 'lanoirbadasswitchery@gmail.com',
-  website: 'https://lanoir.frameworkco.ca',
-  productionUrl: 'https://lanoir.frameworkco.ca/card',
+  website: 'https://lanoir.ca',
+  productionUrl: 'https://lanoir.ca/card',
   description: null,
   links: [],
   social: [],

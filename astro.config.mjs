@@ -3,9 +3,9 @@ import { defineConfig } from 'astro/config';
 import cloudflare from '@astrojs/cloudflare';
 import sitemap from '@astrojs/sitemap';
 
-// TODO(client): set SITE_URL in Cloudflare (production) to the real domain.
-// The fallback below is a placeholder and must never be indexed.
-const site = process.env.SITE_URL || 'https://lanoir.example.com';
+// Set SITE_URL in the Cloudflare build variables (production: https://lanoir.ca). The fallback is the
+// production domain; indexing is controlled separately by PUBLIC_ALLOW_INDEXING (off on staging).
+const site = process.env.SITE_URL || 'https://lanoir.ca';
 
 // Hybrid rendering on a Cloudflare Worker:
 //  - output 'static' = pages are prerendered by default (about, contact, policies, cart shell…)

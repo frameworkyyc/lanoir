@@ -2,7 +2,7 @@
 import type { Collection, Product } from '~/lib/commerce/types';
 import { siteConfig } from '~/config/site';
 
-const abs = (path: string, site: URL | undefined) => new URL(path, site ?? 'https://lanoir.example.com').href;
+const abs = (path: string, site: URL | undefined) => new URL(path, site ?? 'https://lanoir.ca').href;
 
 export const organization = (site?: URL) => ({
   '@context': 'https://schema.org',
