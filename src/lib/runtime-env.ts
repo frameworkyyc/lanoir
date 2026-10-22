@@ -9,6 +9,8 @@ import type { RawSquareEnv } from './commerce/square/config.ts';
 export interface RuntimeEnv extends RawSquareEnv {
   /** "square" (default) or "mock" (local design work only; refused in production). */
   COMMERCE_PROVIDER?: string;
+  /** The digital card's permanent public URL (QR, Share, vCard, canonical, Open Graph). Optional: defaults to card.publicUrl. */
+  CARD_PUBLIC_URL?: string;
 }
 
 export const runtimeEnv = (): RuntimeEnv => env as unknown as RuntimeEnv;

@@ -14,15 +14,32 @@ the QR code — so they cannot drift apart. Optional fields left `null` / empty 
 | Add business links | `links: [{ label: 'Book a call', href: 'https://…' }]` (shown in order, after the website row) |
 | Add social profiles | `social: [{ label: 'Instagram', href: 'https://…' }]` |
 | Save extra details only in the contact | `vcardNote: '…'` |
-| Change the domain | `productionUrl` and `website`. **Currently `https://lanoir.ca/card` and `https://lanoir.ca`.** Also set `SITE_URL` in Cloudflare. |
+| Change the domain | `publicUrl` (card) and `website` (business site) — **currently `https://lanoir.ca/card` and `https://lanoir.ca`** — plus the `CARD_PUBLIC_URL` variable below, and `SITE_URL` in Cloudflare. |
 
 ## Which URL does the card share?
-| Environment | Shared address (QR code, Share, saved contact, canonical, link preview) |
-|---|---|
-| **Production** (`PUBLIC_ALLOW_INDEXING=true` at build) | Always the permanent `productionUrl`, even if the page was opened on another host |
-| **Staging / local** | The address the page was opened on, so tests never point at an unavailable production page |
+**One permanent URL in every environment** — production, staging, previews and local — set by the
+`CARD_PUBLIC_URL` variable (default `https://lanoir.ca/card`, also the value of `publicUrl` in
+`src/config/card.ts`). It is used for:
 
-`/card` is rendered per request on the Worker. It is `noindex` and not in the sitemap. `/card/` redirects to `/card`.
+| Where | Value |
+|---|---|
+| QR code destination (and the address printed under it) | `CARD_PUBLIC_URL` |
+| Share button (native share and copy-link) | `CARD_PUBLIC_URL` |
+| Saved contact — **Digital card** field | `CARD_PUBLIC_URL` |
+| Canonical URL, `og:url` | `CARD_PUBLIC_URL` |
+| `og:image` / `twitter:image` (absolute) | `CARD_PUBLIC_URL`'s origin + `/og-default.png` |
+| Saved contact — **Website** field | `website` in the config (`https://lanoir.ca`) — independent |
+
+It is **never derived from the current hostname or from `PUBLIC_ALLOW_INDEXING`** (which only controls whether
+the site as a whole is indexable). So the staging page displays and works normally at its own address, but its
+QR code, Share button and saved contact all point at `https://lanoir.ca/card`.
+
+- **Where to set it:** it is a *runtime* variable. It is committed in `wrangler.jsonc` (`vars` for production,
+  `previews.vars` for staging) and can also be set in Cloudflare → Variables and Secrets. If unset, the config
+  default is used. Local: optionally in `.dev.vars`.
+- **Bad values:** it must be an `https` URL (query, hash and trailing slash are dropped). Anything else is
+  ignored, the default is used, and `[card] CARD_PUBLIC_URL is not a valid https URL…` is logged.
+- `/card` is `noindex` and not in the sitemap. `/card/` redirects to `/card`.
 
 ## Files
 `src/pages/card.astro` page · `src/pages/card/[file].vcf.ts` saved contact · `src/layouts/CardLayout.astro`
@@ -51,4 +68,5 @@ the QR code — so they cannot drift apart. Optional fields left `null` / empty 
 - [ ] Phone camera scans the QR code from another screen / print, and opens the right page.
 - [ ] Link preview (title, description, image) in iMessage / WhatsApp / Facebook / LinkedIn — these services cache, so test with a fresh URL.
 - [ ] NFC tag written with the public URL opens the card (device test).
-- [ ] On production (`https://lanoir.ca/card`): confirm `SITE_URL=https://lanoir.ca` and `PUBLIC_ALLOW_INDEXING=true` are set for the build, then re-check the above.
+- [ ] On production (`https://lanoir.ca/card`): confirm `SITE_URL=https://lanoir.ca` is set for the build (and `CARD_PUBLIC_URL`, if you override the default), then re-check the above. `PUBLIC_ALLOW_INDEXING` is unrelated to the card.
+- [ ] On the staging card: QR, Share and Save contact must all still point at `https://lanoir.ca/card`.

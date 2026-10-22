@@ -21,11 +21,11 @@ export interface CardConfig {
   /** The business website (also saved to the contact). */
   website: string | null;
   /**
-   * Permanent PUBLIC address of this card. Production always shares this (QR code, Share, saved
-   * contact). Staging/local use their own address so testing never points at production.
-   * Final production domain: lanoir.ca.
+   * Default PUBLIC address of this card — what the QR code, Share button, saved contact, canonical
+   * URL and Open Graph URL point to in EVERY environment (staging included). The Cloudflare variable
+   * CARD_PUBLIC_URL overrides it. Never derived from the hostname or PUBLIC_ALLOW_INDEXING.
    */
-  productionUrl: string;
+  publicUrl: string;
   /** Short description under the name. null = none shown. */
   description: string | null;
   /** Optional business links, shown as text rows in this order (after the website row). */
@@ -50,7 +50,7 @@ export const card: CardConfig = {
   phone: { number: '+15199653429', call: true, text: true },
   email: 'lanoirbadasswitchery@gmail.com',
   website: 'https://lanoir.ca',
-  productionUrl: 'https://lanoir.ca/card',
+  publicUrl: 'https://lanoir.ca/card',
   description: null,
   links: [],
   social: [],

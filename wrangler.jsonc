@@ -17,11 +17,18 @@
   // the Cloudflare dashboard, not in git. See docs/SQUARE.md.
   "keep_vars": true,
 
+  // Non-secret and identical everywhere: the digital card always shares its one permanent URL.
+  // (Not derived from the hostname or PUBLIC_ALLOW_INDEXING — see src/lib/card/url.ts.)
+  "vars": {
+    "CARD_PUBLIC_URL": "https://lanoir.ca/card"
+  },
+
   // PREVIEW = `npx wrangler preview` on `staging`. Sandbox ONLY. These are not secrets.
   // SQUARE_ACCESS_TOKEN / SQUARE_APPLICATION_ID for the sandbox are Preview secrets set in
   // Cloudflare (never committed). Nothing here can reach production.
   "previews": {
     "vars": {
+      "CARD_PUBLIC_URL": "https://lanoir.ca/card",
       "SQUARE_ENVIRONMENT": "sandbox",
       "SQUARE_LOCATION_ID": "L0SZPKA80GMNA"
     }
