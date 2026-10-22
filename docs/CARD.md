@@ -14,7 +14,7 @@ the QR code — so they cannot drift apart. Optional fields left `null` / empty 
 | Add business links | `links: [{ label: 'Book a call', href: 'https://…' }]` (shown in order, after the website row) |
 | Add social profiles | `social: [{ label: 'Instagram', href: 'https://…' }]` |
 | Save extra details only in the contact | `vcardNote: '…'` |
-| Switch to the final domain | `productionUrl` (and `website`). **Currently the temporary `https://lanoir.frameworkco.ca/card`.** |
+| Change the domain | `productionUrl` and `website`. **Currently `https://lanoir.ca/card` and `https://lanoir.ca`.** Also set `SITE_URL` in Cloudflare. |
 
 ## Which URL does the card share?
 | Environment | Shared address (QR code, Share, saved contact, canonical, link preview) |
@@ -51,4 +51,4 @@ the QR code — so they cannot drift apart. Optional fields left `null` / empty 
 - [ ] Phone camera scans the QR code from another screen / print, and opens the right page.
 - [ ] Link preview (title, description, image) in iMessage / WhatsApp / Facebook / LinkedIn — these services cache, so test with a fresh URL.
 - [ ] NFC tag written with the public URL opens the card (device test).
-- [ ] When the final domain is live: update `productionUrl`/`website`, set `SITE_URL`, and re-check the above on production.
+- [ ] On production (`https://lanoir.ca/card`): confirm `SITE_URL=https://lanoir.ca` and `PUBLIC_ALLOW_INDEXING=true` are set for the build, then re-check the above.

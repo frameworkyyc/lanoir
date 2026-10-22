@@ -10,7 +10,7 @@ export const prerender = false;
  * Empty on failure rather than erroring, so a Square outage never poisons crawlers with a 500.
  */
 export const GET: APIRoute = async ({ site }) => {
-  const origin = site ?? new URL('https://lanoir.example.com');
+  const origin = site ?? new URL('https://lanoir.ca');
   const abs = (path: string) => new URL(path, origin).href;
   const urls = new Set<string>([abs('/shop'), abs('/statement-wear'), abs('/accessories')]);
   try {

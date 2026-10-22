@@ -8,13 +8,22 @@ import { qrSvg } from '../src/lib/card/qr.ts';
 import { resolveCardUrl, sameOrigin } from '../src/lib/card/url.ts';
 import { buildVCard, escapeText, fold, vcardFilename } from '../src/lib/card/vcard.ts';
 
-const prod = 'https://lanoir.frameworkco.ca/card';
+const prod = 'https://lanoir.ca/card';
 const input = (over: object = {}) => ({ ...card, phone: null, cardUrl: prod, ...over });
 const unfold = (v: string) => v.replace(/\r\n /g, '');
 
+describe('card domain', () => {
+  it('is configured for the final production domain, lanoir.ca', () => {
+    assert.equal(card.productionUrl, 'https://lanoir.ca/card');
+    assert.equal(card.website, 'https://lanoir.ca');
+    assert.equal(new URL(card.productionUrl).origin, card.website);
+    assert.ok(!JSON.stringify(card).includes('frameworkco'), 'no reference to the temporary domain');
+  });
+});
+
 describe('card URL per environment', () => {
   it('production always shares the permanent public URL, whatever host served the page', () => {
-    for (const requestUrl of ['https://lanoir.frameworkco.ca/card', 'https://lanoir.shane.workers.dev/card?x=1#y', 'http://localhost:4321/card']) {
+    for (const requestUrl of ['https://lanoir.ca/card', 'https://lanoir.shane.workers.dev/card?x=1#y', 'http://localhost:4321/card']) {
       assert.equal(resolveCardUrl({ requestUrl, isProduction: true, productionUrl: prod }), prod);
     }
   });
@@ -70,7 +79,7 @@ describe('saved contact (.vcf)', () => {
     assert.ok(v.includes('\r\nORG:LaNoir | Bad Ass Witchery\r\n'));
     assert.ok(v.includes('\r\nTITLE:Owner\r\n'));
     assert.ok(v.includes('\r\nEMAIL;TYPE=INTERNET,WORK:lanoirbadasswitchery@gmail.com\r\n'));
-    assert.ok(v.includes('\r\nitem1.URL:https://lanoir.frameworkco.ca\r\n'));
+    assert.ok(v.includes('\r\nitem1.URL:https://lanoir.ca\r\n'));
     assert.ok(v.includes(`\r\nitem2.URL:${prod}\r\n`));
   });
   it('omits anything not supplied: no TEL, no NOTE, no placeholders', () => {
