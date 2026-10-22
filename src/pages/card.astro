@@ -2,8 +2,8 @@
 /**
  * Digital business card. Everything shown here comes from ~/config/card (the single source),
  * so the page, the saved contact, the QR code and the link preview stay consistent.
- * Rendered per request so staging shows (and shares) its own address while production always
- * shares the permanent public URL.
+ * Rendered on the Worker per request. The address it shares (QR, Share, saved contact, canonical,
+ * Open Graph) is the configured permanent URL in every environment — see ~/lib/card/url.ts.
  */
 import CardLayout from '~/layouts/CardLayout.astro';
 import Logo from '~/components/brand/Logo.astro';
@@ -11,16 +11,16 @@ import { card, fullName } from '~/config/card';
 import { siteConfig } from '~/config/site';
 import { contactMethods, formatPhone } from '~/lib/card/contact.ts';
 import { qrSvg } from '~/lib/card/qr.ts';
-import { resolveCardUrl, sameOrigin } from '~/lib/card/url.ts';
+import { resolveCardPublicUrl, sameOrigin } from '~/lib/card/url.ts';
+import { runtimeEnv } from '~/lib/runtime-env';
 import { vcardFilename } from '~/lib/card/vcard.ts';
 
 export const prerender = false;
 
-const cardUrl = resolveCardUrl({
-  requestUrl: Astro.url.href,
-  isProduction: import.meta.env.PUBLIC_ALLOW_INDEXING === 'true',
-  productionUrl: card.productionUrl,
-});
+// One permanent URL for every environment: CARD_PUBLIC_URL, else the config default.
+const cardUrl = resolveCardPublicUrl(runtimeEnv().CARD_PUBLIC_URL, card.publicUrl, (bad) =>
+  console.error(`[card] CARD_PUBLIC_URL is not a valid https URL ("${bad.slice(0, 80)}"); using the default`),
+);
 const name = fullName();
 const methods = contactMethods(card);
 const vcfName = vcardFilename(card.fileBase);

@@ -1,5 +1,8 @@
 # Copy to .dev.vars (git-ignored) for local development. NEVER commit real secrets.
 #
+# The digital card always shares this URL (QR, Share, saved contact). Optional: defaults to the same value.
+# CARD_PUBLIC_URL=https://lanoir.ca/card
+
 # Option A — no credentials at all, fake products for design work:
 COMMERCE_PROVIDER=mock
 

@@ -5,7 +5,7 @@ import sharp from 'sharp';
 import { card, fullName } from '../src/config/card.ts';
 import { contactMethods, formatPhone, normalizePhone } from '../src/lib/card/contact.ts';
 import { qrSvg } from '../src/lib/card/qr.ts';
-import { resolveCardUrl, sameOrigin } from '../src/lib/card/url.ts';
+import { normalizeCardUrl, resolveCardPublicUrl, sameOrigin } from '../src/lib/card/url.ts';
 import { buildVCard, escapeText, fold, vcardFilename } from '../src/lib/card/vcard.ts';
 
 const prod = 'https://lanoir.ca/card';
@@ -14,26 +14,43 @@ const unfold = (v: string) => v.replace(/\r\n /g, '');
 
 describe('card domain', () => {
   it('is configured for the final production domain, lanoir.ca', () => {
-    assert.equal(card.productionUrl, 'https://lanoir.ca/card');
+    assert.equal(card.publicUrl, 'https://lanoir.ca/card');
     assert.equal(card.website, 'https://lanoir.ca');
-    assert.equal(new URL(card.productionUrl).origin, card.website);
+    assert.equal(new URL(card.publicUrl).origin, card.website);
     assert.ok(!JSON.stringify(card).includes('frameworkco'), 'no reference to the temporary domain');
   });
 });
 
-describe('card URL per environment', () => {
-  it('production always shares the permanent public URL, whatever host served the page', () => {
-    for (const requestUrl of ['https://lanoir.ca/card', 'https://lanoir.shane.workers.dev/card?x=1#y', 'http://localhost:4321/card']) {
-      assert.equal(resolveCardUrl({ requestUrl, isProduction: true, productionUrl: prod }), prod);
+describe('card public URL (CARD_PUBLIC_URL)', () => {
+  it('uses CARD_PUBLIC_URL when set, otherwise the config default', () => {
+    assert.equal(resolveCardPublicUrl('https://lanoir.ca/card', 'https://fallback.test/card'), 'https://lanoir.ca/card');
+    assert.equal(resolveCardPublicUrl(undefined, prod), prod);
+    assert.equal(resolveCardPublicUrl('', prod), prod);
+    assert.equal(resolveCardPublicUrl('   ', prod), prod);
+  });
+  it('takes no hostname or indexing-flag input', () => {
+    // The resolver takes only (CARD_PUBLIC_URL, default): no request, hostname or indexing-flag input exists,
+    // so every environment that has the same configuration gets the same answer (also verified end-to-end
+    // against built pages with PUBLIC_ALLOW_INDEXING both false and true).
+    assert.equal(resolveCardPublicUrl('https://lanoir.ca/card', 'https://lanoir.ca/card'), prod);
+  });
+  it('normalises: no query, hash or trailing slash', () => {
+    assert.equal(resolveCardPublicUrl('https://lanoir.ca/card/?utm=nfc#top', prod), 'https://lanoir.ca/card');
+    assert.equal(resolveCardPublicUrl('  https://lanoir.ca/card  ', prod), 'https://lanoir.ca/card');
+    assert.equal(normalizeCardUrl('https://lanoir.ca/'), 'https://lanoir.ca');
+  });
+  it('rejects unsafe or malformed values and falls back to the default, reporting them', () => {
+    const reported: string[] = [];
+    for (const bad of ['not a url', 'http://lanoir.ca/card', 'javascript:alert(1)', 'https://user:pw@lanoir.ca/card', '//lanoir.ca/card', 'lanoir.ca/card']) {
+      assert.equal(resolveCardPublicUrl(bad, prod, (v) => reported.push(v)), prod, bad);
     }
+    assert.equal(reported.length, 6);
   });
-  it('staging and local share their OWN address (never the unavailable production page)', () => {
-    const staging = 'https://staging-lanoir.example.workers.dev/card?utm=a#b';
-    assert.equal(resolveCardUrl({ requestUrl: staging, isProduction: false, productionUrl: prod }), 'https://staging-lanoir.example.workers.dev/card');
-    assert.equal(resolveCardUrl({ requestUrl: 'http://localhost:4321/card', isProduction: false, productionUrl: prod }), 'http://localhost:4321/card');
+  it('a misconfigured default is a loud developer error, not a silent bad QR code', () => {
+    assert.throws(() => resolveCardPublicUrl(undefined, 'http://insecure.test/card'), /https/);
   });
-  it('same-origin helper keeps the preview image on the card\'s origin', () => {
-    assert.equal(sameOrigin('https://staging.example.dev/card', '/og-default.png'), 'https://staging.example.dev/og-default.png');
+  it('the preview image URL is absolute on the public origin', () => {
+    assert.equal(sameOrigin(prod, '/og-default.png'), 'https://lanoir.ca/og-default.png');
   });
 });
 
@@ -92,8 +109,10 @@ describe('saved contact (.vcf)', () => {
   it('card-only details appear only in the saved contact when configured', () => {
     assert.ok(buildVCard(input({ vcardNote: 'Met at the market; follow up' })).includes('NOTE:Met at the market\; follow up'));
   });
-  it('staging builds embed the staging card URL, not production', () => {
-    assert.ok(buildVCard(input({ cardUrl: 'https://staging.example.dev/card' })).includes('item2.URL:https://staging.example.dev/card'));
+  it('Website stays the business site; Digital card is the public card URL (independent fields)', () => {
+    const v2 = buildVCard(input({ website: 'https://lanoir.ca', cardUrl: 'https://lanoir.ca/card' }));
+    assert.ok(v2.includes('item1.URL:https://lanoir.ca\r\nitem1.X-ABLabel:Website'));
+    assert.ok(v2.includes('item2.URL:https://lanoir.ca/card\r\nitem2.X-ABLabel:Digital card'));
   });
   it('escapes special characters and folds long lines without splitting characters', () => {
     assert.equal(escapeText('a,b;c\\d\ne'), 'a\\,b\;c\\\\d\\ne');
@@ -119,9 +138,9 @@ describe('QR code', () => {
     return jsQR(new Uint8ClampedArray(data), info.width, info.height)?.data;
   };
   it('decodes to the production card URL', async () => assert.equal(await decode(prod), prod));
-  it('decodes to a staging card URL', async () => {
-    const staging = 'https://staging-lanoir.example.workers.dev/card';
-    assert.equal(await decode(staging), staging);
+  it('decodes to whatever CARD_PUBLIC_URL is configured', async () => {
+    const other = 'https://card.example.org/c';
+    assert.equal(await decode(other), other);
   });
   it('is high-contrast black on white, accessible, and self-contained', () => {
     const svg = qrSvg(prod, 'QR code for the card');
