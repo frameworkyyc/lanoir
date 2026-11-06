@@ -24,10 +24,10 @@ describe('/spiritual-services copy (confirmed content only)', () => {
   it('has Meet Cindy as four paragraphs, and the two services with the confirmed titles', () => {
     assert.equal(d.meet.heading, 'Meet Cindy');
     assert.equal(d.meet.paragraphs.length, 4);
-    assert.deepEqual(d.services.map((s) => s.title), ['Lenormand Readings', 'Mediumship & Spirit Scribing']);
-    assert.deepEqual(d.services.map((s) => s.paragraphs.length), [2, 2]);
-    assert.ok(d.services[0].paragraphs[0].includes('La Santa Muerte Lenormand deck'));
-    assert.ok(d.services[1].paragraphs[1].includes('a specific connection or message cannot be guaranteed'));
+    assert.deepEqual(d.services.map((s) => s.title), ['Mediumship & Spirit Scribing', 'Lenormand Readings', 'Tarot Readings']);
+    assert.deepEqual(d.services.map((s) => s.paragraphs.length), [2, 2, 0]);
+    assert.ok(d.services[1].paragraphs[0].includes('La Santa Muerte Lenormand deck'));
+    assert.ok(d.services[0].paragraphs[1].includes('a specific connection or message cannot be guaranteed'));
   });
 
   it('has the approach and the five ethics groups, with the confirmed bullet counts', () => {
@@ -62,11 +62,12 @@ describe('/spiritual-services copy (confirmed content only)', () => {
   });
 
   it('timeline labels come from the existing Lenormand copy (three months; six-to-nine months)', () => {
-    const [near, far] = d.services[0].timeline!;
+    const lenormand = d.services.find((s) => s.key === 'lenormand')!;
+    const [near, far] = lenormand.timeline!;
     assert.equal(near, '3 months');
     assert.equal(far, '6–9 months');
-    assert.ok(/three months/.test(d.services[0].paragraphs[0]) && /six-to-nine-month/.test(d.services[0].paragraphs[0]));
-    assert.equal(d.services[1].timeline, undefined);
+    assert.ok(/three months/.test(lenormand.paragraphs[0]) && /six-to-nine-month/.test(lenormand.paragraphs[0]));
+    assert.equal(d.services.find((s) => s.key === 'mediumship')!.timeline, undefined);
   });
 
   it('Training & Certifications lists exactly the seven supplied credentials, in order', () => {
@@ -96,7 +97,15 @@ describe('/spiritual-services copy (confirmed content only)', () => {
     assert.ok(!/licen[sc]e|member(ship)? of|accredit|registered|years?\b/i.test(text));
   });
 
-  it('related training does not become bookable services: only the two confirmed services exist', () => {
-    assert.deepEqual(d.services.map((s) => s.title), ['Lenormand Readings', 'Mediumship & Spirit Scribing']);
+  it('related training does not become bookable services: only Mediumship and Card Readings (Lenormand, Tarot) exist', () => {
+    assert.deepEqual(d.services.map((s) => s.title), ['Mediumship & Spirit Scribing', 'Lenormand Readings', 'Tarot Readings']);
+    assert.deepEqual(d.serviceGroups, [{ heading: 'Mediumship Services', keys: ['mediumship'] }, { heading: 'Card Readings', keys: ['lenormand', 'tarot'] }]);
+  });
+
+  it('Tarot Readings is title-only: no deck, method, timeframe, price or description was supplied, so none is written', () => {
+    const tarot = d.services.find((s) => s.key === 'tarot')!;
+    assert.equal(tarot.title, 'Tarot Readings');
+    assert.deepEqual(tarot.paragraphs, []);
+    assert.equal(tarot.timeline, undefined);
   });
 });

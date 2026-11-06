@@ -143,15 +143,17 @@ const symbols = ['plumb', 'fork', 'cradle', 'veil', 'gate'] as const;
   </section>
 
   <!-- 3 · SERVICES : two distinct worlds ------------------------------------------------- -->
-  <section class="zone zone--stage services" aria-labelledby="services-title">
-    <h2 id="services-title" class="visually-hidden">{d.servicesLabel}</h2>
+  <section class="zone zone--stage services" aria-label={d.servicesLabel}>
     <div class="container-wide services__stack">
-      {d.services.map((s, i) => (
+      {d.serviceGroups.map((g) => (
+      <div class="svcgroup">
+        <h2 class="svcgroup__title" data-reveal><span class="star" aria-hidden="true"></span>{g.heading}</h2>
+      {g.keys.map((k) => { const s = d.services.find((x) => x.key === k)!; const i = d.services.indexOf(s); return (
         <article class={`feature feature--${s.key}`} aria-labelledby={`svc-${s.key}`}>
           <div class="feature__text" data-reveal>
             <span class="idx idx--soft t-label" aria-hidden="true">{pad(i + 1)}</span>
             <h3 id={`svc-${s.key}`} class="h-display">{s.title}</h3>
-            <div class="feature__copy">{s.paragraphs.map((p) => <p>{p}</p>)}</div>
+            {s.paragraphs.length > 0 && <div class="feature__copy">{s.paragraphs.map((p) => <p>{p}</p>)}</div>}
           </div>
 
           {s.key === 'lenormand' ? (
@@ -196,6 +198,26 @@ const symbols = ['plumb', 'fork', 'cradle', 'veil', 'gate'] as const;
                 </ol>
               )}
             </div>
+          ) : s.key === 'tarot' ? (
+            <div class="feature__art art--tarot" aria-hidden="true" data-reveal style="--reveal-delay:0.12s">
+              <div class="layer par" style="--py:1rem">
+                <svg viewBox="0 0 480 440" focusable="false">
+                  <circle cx="240" cy="220" r="190" fill="none" stroke="var(--pink)" stroke-opacity="0.22" stroke-width="1" vector-effect="non-scaling-stroke" />
+                  <circle cx="240" cy="220" r="150" fill="none" stroke="var(--warm-white)" stroke-opacity="0.16" stroke-width="1" stroke-dasharray="1 8" vector-effect="non-scaling-stroke" />
+                  <g fill="var(--warm-white)"><path class="tw" d="M88 96l2 7 7 2-7 2-2 7-2-7-7-2 7-2Z" /><path class="tw tw--b" d="M404 150l1.6 5.4 5.4 1.6-5.4 1.6-1.6 5.4-1.6-5.4-5.4-1.6 5.4-1.6Z" /><path class="tw tw--c" d="M120 352l1.4 4.6 4.6 1.4-4.6 1.4-1.4 4.6-1.4-4.6-4.6-1.4 4.6-1.4Z" /></g>
+                </svg>
+              </div>
+              <div class="layer par" style="--py:-0.75rem">
+                <svg viewBox="0 0 480 440" focusable="false">
+                  <defs><linearGradient id="tcard" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="var(--pink)" stop-opacity="0.3" /><stop offset="1" stop-color="var(--noir)" stop-opacity="0.6" /></linearGradient></defs>
+                  <rect x="175" y="70" width="130" height="220" rx="10" fill="url(#tcard)" stroke="var(--warm-white)" stroke-opacity="0.85" stroke-width="1.25" vector-effect="non-scaling-stroke" />
+                  <rect x="184" y="79" width="112" height="202" rx="5" fill="none" stroke="var(--pink)" stroke-opacity="0.6" stroke-width="1" vector-effect="non-scaling-stroke" />
+                  <circle cx="240" cy="160" r="30" fill="var(--noir)" stroke="var(--warm-white)" stroke-opacity="0.8" stroke-width="1" vector-effect="non-scaling-stroke" />
+                  <path d="M246 142A19 19 0 1 0 246 178A22 22 0 0 1 246 142Z" fill="var(--warm-white)" fill-opacity="0.92" />
+                  <path d="M205 228H275M240 222l4 6-4 6-4-6Z" fill="none" stroke="var(--warm-white)" stroke-opacity="0.6" stroke-width="1" vector-effect="non-scaling-stroke" />
+                </svg>
+              </div>
+            </div>
           ) : (
             <div class="feature__art art--med" aria-hidden="true" data-reveal style="--reveal-delay:0.12s">
               <div class="layer par" style="--py:1.5rem">
@@ -222,6 +244,8 @@ const symbols = ['plumb', 'fork', 'cradle', 'veil', 'gate'] as const;
             </div>
           )}
         </article>
+      ); })}
+      </div>
       ))}
     </div>
   </section>
@@ -244,7 +268,7 @@ const symbols = ['plumb', 'fork', 'cradle', 'veil', 'gate'] as const;
     <span class="approach__q approach__q--close" aria-hidden="true">”</span>
     <div class="container-wide approach__inner">
       <div class="approach__symbol par" style="--py:1.5rem" aria-hidden="true" data-reveal><svg viewBox="0 0 200 200" focusable="false"><use href="#celestial" /></svg></div>
-      <span class="idx idx--soft t-label" aria-hidden="true" data-reveal>{pad(3)}</span>
+      <span class="idx idx--soft t-label" aria-hidden="true" data-reveal>{pad(4)}</span>
       <h2 id="approach-title" class="h-display" data-reveal>{d.approach.heading}</h2>
       <p class="approach__lead" data-reveal>{d.approach.lead}</p>
       <p class="approach__closing" data-reveal>{d.approach.closing}</p>
@@ -408,7 +432,14 @@ const symbols = ['plumb', 'fork', 'cradle', 'veil', 'gate'] as const;
   }
 
   /* ---- 2 · Services: two feature worlds -------------------------------------------------- */
-  .services__stack { display: grid; gap: clamp(1.5rem, 4vw, 3rem); }
+  .services__stack { display: grid; gap: clamp(2.25rem, 5vw, 4rem); }
+  .svcgroup { display: grid; gap: clamp(1.25rem, 3vw, 2rem); }
+  .svcgroup__title { display: flex; align-items: center; gap: var(--space-s); font-family: var(--font-display); font-weight: 400; text-transform: uppercase; letter-spacing: 0.02em; line-height: 0.95; font-size: clamp(2rem, 1.3rem + 3vw, 3.5rem); color: var(--warm-white); }
+  .svcgroup__title::after { content: ''; flex: 1; height: 1px; background: linear-gradient(90deg, color-mix(in srgb, var(--warm-white) 35%, transparent), transparent); }
+  .feature--tarot { --fb: color-mix(in srgb, var(--soft-pink) 26%, transparent); border-radius: 1.25rem 1.25rem 1.25rem 5rem; min-height: 0;
+    background: radial-gradient(55% 80% at 80% 50%, color-mix(in srgb, var(--soft-pink) 16%, transparent), transparent 72%), linear-gradient(200deg, color-mix(in srgb, var(--pink) 12%, color-mix(in srgb, var(--gunmetal) 14%, var(--noir))), var(--noir-deep) 90%);
+    box-shadow: inset 0 1px 0 color-mix(in srgb, var(--soft-pink) 40%, transparent); }
+  .feature--tarot .feature__art { max-height: 13rem; }
   .feature { position: relative; isolation: isolate; display: grid; gap: var(--space-m); padding: clamp(1.4rem, 3.4vw, 3.25rem); border: 1px solid var(--fb); }
   .feature__art { position: relative; width: 100%; aspect-ratio: 480 / 440; max-height: 20rem; justify-self: center; order: -1; }
   .feature__text { display: grid; gap: var(--space-s); align-content: center; justify-items: start; }
@@ -439,7 +470,8 @@ const symbols = ['plumb', 'fork', 'cradle', 'veil', 'gate'] as const;
   @media (min-width: 64rem) {
     .feature { grid-template-columns: 1fr 1fr; align-items: center; gap: var(--space-xl); min-height: 29rem; }
     .feature__art { max-height: none; order: 0; margin-block: -1.75rem; }
-    .feature--mediumship .feature__art { order: -1; }
+    .feature--mediumship .feature__art, .feature--tarot .feature__art { order: -1; }
+    .feature--tarot { min-height: 0; } .feature--tarot .feature__art { max-height: 15rem; margin-block: -0.5rem; }
     .art--len { margin-bottom: -1.75rem; }
     .timeline { bottom: 0.2rem; }
     .timeline__label { top: auto; bottom: 1rem; }

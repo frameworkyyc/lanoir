@@ -3,7 +3,7 @@
  * metadata and the tests. Do not add prices, durations, locations, booking claims, qualifications,
  * credentials or years of experience unless the client supplies them.
  */
-export interface SpiritualService { key: 'lenormand' | 'mediumship'; title: string; paragraphs: string[]; /** Decorative timeline labels (from the existing copy: next three months, six-to-nine-month outlook). */ timeline?: [string, string] }
+export interface SpiritualService { key: 'lenormand' | 'mediumship' | 'tarot'; title: string; paragraphs: string[]; /** Decorative timeline labels (from the existing copy: next three months, six-to-nine-month outlook). */ timeline?: [string, string] }
 export interface TrainingItem { title: string; detail?: string; /** Only "In Progress" is used: that credential is NOT complete. */ status?: 'In Progress' }
 export interface EthicsGroup { title: string; items: string[] }
 
@@ -56,6 +56,14 @@ export const spiritualServices = {
   servicesLabel: 'Services',
   services: [
     {
+      key: 'mediumship',
+      title: 'Mediumship & Spirit Scribing',
+      paragraphs: [
+        'Through mediumship, I seek to connect with those who have passed and share the impressions, messages and information that come through.',
+        'During these sessions, I use spiritual scribing to record and communicate what I receive. Every experience is different, and while I approach this work with openness and respect, a specific connection or message cannot be guaranteed.',
+      ],
+    },
+    {
       key: 'lenormand',
       title: 'Lenormand Readings',
       timeline: ['3 months', '6–9 months'],
@@ -65,14 +73,19 @@ export const spiritualServices = {
       ],
     },
     {
-      key: 'mediumship',
-      title: 'Mediumship & Spirit Scribing',
-      paragraphs: [
-        'Through mediumship, I seek to connect with those who have passed and share the impressions, messages and information that come through.',
-        'During these sessions, I use spiritual scribing to record and communicate what I receive. Every experience is different, and while I approach this work with openness and respect, a specific connection or message cannot be guaranteed.',
-      ],
+      // Tarot Readings is offered under "Card Readings" (client confirmed). NO description, deck, method,
+      // timeframe, price or format has been supplied, so none is written: the entry is its title only.
+      key: 'tarot',
+      title: 'Tarot Readings',
+      paragraphs: [],
     },
   ] satisfies SpiritualService[],
+
+  /** The two primary service sections. Lenormand and Tarot are different systems: both sit under "Card Readings". */
+  serviceGroups: [
+    { heading: 'Mediumship Services', keys: ['mediumship'] },
+    { heading: 'Card Readings', keys: ['lenormand', 'tarot'] },
+  ] as { heading: string; keys: SpiritualService['key'][] }[],
 
   approach: {
     heading: 'A Practice Rooted in Respect',
