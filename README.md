@@ -15,7 +15,7 @@ npm run build                    # → dist/ (static client + Worker)
 npm run preview                  # run the built Worker locally
 ```
 
-Node 22+. Commerce runs on **Square** (Sandbox on staging, Production on main) — see
+Node 22+. Commerce runs on **Square** (live catalogue on both staging and main; staging checkout must not be completed) — see
 [`docs/SQUARE.md`](docs/SQUARE.md) for architecture, the exact Cloudflare variables/secrets, and the
 Sandbox testing checklist. Secrets live in Cloudflare / your local `.dev.vars`, never in git.
 
@@ -23,19 +23,19 @@ The digital business card lives at `/card` — see [`docs/CARD.md`](docs/CARD.md
 
 ## Branches & deploy
 
-`staging` (development, Cloudflare Worker Preview, **Square Sandbox**) → `main` (production, **live Square**).
+`staging` (development, Cloudflare Worker Preview, **live Square catalogue**) → `main` (production, **live Square**).
 
 Astro runs in hybrid mode on a Cloudflare Worker (`@astrojs/cloudflare`): static pages are prerendered,
 catalogue pages and `/api/*` run on the Worker. `main` and the Worker/assets config are generated at
-build time; `wrangler.jsonc` holds only the name, `keep_vars`, and the sandbox-only `previews` block.
+build time; `wrangler.jsonc` holds only the name, `keep_vars`, and the `previews` block (staging uses the live Square catalogue).
 
 | Branch | Cloudflare build | Deploy command |
 |---|---|---|
 | `main` (production) | `npm run build` | `npx wrangler deploy` |
 | `staging` (preview) | `npm run build` | `npx wrangler preview` |
 
-- `previews` in `wrangler.jsonc` is required by `wrangler preview` and holds **only** Sandbox values. Never put
-  anything there that should reach production, and never put secrets in `wrangler.jsonc`.
+- `previews` in `wrangler.jsonc` is required by `wrangler preview` and holds the non-secret Square ids (production
+  environment + location, so staging shows the live catalogue). Never put secrets in `wrangler.jsonc`.
 - Worker name `lanoir` (confirmed) must stay in sync with the Worker in the Cloudflare dashboard.
 
 ### Cloudflare staging setup

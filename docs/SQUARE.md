@@ -37,9 +37,11 @@ Browser ──► Astro on a Cloudflare Worker ──► Square (Sandbox or Prod
 Worker name: `lanoir`. Build settings (already in use): build command `npm run build`;
 deploy command `npx wrangler deploy` on `main`, `npx wrangler preview` on `staging`.
 
-### A. Staging (Worker Preview, **Sandbox**)
-Non-secret values are already committed in `wrangler.jsonc` → `previews.vars`:
-`SQUARE_ENVIRONMENT=sandbox`, `SQUARE_LOCATION_ID=L0SZPKA80GMNA`.
+### A. Staging (Worker Preview, **live catalogue**)
+Non-secret values are committed in `wrangler.jsonc` → `previews.vars`:
+`SQUARE_ENVIRONMENT=production`, `SQUARE_LOCATION_ID=LE2GKGAWZDBE9`. Staging therefore reads the live catalogue;
+the Preview secret `SQUARE_ACCESS_TOKEN` **must be the production token** (a sandbox token is rejected by production Square).
+**Do not complete a purchase on staging** — checkout creates real Square payment links/orders.
 
 Add the **one secret** (from a terminal where you are logged in to Cloudflare; paste the token at
 the prompt — never put it on the command line):

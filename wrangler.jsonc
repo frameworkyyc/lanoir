@@ -23,14 +23,15 @@
     "CARD_PUBLIC_URL": "https://lanoir.ca/card"
   },
 
-  // PREVIEW = `npx wrangler preview` on `staging`. Sandbox ONLY. These are not secrets.
-  // SQUARE_ACCESS_TOKEN / SQUARE_APPLICATION_ID for the sandbox are Preview secrets set in
-  // Cloudflare (never committed). Nothing here can reach production.
+  // PREVIEW = `npx wrangler preview` on `staging`. Uses the LIVE (production) Square catalogue so
+  // staging shows the real products. These ids are not secrets. The production
+  // SQUARE_ACCESS_TOKEN must be a Preview *secret* in Cloudflare (never committed).
+  // Staging checkout would create real Square orders: do not complete a purchase on staging.
   "previews": {
     "vars": {
       "CARD_PUBLIC_URL": "https://lanoir.ca/card",
-      "SQUARE_ENVIRONMENT": "sandbox",
-      "SQUARE_LOCATION_ID": "L0SZPKA80GMNA"
+      "SQUARE_ENVIRONMENT": "production",
+      "SQUARE_LOCATION_ID": "LE2GKGAWZDBE9"
     }
   }
 }
