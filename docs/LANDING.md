@@ -29,3 +29,40 @@ Today `/divination` shows only the supplied line: *"Intuitive readings for clari
 7. Photos/video
 
 No structured data (`Service` schema) is emitted for divination until the facts above are confirmed.
+
+## Art direction: "The Threshold"
+
+The landing (`/`) is one night sky split by a single eclipse. The two sides share the sky, stars, mist,
+grain, type and eclipse, so they read as one brand; each gets its own energy.
+
+| | The Shop | Divination |
+|---|---|---|
+| Light | pink, warm | warm-white moonlight |
+| Motion | embers rise, a fire-glyph sigil turns | motes drift, an orbit star circles, a constellation draws in |
+| Opens from | the right / lower edge toward the eclipse | the left / upper edge toward the eclipse |
+
+**Sequence (≈2.8 s first visit, ≈1.1 s on repeat visits in a session):** sky fades up → eclipse ignites →
+monogram emerges with a light bloom and sheen → eyebrow wipes in → each world is unveiled by a clip with a
+leading edge of light → letters rise → description, call to action.
+
+**Interactions:** hover / keyboard focus / touch press "opens" a door (light spills from the seam, a spotlight
+follows the pointer or finger, the arrow lengthens, the call to action turns white for contrast). Choosing a
+door blooms its light from where you tapped, fades to Noir, then navigates (~0.75 s).
+
+### Where things live
+- `src/pages/index.astro` – markup, door artwork, all landing CSS and the timeline (`--k` scales every timing).
+- `src/components/landing/Sky.astro` – stars, glints, mist, beam, meteor. `Eclipse.astro` – the eclipse.
+- `src/lib/landing-fx.ts` – seeded generators for stars / embers / motes (deterministic builds).
+- `src/scripts/landing.ts` – parallax, door open state, exit transition, frame-rate probe (~2 kB).
+
+### Performance and accessibility rules
+- Animate `transform` / `opacity` only; no video, canvas, library or sound. Landing ships no cart code.
+- **Lite mode** (`data-fx="lite"`) turns on automatically for `deviceMemory ≤ 2`, Save-Data, or when the
+  frame probe sees a struggling device (75th-percentile frame > 30 ms during the entrance or once ambient
+  motion runs). It drops parallax, mist/stars drift, the sheen, the meteor and glints, the grain animation
+  and most particles; the composition stays.
+- **Reduced motion:** the finished composition renders immediately; no animation, parallax or exit transition.
+- Pink text never sits on strong pink light (≥ 4.5:1 measured against the rendered glow, idle and open);
+  decoration shrinks and fades on short phones so it never crosses the type.
+- To retune the mood: palette values come from `tokens.css`; glow strengths are the `color-mix(...)` percentages
+  in the door CSS and `Sky.astro`.

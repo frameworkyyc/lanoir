@@ -1,0 +1,60 @@
+---
+/**
+ * The eclipse where the two sides meet: a dark disc holding the brand crescent, a slowly turning
+ * corona (pink from the Shop, moonlight from Divination) and a breathing halo. Decorative.
+ */
+import Moon from '~/components/brand/Moon.astro';
+---
+<div class="eclipse" aria-hidden="true">
+  <div class="eclipse__par" data-depth="10">
+    <span class="eclipse__halo"></span>
+    <span class="eclipse__corona"></span>
+    <span class="eclipse__ring"></span>
+    <span class="eclipse__disc"><Moon class="eclipse__crescent" size="100%" fill /></span>
+  </div>
+</div>
+
+<style>
+  .eclipse {
+    --e: 5.25rem;
+    position: absolute; z-index: 3; pointer-events: none;
+    width: var(--e); height: var(--e);
+    right: calc(var(--gutter) + 0.5rem); top: calc(var(--seam-y, 50%)); translate: 0 -50%;
+  }
+  .eclipse__par { position: absolute; inset: 0; }
+  .eclipse__par > * { position: absolute; border-radius: 50%; }
+  .eclipse__halo {
+    inset: -150%;
+    background: radial-gradient(closest-side, color-mix(in srgb, var(--pink) 30%, transparent), color-mix(in srgb, var(--warm-white) 9%, transparent) 46%, transparent 72%);
+  }
+  .eclipse__corona {
+    inset: -26%;
+    background: conic-gradient(from 20deg, var(--pink), color-mix(in srgb, var(--pink) 0%, transparent) 26%, var(--warm-white) 50%, color-mix(in srgb, var(--warm-white) 0%, transparent) 76%, var(--pink));
+    -webkit-mask: radial-gradient(closest-side, transparent 66%, #000 76%, #000 79%, transparent 100%);
+            mask: radial-gradient(closest-side, transparent 66%, #000 76%, #000 79%, transparent 100%);
+    opacity: 0.95;
+  }
+  .eclipse__ring { inset: -1px; border: 1px solid color-mix(in srgb, var(--warm-white) 55%, transparent); }
+  .eclipse__disc {
+    inset: 0; display: grid; place-items: center; overflow: hidden;
+    background: radial-gradient(circle at 34% 30%, #211f22, #070607 72%);
+    box-shadow: inset 0 0 1.2rem #000;
+  }
+  .eclipse__disc :global(.eclipse__crescent) { width: 58%; height: 58%; color: var(--warm-white); opacity: 0.92; }
+
+  @media (min-width: 48rem) {
+    .eclipse { --e: 8.5rem; right: auto; left: 50%; top: var(--seam-y, 34%); translate: -50% -50%; }
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .eclipse { animation: eclipse-in 2.2s var(--ease-out) calc(var(--k, 1) * 0.5s) backwards; }
+    .eclipse__corona { animation: spin 38s linear infinite; }
+    .eclipse__halo { animation: breathe 7s ease-in-out infinite; }
+    .eclipse__crescent { animation: crescent 9s ease-in-out infinite alternate; }
+    @keyframes eclipse-in { from { opacity: 0; scale: 0.55; } }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    @keyframes breathe { 0%, 100% { opacity: 0.7; transform: scale(0.94); } 50% { opacity: 1; transform: scale(1.06); } }
+    @keyframes crescent { from { transform: rotate(-8deg); } to { transform: rotate(8deg); } }
+  }
+  :global([data-leaving]) .eclipse { transition: scale 0.7s var(--ease-in-out); scale: 1.18; }
+</style>
