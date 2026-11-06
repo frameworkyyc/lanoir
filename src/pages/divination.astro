@@ -9,7 +9,7 @@ import BaseLayout from '~/layouts/BaseLayout.astro';
 import Eyebrow from '~/components/brand/Eyebrow.astro';
 import Sky from '~/components/landing/Sky.astro';
 import Eclipse from '~/components/landing/Eclipse.astro';
-import { divination as d } from '~/config/divination';
+import { divination as d, meetPullQuote } from '~/config/divination';
 import { card } from '~/config/card';
 import { breadcrumbs } from '~/seo/jsonld';
 
@@ -19,6 +19,9 @@ const accent = words.pop()!;
 const lead = words.join(' ');
 const pad = (n: number) => String(n).padStart(2, '0');
 const mailto = card.email ? `mailto:${card.email}` : null;
+
+// One small line symbol per ethics principle (same order as the config). Decorative.
+const symbols = ['plumb', 'fork', 'cradle', 'veil', 'gate'] as const;
 ---
 <BaseLayout
   chrome="divination"
@@ -51,69 +54,173 @@ const mailto = card.email ? `mailto:${card.email}` : null;
     </div>
   </section>
 
-  <!-- 2 · WHO I AM --------------------------------------------------------------------- -->
-  <section class="band meet" aria-labelledby="meet-title">
-    <div class="container-wide split">
-      <div class="split__head" data-reveal>
-        <span class="idx t-label" aria-hidden="true">{pad(1)}</span>
-        <h2 id="meet-title" class="h-display">{d.meet.heading}</h2>
-        <span class="star" aria-hidden="true"></span>
+
+  <!-- 2 · WHO I AM : deep plum ----------------------------------------------------------- -->
+  <section class="zone zone--plum meet" aria-labelledby="meet-title">
+    <div class="container-wide meet__grid">
+      <div class="meet__side">
+        <div class="meet__head" data-reveal>
+          <span class="idx t-label" aria-hidden="true">{pad(1)}</span>
+          <h2 id="meet-title" class="h-display">{d.meet.heading}</h2>
+        </div>
+
+        <!-- Original line art: a Lenormand card, a dowsing pendulum and a scribed line. -->
+        <div class="meet__art" aria-hidden="true" data-reveal>
+          <div class="layer par" style="--py:1.25rem">
+            <svg viewBox="0 0 400 460" focusable="false">
+              <circle cx="200" cy="230" r="190" fill="none" stroke="var(--rule)" stroke-width="1" stroke-dasharray="1 8" vector-effect="non-scaling-stroke" />
+              <circle cx="200" cy="230" r="148" fill="none" stroke="var(--pink)" stroke-width="1" opacity="0.22" vector-effect="non-scaling-stroke" />
+              <g fill="var(--warm-white)"><path class="tw" d="M58 78l2 7 7 2-7 2-2 7-2-7-7-2 7-2Z" /><path class="tw tw--b" d="M352 132l1.6 5.4 5.4 1.6-5.4 1.6-1.6 5.4-1.6-5.4-5.4-1.6 5.4-1.6Z" /><path class="tw tw--c" d="M36 346l1.4 4.6 4.6 1.4-4.6 1.4-1.4 4.6-1.4-4.6-4.6-1.4 4.6-1.4Z" /></g>
+            </svg>
+          </div>
+          <div class="layer par" style="--py:-0.5rem">
+            <svg viewBox="0 0 400 460" focusable="false">
+              <defs>
+                <linearGradient id="mcard" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="var(--pink)" stop-opacity="0.28" /><stop offset="1" stop-color="var(--noir)" stop-opacity="0.6" /></linearGradient>
+              </defs>
+              <g transform="rotate(-9 200 190)"><rect x="115" y="58" width="170" height="262" rx="12" fill="none" stroke="var(--warm-white)" stroke-opacity="0.28" stroke-width="1" vector-effect="non-scaling-stroke" /></g>
+              <g transform="rotate(7 200 190)"><rect x="115" y="58" width="170" height="262" rx="12" fill="none" stroke="var(--warm-white)" stroke-opacity="0.2" stroke-width="1" vector-effect="non-scaling-stroke" /></g>
+              <rect x="115" y="58" width="170" height="262" rx="12" fill="url(#mcard)" stroke="var(--warm-white)" stroke-opacity="0.8" stroke-width="1.25" vector-effect="non-scaling-stroke" />
+              <rect class="frame" x="127" y="70" width="146" height="238" rx="6" fill="none" stroke="var(--pink)" stroke-opacity="0.7" stroke-width="1" stroke-dasharray="3 7" vector-effect="non-scaling-stroke" />
+              <circle cx="200" cy="170" r="38" fill="none" stroke="var(--warm-white)" stroke-opacity="0.7" stroke-width="1" vector-effect="non-scaling-stroke" />
+              <path d="M209 146A24 24 0 1 0 209 194A27 27 0 0 1 209 146Z" fill="var(--warm-white)" fill-opacity="0.9" />
+              <path d="M150 246H250M200 240l4 6-4 6-4-6Z" fill="none" stroke="var(--warm-white)" stroke-opacity="0.6" stroke-width="1" vector-effect="non-scaling-stroke" />
+              <g fill="var(--pink)"><path d="M140 90l1.6 5.4 5.4 1.6-5.4 1.6-1.6 5.4-1.6-5.4-5.4-1.6 5.4-1.6Z" /><path d="M260 290l1.6 5.4 5.4 1.6-5.4 1.6-1.6 5.4-1.6-5.4-5.4-1.6 5.4-1.6Z" /></g>
+              <path d="M255 296A300 300 0 0 0 405 296" fill="none" stroke="var(--warm-white)" stroke-opacity="0.35" stroke-width="1" stroke-dasharray="2 6" vector-effect="non-scaling-stroke" />
+              <g class="pend">
+                <path d="M330 6V300" stroke="var(--warm-white)" stroke-opacity="0.75" stroke-width="1" vector-effect="non-scaling-stroke" />
+                <path d="M330 300c0 8 9 14 9 22a9 9 0 0 1-18 0c0-8 9-14 9-22Z" fill="var(--noir)" stroke="var(--warm-white)" stroke-width="1.25" vector-effect="non-scaling-stroke" />
+                <path d="M330 311l2 4-2 4-2-4Z" fill="var(--pink)" />
+              </g>
+              <g class="draw-set">
+                <path class="draw" pathLength="1" d="M20 418C60 380 92 458 132 418S200 380 238 422 300 460 340 408 372 384 384 400" fill="none" stroke="var(--warm-white)" stroke-width="1.25" stroke-linecap="round" vector-effect="non-scaling-stroke" />
+                <path class="draw draw--b" pathLength="1" d="M40 436C80 410 110 462 150 436S214 410 250 440 316 462 352 428" fill="none" stroke="var(--warm-white)" stroke-opacity="0.4" stroke-width="1" stroke-linecap="round" vector-effect="non-scaling-stroke" />
+              </g>
+              <path d="M384 388l2.2 7.4 7.4 2.2-7.4 2.2-2.2 7.4-2.2-7.4-7.4-2.2 7.4-2.2Z" fill="var(--pink)" />
+            </svg>
+          </div>
+        </div>
+
       </div>
-      <div class="prose">
-        {d.meet.paragraphs.map((p, i) => <p class:list={['prose__p', { 'prose__p--lead': i === 0 }]} data-reveal style={`--reveal-delay:${i * 0.08}s`}>{p}</p>)}
+
+      <div class="meet__copy">
+        {d.meet.paragraphs.map((p, i) => <p class:list={['meet__p', { 'meet__p--lead': i === 0 }]} data-reveal style={`--reveal-delay:${i * 0.08}s`}>{p}</p>)}
       </div>
+        <p class="pull" aria-hidden="true" data-reveal><span class="pull__mark">“</span>{meetPullQuote}</p>
     </div>
   </section>
 
-  <!-- 3 · SERVICES --------------------------------------------------------------------- -->
-  <section class="band services" aria-labelledby="services-title">
+  <!-- 3 · SERVICES : two distinct worlds ------------------------------------------------- -->
+  <section class="zone zone--stage services" aria-labelledby="services-title">
     <h2 id="services-title" class="visually-hidden">{d.servicesLabel}</h2>
-    {d.services.map((s, i) => (
-      <article class="container-wide split service" aria-labelledby={`svc-${s.key}`}>
-        <div class="split__head" data-reveal>
-          <span class="idx t-label" aria-hidden="true">{pad(i + 1)}</span>
-          <h3 id={`svc-${s.key}`} class="h-display">{s.title}</h3>
+    <div class="container-wide services__stack">
+      {d.services.map((s, i) => (
+        <article class={`feature feature--${s.key}`} aria-labelledby={`svc-${s.key}`}>
+          <div class="feature__text" data-reveal>
+            <span class="idx idx--soft t-label" aria-hidden="true">{pad(i + 1)}</span>
+            <h3 id={`svc-${s.key}`} class="h-display">{s.title}</h3>
+            <div class="feature__copy">{s.paragraphs.map((p) => <p>{p}</p>)}</div>
+          </div>
+
           {s.key === 'lenormand' ? (
-            <svg class="motif motif--card" viewBox="0 0 160 190" aria-hidden="true" focusable="false">
-              <g transform="rotate(-7 80 95)"><rect x="30" y="16" width="92" height="144" rx="6" fill="none" stroke="var(--rule-strong)" stroke-width="1" opacity="0.55" vector-effect="non-scaling-stroke" /></g>
-              <rect x="40" y="24" width="92" height="144" rx="6" fill="var(--noir)" fill-opacity="0.55" stroke="var(--rule-strong)" stroke-width="1" vector-effect="non-scaling-stroke" />
-              <rect x="47" y="31" width="78" height="130" rx="3" fill="none" stroke="var(--rule)" stroke-width="1" vector-effect="non-scaling-stroke" />
-              <path d="M86 31v62" stroke="var(--warm-white)" stroke-width="1" opacity="0.7" vector-effect="non-scaling-stroke" />
-              <path class="motif__swing" d="M58 112Q86 132 114 112" fill="none" stroke="var(--rule-strong)" stroke-width="1" stroke-dasharray="2 5" vector-effect="non-scaling-stroke" />
-              <path d="M86 93c0 4 5 7 5 11a5 5 0 0 1-10 0c0-4 5-7 5-11Z" fill="var(--noir)" stroke="var(--warm-white)" stroke-width="1" vector-effect="non-scaling-stroke" />
-              <path d="M86 100l1 2-1 2-1-2Z" fill="var(--pink)" />
-              <g fill="var(--pink)"><path d="M54 40l.9 2.4 2.4.9-2.4.9L54 46.6l-.9-2.4-2.4-.9 2.4-.9Z" /><path d="M118 152l.9 2.4 2.4.9-2.4.9-.9 2.4-.9-2.4-2.4-.9 2.4-.9Z" /></g>
-            </svg>
+            <div class="feature__art art--len" aria-hidden="true" data-reveal style="--reveal-delay:0.12s">
+              <div class="layer par" style="--py:1.5rem">
+                <svg viewBox="0 0 480 440" focusable="false">
+                  <circle cx="240" cy="250" r="206" fill="none" stroke="var(--pink)" stroke-opacity="0.2" stroke-width="1" vector-effect="non-scaling-stroke" />
+                  <circle cx="240" cy="250" r="160" fill="none" stroke="var(--warm-white)" stroke-opacity="0.14" stroke-width="1" stroke-dasharray="1 8" vector-effect="non-scaling-stroke" />
+                </svg>
+              </div>
+              <div class="layer par" style="--py:0.25rem">
+                <svg viewBox="0 0 480 440" focusable="false">
+                  <defs>
+                    <linearGradient id="lc1" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="var(--pink)" stop-opacity="0.42" /><stop offset="1" stop-color="var(--noir)" stop-opacity="0.55" /></linearGradient>
+                    <linearGradient id="lc2" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="var(--warm-white)" stop-opacity="0.18" /><stop offset="1" stop-color="var(--pink)" stop-opacity="0.12" /></linearGradient>
+                  </defs>
+                  <g transform="rotate(-17 240 400)"><rect x="165" y="118" width="150" height="240" rx="10" fill="url(#lc2)" stroke="var(--warm-white)" stroke-opacity="0.4" stroke-width="1" vector-effect="non-scaling-stroke" /></g>
+                  <g transform="rotate(-4 240 400)"><rect x="165" y="118" width="150" height="240" rx="10" fill="url(#lc1)" stroke="var(--pink)" stroke-opacity="0.7" stroke-width="1" vector-effect="non-scaling-stroke" /></g>
+                  <g transform="rotate(10 240 400)">
+                    <rect x="165" y="118" width="150" height="240" rx="10" fill="var(--noir)" fill-opacity="0.6" stroke="var(--warm-white)" stroke-opacity="0.85" stroke-width="1.25" vector-effect="non-scaling-stroke" />
+                    <rect x="175" y="128" width="130" height="220" rx="5" fill="none" stroke="var(--pink)" stroke-opacity="0.6" stroke-width="1" vector-effect="non-scaling-stroke" />
+                    <path d="M240 150V232" stroke="var(--warm-white)" stroke-opacity="0.8" stroke-width="1" vector-effect="non-scaling-stroke" />
+                    <path d="M240 232c0 6 7 11 7 17a7 7 0 0 1-14 0c0-6 7-11 7-17Z" fill="var(--noir)" stroke="var(--warm-white)" stroke-width="1.25" vector-effect="non-scaling-stroke" />
+                    <path d="M200 296Q240 322 280 296" fill="none" stroke="var(--pink)" stroke-opacity="0.7" stroke-width="1" stroke-dasharray="2 5" vector-effect="non-scaling-stroke" />
+                  </g>
+                </svg>
+              </div>
+              <div class="layer par" style="--py:-1.25rem">
+                <svg viewBox="0 0 480 440" focusable="false">
+                  <path d="M40 330A230 230 0 0 1 440 330" fill="none" stroke="var(--pink)" stroke-opacity="0.75" stroke-width="1.25" vector-effect="non-scaling-stroke" />
+                  <path d="M80 330A190 190 0 0 1 400 330" fill="none" stroke="var(--warm-white)" stroke-opacity="0.3" stroke-width="1" stroke-dasharray="2 7" vector-effect="non-scaling-stroke" />
+                  <circle class="arc-glow" r="16" fill="var(--pink)" fill-opacity="0.28" style="offset-path:path('M40 330A230 230 0 0 1 440 330')" />
+                  <circle class="arc-bob" r="6.5" fill="var(--pink)" style="offset-path:path('M40 330A230 230 0 0 1 440 330')" />
+                  <g fill="var(--warm-white)"><circle cx="40" cy="330" r="2.5" /><circle cx="440" cy="330" r="2.5" /></g>
+                </svg>
+              </div>
+              {s.timeline && (
+                <ol class="timeline list-reset" role="list">
+                  <li class="timeline__node timeline__node--now"><span class="timeline__dot"></span></li>
+                  <li class="timeline__node timeline__node--near"><span class="timeline__dot"></span><span class="timeline__label t-label">{s.timeline[0]}</span></li>
+                  <li class="timeline__node timeline__node--far"><span class="timeline__dot"></span><span class="timeline__label t-label">{s.timeline[1]}</span></li>
+                </ol>
+              )}
+            </div>
           ) : (
-            <svg class="motif motif--scribe" viewBox="0 0 220 110" aria-hidden="true" focusable="false">
-              <g stroke="var(--rule)" stroke-width="1" opacity="0.7" vector-effect="non-scaling-stroke"><path d="M6 30H214" vector-effect="non-scaling-stroke" /><path d="M6 60H214" vector-effect="non-scaling-stroke" /><path d="M6 90H214" vector-effect="non-scaling-stroke" /></g>
-              <path class="motif__line" pathLength="1" d="M6 66C24 66 28 22 46 24S62 62 80 60S100 16 122 28S138 68 160 56S188 20 206 36" fill="none" stroke="var(--warm-white)" stroke-width="1.25" stroke-linecap="round" vector-effect="non-scaling-stroke" />
-              <path d="M206 24l2.2 7.4 7.4 2.2-7.4 2.2L206 43.2l-2.2-7.4-7.4-2.2 7.4-2.2Z" fill="var(--pink)" />
-            </svg>
+            <div class="feature__art art--med" aria-hidden="true" data-reveal style="--reveal-delay:0.12s">
+              <div class="layer par" style="--py:1.5rem">
+                <svg viewBox="0 0 480 440" focusable="false">
+                  <defs><radialGradient id="mglow"><stop offset="0" stop-color="var(--warm-white)" stop-opacity="0.34" /><stop offset="1" stop-color="var(--warm-white)" stop-opacity="0" /></radialGradient></defs>
+                  <circle class="moon-glow" cx="330" cy="120" r="150" fill="url(#mglow)" />
+                  <path d="M352 52A72 72 0 1 0 352 196A82 82 0 0 1 352 52Z" fill="var(--warm-white)" fill-opacity="0.94" />
+                  <g fill="var(--warm-white)"><path class="tw" d="M96 70l2 7 7 2-7 2-2 7-2-7-7-2 7-2Z" /><path class="tw tw--b" d="M436 232l1.6 5.4 5.4 1.6-5.4 1.6-1.6 5.4-1.6-5.4-5.4-1.6 5.4-1.6Z" /><path class="tw tw--c" d="M150 168l1.4 4.6 4.6 1.4-4.6 1.4-1.4 4.6-1.4-4.6-4.6-1.4 4.6-1.4Z" /></g>
+                </svg>
+              </div>
+              <div class="layer par" style="--py:0.5rem"><svg class="veil veil--a" viewBox="0 0 480 440" focusable="false"><defs><linearGradient id="vfade" gradientUnits="userSpaceOnUse" x1="-500" y1="0" x2="470" y2="0"><stop offset="0" stop-color="#fff" /><stop offset="0.66" stop-color="#fff" /><stop offset="1" stop-color="#000" /></linearGradient><mask id="vmask" maskUnits="userSpaceOnUse" x="-520" y="-20" width="1100" height="480"><rect x="-520" y="-20" width="1100" height="480" fill="url(#vfade)" /></mask><linearGradient id="v1" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="var(--warm-white)" stop-opacity="0.13" /><stop offset="1" stop-color="var(--warm-white)" stop-opacity="0" /></linearGradient></defs><path d="M-500 128C-300 68 -100 178 90 118S300 68 520 128V440H-500Z" fill="url(#v1)" mask="url(#vmask)" /><path d="M-500 128C-300 68 -100 178 90 118S300 68 520 128" fill="none" stroke="var(--warm-white)" stroke-opacity="0.45" stroke-width="1" vector-effect="non-scaling-stroke" mask="url(#vmask)" /></svg></div>
+              <div class="layer par" style="--py:-0.75rem"><svg class="veil veil--b" viewBox="0 0 480 440" focusable="false"><defs><linearGradient id="v2" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="var(--gunmetal)" stop-opacity="0.3" /><stop offset="1" stop-color="var(--gunmetal)" stop-opacity="0" /></linearGradient></defs><path d="M-500 216C-300 166 -100 276 130 206S330 156 540 216V440H-500Z" fill="url(#v2)" mask="url(#vmask)" /><path d="M-500 216C-300 166 -100 276 130 206S330 156 540 216" fill="none" stroke="var(--warm-white)" stroke-opacity="0.3" stroke-width="1" vector-effect="non-scaling-stroke" mask="url(#vmask)" /></svg></div>
+              <div class="layer par" style="--py:-1.5rem"><svg class="veil veil--c" viewBox="0 0 480 440" focusable="false"><defs><linearGradient id="v3" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="var(--warm-white)" stop-opacity="0.08" /><stop offset="1" stop-color="var(--warm-white)" stop-opacity="0" /></linearGradient></defs><path d="M-500 296C-300 246 -100 356 160 288S360 246 560 296V440H-500Z" fill="url(#v3)" mask="url(#vmask)" /></svg></div>
+              <div class="layer par" style="--py:-2.25rem">
+                <svg viewBox="0 0 480 440" focusable="false">
+                  <g fill="none" stroke-linecap="round" vector-effect="non-scaling-stroke">
+                    <path class="strand" pathLength="1" d="M40 336C90 296 120 376 170 336S250 296 290 341 360 386 440 326" stroke="var(--warm-white)" stroke-width="1.5" vector-effect="non-scaling-stroke" />
+                    <path class="strand strand--b" pathLength="1" d="M60 372C110 342 140 402 190 369S270 337 310 375 380 407 430 359" stroke="var(--warm-white)" stroke-opacity="0.5" stroke-width="1" vector-effect="non-scaling-stroke" />
+                    <path class="strand strand--c" pathLength="1" d="M90 300C140 270 170 330 220 300S300 275 340 305" stroke="var(--pink)" stroke-width="1.25" vector-effect="non-scaling-stroke" />
+                  </g>
+                  <path d="M440 316l2.4 8 8 2.4-8 2.4-2.4 8-2.4-8-8-2.4 8-2.4Z" fill="var(--pink)" />
+                </svg>
+              </div>
+            </div>
           )}
-        </div>
-        <div class="prose">
-          {s.paragraphs.map((p, j) => <p class="prose__p" data-reveal style={`--reveal-delay:${j * 0.08}s`}>{p}</p>)}
-        </div>
-      </article>
-    ))}
+        </article>
+      ))}
+    </div>
   </section>
 
-  <!-- 4 · APPROACH --------------------------------------------------------------------- -->
-  <section class="band approach" aria-labelledby="approach-title">
+  <!-- 4 · APPROACH : the pause (smoky plum) ----------------------------------------------- -->
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+    <defs>
+      <symbol id="celestial" viewBox="0 0 200 200">
+        <circle class="cel__ring" cx="100" cy="100" r="96" fill="none" stroke="currentColor" stroke-width="1" stroke-dasharray="1.5 7" vector-effect="non-scaling-stroke" />
+        <circle cx="100" cy="100" r="80" fill="none" stroke="currentColor" stroke-width="1" opacity="0.7" vector-effect="non-scaling-stroke" />
+        <circle cx="100" cy="100" r="58" fill="var(--noir)" fill-opacity="0.55" stroke="currentColor" stroke-width="1.25" vector-effect="non-scaling-stroke" />
+        <path d="M110 66A36 36 0 1 0 110 134A41 41 0 0 1 110 66Z" fill="currentColor" />
+        <path d="M100 0v10M100 190v10M0 100h10M190 100h10" stroke="currentColor" stroke-width="1" vector-effect="non-scaling-stroke" />
+        <path d="M148 52l2 6 6 2-6 2-2 6-2-6-6-2 6-2Z" fill="var(--pink)" />
+      </symbol>
+    </defs>
+  </svg>
+  <section class="zone zone--smoke approach" aria-labelledby="approach-title">
+    <span class="approach__q approach__q--open" aria-hidden="true">“</span>
+    <span class="approach__q approach__q--close" aria-hidden="true">”</span>
     <div class="container-wide approach__inner">
-      <span class="idx t-label" aria-hidden="true" data-reveal>{pad(3)}</span>
+      <div class="approach__symbol par" style="--py:1.5rem" aria-hidden="true" data-reveal><svg viewBox="0 0 200 200" focusable="false"><use href="#celestial" /></svg></div>
+      <span class="idx idx--soft t-label" aria-hidden="true" data-reveal>{pad(3)}</span>
       <h2 id="approach-title" class="h-display" data-reveal>{d.approach.heading}</h2>
       <p class="approach__lead" data-reveal>{d.approach.lead}</p>
-      <p class="approach__closing t-statement" data-reveal>
-        <span class="star star--center" aria-hidden="true"></span>
-        {d.approach.closing}
-      </p>
+      <p class="approach__closing" data-reveal>{d.approach.closing}</p>
     </div>
   </section>
 
-  <!-- 5 · ETHICS ----------------------------------------------------------------------- -->
-  <section class="band ethics" aria-labelledby="ethics-title">
+  <!-- 5 · ETHICS : moonlit charcoal, five principle panels ---------------------------------- -->
+  <section class="zone zone--charcoal ethics" aria-labelledby="ethics-title">
     <div class="container-wide">
       <header class="ethics__head" data-reveal>
         <p class="t-label ethics__eyebrow">{d.ethics.eyebrow}</p>
@@ -122,9 +229,16 @@ const mailto = card.email ? `mailto:${card.email}` : null;
       </header>
       <div class="laws">
         {d.ethics.groups.map((g, i) => (
-          <section class="law" aria-labelledby={`law-${i}`} data-reveal>
+          <section class={`law law--${i + 1}`} aria-labelledby={`law-${i}`} data-reveal style={`--reveal-delay:${(i % 2) * 0.1}s`}>
+            <svg class="law__sym" viewBox="0 0 48 48" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round" vector-effect="non-scaling-stroke">
+              {symbols[i] === 'plumb' && (<><path d="M14 6H34M24 6V30" /><path d="M24 30c0 4 5 7 5 11a5 5 0 0 1-10 0c0-4 5-7 5-11Z" /><path d="M24 36l1.2 2.4L24 40.8l-1.2-2.4Z" fill="var(--pink)" stroke="none" /></>)}
+              {symbols[i] === 'fork' && (<><circle cx="24" cy="40" r="2.5" /><path d="M24 37.5V24C24 16 14 14 11 8M24 24c0-8 10-10 13-16" /><path d="M7 11l4-3.5 3.2 4M33.5 11.5 37 8l4 3.2" /></>)}
+              {symbols[i] === 'cradle' && (<><path d="M6 24a18 18 0 0 0 36 0" /><path d="M12 24a12 12 0 0 0 24 0" opacity="0.6" /><path d="M24 8l1.8 5.4L31 15l-5.2 1.6L24 22l-1.8-5.4L17 15l5.2-1.6Z" fill="var(--pink)" stroke="none" /></>)}
+              {symbols[i] === 'veil' && (<><circle cx="19" cy="24" r="12" /><circle cx="29" cy="24" r="12" /><circle cx="24" cy="24" r="1.8" fill="var(--pink)" stroke="none" /></>)}
+              {symbols[i] === 'gate' && (<><path d="M10 40V22a14 14 0 0 1 28 0v18" /><path d="M4 40H44" /><path d="M24 8v7M20.5 11.5h7" opacity="0.7" /><circle cx="24" cy="30" r="2" fill="var(--pink)" stroke="none" /></>)}
+            </svg>
             <div class="law__head">
-              <span class="idx t-label" aria-hidden="true">{pad(i + 1)}</span>
+              <span class="idx idx--soft t-label" aria-hidden="true">{pad(i + 1)}</span>
               <h3 id={`law-${i}`} class="law__title">{g.title}</h3>
             </div>
             <ul class="law__list list-reset" role="list">
@@ -136,15 +250,15 @@ const mailto = card.email ? `mailto:${card.email}` : null;
     </div>
   </section>
 
-  <!-- 6 · CLOSING ---------------------------------------------------------------------- -->
-  <section class="band closing">
+  <!-- 6 · CLOSING : the eclipse returns --------------------------------------------------- -->
+  <section class="zone zone--close closing">
     <div class="container-wide closing__inner" data-reveal>
-      <svg class="closing__moon" viewBox="0 0 100 100" aria-hidden="true" focusable="false"><circle cx="50" cy="50" r="46" fill="none" stroke="var(--rule-strong)" stroke-width="1" vector-effect="non-scaling-stroke" /><path d="M58 22A30 30 0 1 0 58 78A34 34 0 0 1 58 22Z" fill="none" stroke="var(--warm-white)" stroke-width="1.25" stroke-linejoin="round" vector-effect="non-scaling-stroke" /></svg>
+      <div class="closing__stage" aria-hidden="true"><span class="closing__bloom"></span><Eclipse /></div>
       <h2 id="closing-title" class="h-display closing__title">{d.closing.headline}</h2>
       <p class="t-statement closing__support">{d.closing.support}</p>
       <div class="closing__actions">
-        {mailto && <a class="btn" href={mailto}>{d.closing.enquire} <span class="btn__arrow" aria-hidden="true">→</span></a>}
-        <a class="link-arrow" href="/store">Visit the shop <span class="btn__arrow" aria-hidden="true">→</span></a>
+        {mailto && <a class="btn btn--lg" href={mailto}>{d.closing.enquire} <span class="btn__arrow" aria-hidden="true">→</span></a>}
+        <a class="link-arrow closing__second" href="/store">Visit the shop <span class="btn__arrow" aria-hidden="true">→</span></a>
       </div>
       {card.email && <p class="closing__mail t-label">{card.email}</p>}
     </div>
@@ -162,9 +276,8 @@ const mailto = card.email ? `mailto:${card.email}` : null;
   :global(.sky .stars.stars--mid) { opacity: 0.36; }
   :global(.sky .stars.stars--near) { --hi: 0.5; --lo: 0.25; }
   .h-display { font-family: var(--font-display); font-weight: 400; text-transform: uppercase; line-height: 0.92; letter-spacing: 0.005em; text-wrap: balance; font-size: clamp(2.75rem, 1.6rem + 5vw, 5rem); }
-  .idx { display: block; color: var(--pink); }
+  .idx { display: block; color: var(--soft-pink); }
   .star { display: block; width: 0.75rem; height: 0.75rem; background: var(--pink); clip-path: polygon(50% 0, 60% 40%, 100% 50%, 60% 60%, 50% 100%, 40% 60%, 0 50%, 40% 40%); }
-  .band { position: relative; padding-block: var(--space-2xl); border-top: var(--border-thin); }
 
   /* ---- Hero ----------------------------------------------------------------------------- */
   .hero { display: grid; gap: var(--space-l); align-items: center; padding-block: var(--space-m) var(--space-2xl); }
@@ -185,54 +298,144 @@ const mailto = card.email ? `mailto:${card.email}` : null;
     .hero__art :global(.eclipse) { --e: 7rem; }
   }
 
-  /* ---- Two-column editorial rows -------------------------------------------------------- */
-  .split { display: grid; gap: var(--space-l); }
-  .split__head { display: grid; gap: var(--space-s); justify-items: start; align-content: start; }
-  .prose { display: grid; align-content: start; gap: var(--space-m); max-width: 38rem; }
-  .prose__p { font-size: var(--fs-body); line-height: 1.7; color: var(--text-muted); text-wrap: pretty; }
-  .prose__p--lead { font-family: var(--font-statement); font-size: var(--fs-statement-sm); font-weight: 500; line-height: 1.4; color: var(--warm-white); }
-  .service + .service { margin-top: var(--space-2xl); padding-top: var(--space-2xl); border-top: var(--border-thin); }
-  .services { padding-block: var(--space-2xl); }
+  /* ======================================================================================
+     Chapters. Every zone below the hero owns its background, so the page reads as separate
+     worlds: black sky (hero) → deep plum → charcoal stage → smoky plum → moonlit charcoal →
+     smoky pink-black. Zones meet in a curved dome that carries an edge of light.
+     ====================================================================================== */
+  .zone { --dome: clamp(1.75rem, 5vw, 4.5rem); --zpad: clamp(2.75rem, 5vw, 4.5rem); position: relative; isolation: isolate; overflow-x: clip; padding-block: var(--zpad) calc(var(--zpad) + var(--dome)); background: linear-gradient(to bottom, var(--zone-top), var(--zone-bot)); }
+  .zone::before { content: ''; position: absolute; z-index: -1; left: -8%; right: -8%; top: calc(var(--dome) * -1); height: calc(var(--dome) + 2px); background: var(--zone-top); border-radius: 50% 50% 0 0 / 100% 100% 0 0; box-shadow: inset 0 1.5px 0 var(--edge, color-mix(in srgb, var(--pink) 38%, transparent)); }
+  .zone--plum { --zone-top: color-mix(in srgb, var(--pink) 17%, color-mix(in srgb, var(--gunmetal) 9%, var(--noir))); --zone-bot: var(--noir-deep); }
+  .zone--stage { --zone-top: var(--noir-deep); --zone-bot: color-mix(in srgb, var(--noir) 80%, #000); --edge: color-mix(in srgb, var(--warm-white) 22%, transparent); }
+  .zone--smoke { --zone-top: color-mix(in srgb, var(--pink) 33%, color-mix(in srgb, var(--gunmetal) 16%, var(--noir))); --zone-bot: color-mix(in srgb, var(--pink) 20%, color-mix(in srgb, var(--gunmetal) 12%, var(--noir))); --edge: color-mix(in srgb, var(--soft-pink) 55%, transparent); --zpad: clamp(4rem, 8vw, 7rem); }
+  .zone--charcoal { --zone-top: color-mix(in srgb, var(--warm-white) 8%, color-mix(in srgb, var(--gunmetal) 21%, var(--noir))); --zone-bot: color-mix(in srgb, var(--gunmetal) 8%, var(--noir-deep)); --edge: color-mix(in srgb, var(--warm-white) 30%, transparent); }
+  .zone--close { --zone-top: var(--noir-deep); --zone-bot: color-mix(in srgb, var(--pink) 7%, var(--noir-deep)); --zpad: clamp(3.5rem, 7vw, 6rem); padding-bottom: clamp(3.5rem, 7vw, 6rem); background:
+      radial-gradient(1px 1px at 9% 22%, #fff 99%, transparent), radial-gradient(1.4px 1.4px at 21% 64%, #fff 99%, transparent), radial-gradient(1px 1px at 36% 14%, #fff 99%, transparent),
+      radial-gradient(1.2px 1.2px at 64% 28%, #fff 99%, transparent), radial-gradient(1px 1px at 78% 70%, #fff 99%, transparent), radial-gradient(1.5px 1.5px at 91% 18%, #fff 99%, transparent), radial-gradient(1px 1px at 52% 84%, #fff 99%, transparent),
+      linear-gradient(to bottom, var(--zone-top), var(--zone-bot)); }
+  .zone--close::before { box-shadow: inset 0 1.5px 0 color-mix(in srgb, var(--pink) 45%, transparent); }
+  .idx--soft { color: var(--soft-pink); }
+  /* The page footer joins the closing zone without the shared gap. */
+  :global(main + .side-footer) { margin-top: 0; }
 
-  .motif { width: min(60%, 10rem); height: auto; margin-top: var(--space-s); overflow: visible; }
-  .motif--scribe { width: min(80%, 14rem); }
-  .motif__line { stroke-dasharray: 1; stroke-dashoffset: 0; }
-
-  @media (min-width: 48rem) {
-    .split { grid-template-columns: 5fr 7fr; gap: var(--space-2xl); }
-    .meet .split__head, .service .split__head { position: sticky; top: calc(var(--header-h) + var(--space-l)); align-self: start; }
+  /* ---- 1 · Meet Cindy ------------------------------------------------------------------- */
+  .meet__grid { display: grid; gap: var(--space-m); }
+  .meet__side { display: grid; gap: var(--space-s); align-content: start; order: 0; }
+  .meet__copy { order: 1; }
+  .meet__head { display: grid; gap: var(--space-xs); }
+  .meet__art { position: relative; width: min(100%, 22rem); aspect-ratio: 400 / 460; justify-self: center; max-height: 21rem; }
+  .meet__art svg, .layer svg { position: absolute; inset: 0; width: 100%; height: 100%; max-width: none; overflow: visible; }
+  .layer { position: absolute; inset: 0; }
+  .pull { position: relative; order: 2; max-width: 40rem; margin-top: var(--space-s); padding: var(--space-m) 0 0 clamp(1rem, 4vw, 2.25rem); border-left: 2px solid var(--pink); font-family: var(--font-statement); font-weight: 500; font-size: clamp(1.5rem, 1.05rem + 2.1vw, 2.6rem); line-height: 1.2; color: var(--warm-white); text-wrap: balance; }
+  .pull__mark { position: absolute; left: clamp(0.7rem, 3vw, 1.6rem); top: -1.1rem; font-size: 5.5rem; line-height: 1; color: var(--pink); opacity: 0.5; pointer-events: none; }
+  .pull { padding-top: var(--space-l); }
+  .meet__copy { display: grid; gap: var(--space-m); max-width: 38rem; align-content: start; }
+  .meet__p { font-size: var(--fs-body); line-height: 1.7; color: color-mix(in srgb, var(--warm-white) 86%, var(--noir)); text-wrap: pretty; }
+  .meet__p--lead { font-family: var(--font-statement); font-size: var(--fs-statement-sm); font-weight: 500; line-height: 1.4; color: var(--warm-white); }
+  .tw { opacity: 0.8; }
+  @media (min-width: 64rem) {
+    .meet__grid { grid-template-columns: 5fr 6fr; gap: var(--space-2xl); align-items: start; }
+    .meet__side { gap: var(--space-m); }
+    .meet__art { width: min(100%, 25rem); max-height: none; justify-self: start; margin-left: -1.5rem; }
+    .pull { grid-column: 1 / -1; max-width: 52rem; margin: var(--space-m) 0 0 clamp(0rem, 6vw, 4rem); }
   }
 
-  /* ---- Approach ------------------------------------------------------------------------- */
-  .approach__inner { display: grid; justify-items: center; text-align: center; gap: var(--space-m); max-width: 52rem; }
-  .approach__lead { font-size: var(--fs-body); line-height: 1.75; color: var(--text-muted); max-width: 40rem; text-wrap: pretty; }
-  .approach__closing { position: relative; margin-top: var(--space-m); padding-top: var(--space-l); max-width: 40rem; color: var(--warm-white); }
-  .star--center { position: absolute; left: 50%; top: 0; translate: -50% -50%; }
-  .approach__closing::before { content: ''; position: absolute; left: 50%; top: 0; width: min(100%, 14rem); height: 1px; translate: -50% 0; background: linear-gradient(90deg, transparent, var(--rule-strong), transparent); }
+  /* ---- 2 · Services: two feature worlds -------------------------------------------------- */
+  .services__stack { display: grid; gap: clamp(1.5rem, 4vw, 3rem); }
+  .feature { position: relative; isolation: isolate; display: grid; gap: var(--space-m); padding: clamp(1.4rem, 3.4vw, 3.25rem); border: 1px solid var(--fb); }
+  .feature__art { position: relative; width: 100%; aspect-ratio: 480 / 440; max-height: 20rem; justify-self: center; order: -1; }
+  .feature__text { display: grid; gap: var(--space-s); align-content: center; justify-items: start; }
+  .feature__copy { display: grid; gap: var(--space-s); max-width: 34rem; }
+  .feature__copy p { font-size: var(--fs-body); line-height: 1.68; color: color-mix(in srgb, var(--warm-white) 86%, var(--noir)); text-wrap: pretty; }
+  .feature .h-display { text-wrap: balance; }
 
-  /* ---- Ethics --------------------------------------------------------------------------- */
-  .ethics__head { display: grid; gap: var(--space-s); justify-items: start; max-width: 44rem; margin-bottom: var(--space-xl); }
-  .ethics__eyebrow { color: var(--pink); }
-  .ethics__intro { font-size: var(--fs-body); line-height: 1.7; color: var(--text-muted); text-wrap: pretty; }
-  .laws { display: grid; }
-  .law { display: grid; gap: var(--space-s); padding-block: var(--space-l); border-top: var(--border-thin); }
-  .law__head { display: grid; gap: 0.35rem; align-content: start; }
-  .law__title { font-family: var(--font-display); font-weight: 400; text-transform: uppercase; line-height: 0.95; letter-spacing: 0.01em; font-size: clamp(2rem, 1.4rem + 2vw, 2.75rem); }
-  .law__list { display: grid; gap: 0.85rem; max-width: 38rem; }
-  .law__list li { position: relative; padding-left: 1.5rem; font-size: var(--fs-body); line-height: 1.65; color: var(--text-muted); text-wrap: pretty; }
+  .feature--lenormand { --fb: color-mix(in srgb, var(--pink) 38%, transparent); border-radius: 1.25rem 1.25rem 5rem 1.25rem;
+    background: radial-gradient(60% 70% at 82% 38%, color-mix(in srgb, var(--pink) 36%, transparent), transparent 72%), radial-gradient(50% 50% at 8% 100%, color-mix(in srgb, var(--pink) 16%, transparent), transparent 70%), linear-gradient(135deg, color-mix(in srgb, var(--pink) 14%, color-mix(in srgb, var(--gunmetal) 10%, var(--noir))), var(--noir-deep) 82%);
+    box-shadow: inset 0 1px 0 color-mix(in srgb, var(--pink) 55%, transparent), 0 2.5rem 4rem -2.5rem color-mix(in srgb, var(--pink) 35%, transparent); }
+  .feature--mediumship { --fb: color-mix(in srgb, var(--warm-white) 22%, transparent); border-radius: 1.25rem 5rem 1.25rem 1.25rem; overflow: clip;
+    background: radial-gradient(45% 60% at 20% 24%, color-mix(in srgb, var(--warm-white) 15%, transparent), transparent 72%), linear-gradient(160deg, color-mix(in srgb, var(--warm-white) 6%, color-mix(in srgb, var(--gunmetal) 20%, var(--noir))), color-mix(in srgb, var(--gunmetal) 6%, var(--noir-deep)) 85%);
+    box-shadow: inset 0 1px 0 color-mix(in srgb, var(--warm-white) 38%, transparent), 0 2.5rem 4rem -2.5rem color-mix(in srgb, var(--warm-white) 14%, transparent); }
+
+  .art--len { margin-bottom: 2.25rem; }
+  .timeline { position: absolute; left: 6%; right: 6%; bottom: -1.5rem; display: flex; align-items: center; justify-content: space-between; height: 0.6rem; }
+  .timeline::before { content: ''; position: absolute; left: 0; right: 0; top: 50%; height: 1px; background: linear-gradient(90deg, var(--pink) 0 55%, color-mix(in srgb, var(--warm-white) 45%, transparent) 55% 100%); mask: linear-gradient(90deg, #000 55%, transparent 55% 59%, #000 59% 64%, transparent 64% 69%, #000 69% 74%, transparent 74% 79%, #000 79%); -webkit-mask: linear-gradient(90deg, #000 55%, transparent 55% 59%, #000 59% 64%, transparent 64% 69%, #000 69% 74%, transparent 74% 79%, #000 79%); }
+  .timeline__node { position: relative; display: grid; justify-items: center; gap: 0.35rem; }
+  .timeline__dot { width: 0.55rem; height: 0.55rem; border-radius: 50%; border: 1px solid var(--pink); background: var(--noir); }
+  .timeline__node--near .timeline__dot { background: var(--pink); box-shadow: 0 0 0.9rem color-mix(in srgb, var(--pink) 70%, transparent); }
+  .timeline__node--far .timeline__dot { border-color: var(--warm-white); }
+  .timeline__label { position: absolute; top: 1.15rem; white-space: nowrap; color: var(--soft-pink); font-size: 0.6875rem; letter-spacing: 0.14em; }
+  .timeline__node--far .timeline__label { right: 0; color: color-mix(in srgb, var(--warm-white) 80%, var(--noir)); }
+  .timeline__node--near .timeline__label { left: 50%; translate: -50% 0; }
+  .timeline__node--now .timeline__dot { opacity: 0.6; }
+
+  @media (max-width: 24rem) { .timeline__label { letter-spacing: 0.08em; font-size: 0.625rem; } }
+  @media (min-width: 64rem) {
+    .feature { grid-template-columns: 1fr 1fr; align-items: center; gap: var(--space-xl); min-height: 29rem; }
+    .feature__art { max-height: none; order: 0; margin-block: -1.75rem; }
+    .feature--mediumship .feature__art { order: -1; }
+    .art--len { margin-bottom: -1.75rem; }
+    .timeline { bottom: 0.2rem; }
+    .timeline__label { top: auto; bottom: 1rem; }
+    .feature--lenormand { border-radius: 1.5rem 1.5rem 9rem 1.5rem; }
+    .feature--mediumship { border-radius: 1.5rem 9rem 1.5rem 1.5rem; }
+    .services__stack { gap: var(--space-xl); }
+  }
+
+  /* ---- 3 · Approach: the pause ----------------------------------------------------------- */
+  .approach { text-align: center; color: var(--warm-white); }
+  .approach::after { content: ''; position: absolute; z-index: -1; inset: 0; background: radial-gradient(50% 60% at 50% 38%, color-mix(in srgb, var(--soft-pink) 22%, transparent), transparent 70%); pointer-events: none; }
+  .approach__q { position: absolute; z-index: -1; font-family: var(--font-statement); font-weight: 500; line-height: 0.8; font-size: clamp(11rem, 34vw, 26rem); color: color-mix(in srgb, var(--soft-pink) 20%, transparent); pointer-events: none; user-select: none; }
+  .approach__q--open { left: 2%; top: 1%; }
+  .approach__q--close { right: 3%; bottom: 3%; }
+  .approach__inner { display: grid; justify-items: center; gap: var(--space-m); max-width: 56rem; }
+  .approach__symbol { width: clamp(7rem, 22vw, 11rem); aspect-ratio: 1; color: var(--soft-pink); }
+  .approach__symbol svg { width: 100%; height: 100%; overflow: visible; }
+  .approach__lead { max-width: 40rem; font-size: clamp(1.0625rem, 1rem + 0.4vw, 1.25rem); line-height: 1.7; color: var(--warm-white); text-wrap: pretty; }
+  .approach__closing { max-width: 36rem; margin-top: var(--space-s); font-family: var(--font-statement); font-weight: 500; line-height: 1.12; font-size: clamp(1.9rem, 1.1rem + 4vw, 3.6rem); letter-spacing: 0.005em; text-wrap: balance; color: #fff; }
+  .approach .h-display, .approach .idx { color: #fff; }
+
+  /* ---- 4 · Ethics: five principle panels ---------------------------------------------------- */
+  .ethics__head { display: grid; gap: var(--space-s); justify-items: start; max-width: 44rem; margin-bottom: var(--space-l); }
+  .ethics__eyebrow { color: var(--soft-pink); }
+  .ethics__intro { font-size: var(--fs-body); line-height: 1.7; color: color-mix(in srgb, var(--warm-white) 84%, var(--noir)); text-wrap: pretty; }
+  .laws { display: grid; gap: var(--space-s); }
+  .law { position: relative; isolation: isolate; display: grid; gap: var(--space-s); align-content: start; align-self: start; padding: clamp(1.25rem, 2.6vw, 2.1rem); border-radius: 1.1rem 1.1rem 1.1rem 0.35rem; border: 1px solid color-mix(in srgb, var(--warm-white) 14%, transparent);
+    background: linear-gradient(155deg, color-mix(in srgb, var(--warm-white) 8%, transparent), color-mix(in srgb, var(--warm-white) 2%, transparent) 60%);
+    box-shadow: inset 0 1px 0 color-mix(in srgb, var(--warm-white) 26%, transparent); }
+  .law:nth-child(even) { border-radius: 1.1rem 1.1rem 0.35rem 1.1rem; border-color: color-mix(in srgb, var(--pink) 30%, transparent);
+    background: radial-gradient(70% 90% at 100% 0%, color-mix(in srgb, var(--pink) 20%, transparent), transparent 70%), linear-gradient(155deg, color-mix(in srgb, var(--pink) 9%, transparent), color-mix(in srgb, var(--pink) 2%, transparent) 60%);
+    box-shadow: inset 0 1px 0 color-mix(in srgb, var(--pink) 60%, transparent), inset 1px 0 0 color-mix(in srgb, var(--pink) 18%, transparent), 0 1.5rem 3rem -2rem color-mix(in srgb, var(--pink) 40%, transparent); }
+  .law:nth-child(odd)::after { content: ''; position: absolute; z-index: -1; left: 0; top: 18%; bottom: 18%; width: 2px; border-radius: 2px; background: linear-gradient(to bottom, transparent, color-mix(in srgb, var(--pink) 80%, transparent), transparent); }
+  .law__sym { width: 2.6rem; height: 2.6rem; color: var(--soft-pink); overflow: visible; max-width: none; }
+  .law__head { display: grid; gap: 0.3rem; }
+  .law__title { font-family: var(--font-display); font-weight: 400; text-transform: uppercase; line-height: 0.95; letter-spacing: 0.01em; font-size: clamp(2rem, 1.4rem + 2vw, 2.9rem); }
+  .law__list { display: grid; gap: 0.7rem; }
+  .law__list li { position: relative; padding-left: 1.4rem; font-size: var(--fs-body); line-height: 1.62; color: color-mix(in srgb, var(--warm-white) 86%, var(--noir)); text-wrap: pretty; }
   .law__list li::before { content: ''; position: absolute; left: 0; top: 0.55em; width: 0.55rem; height: 0.55rem; background: var(--pink); clip-path: polygon(50% 0, 60% 40%, 100% 50%, 60% 60%, 50% 100%, 40% 60%, 0 50%, 40% 40%); }
   @media (min-width: 48rem) {
-    .law { grid-template-columns: 5fr 7fr; gap: var(--space-2xl); }
+    .laws { grid-template-columns: repeat(12, 1fr); gap: var(--space-m); }
+    .law--1 { grid-column: 1 / span 7; } .law--2 { grid-column: 8 / span 5; margin-top: var(--space-l); }
+    .law--3 { grid-column: 1 / span 5; } .law--4 { grid-column: 6 / span 7; margin-top: var(--space-l); }
+    .law--5 { grid-column: 3 / span 8; margin-top: var(--space-s); }
+    .law--5 .law__list { grid-template-columns: 1fr 1fr; gap: var(--space-m); }
+    .law { grid-template-columns: auto 1fr; column-gap: var(--space-m); align-items: start; }
+    .law__sym { grid-row: 1 / span 2; }
+    .law__head, .law__list { grid-column: 2; }
   }
 
-  /* ---- Closing -------------------------------------------------------------------------- */
-  .closing { padding-block: var(--space-3xl); }
-  .closing__inner { display: grid; justify-items: center; text-align: center; gap: var(--space-m); }
-  .closing__moon { width: 3.25rem; height: 3.25rem; overflow: visible; }
+  /* ---- 5 · Closing: the eclipse returns ----------------------------------------------------- */
+  .closing__inner { position: relative; display: grid; justify-items: center; text-align: center; gap: var(--space-m); }
+  .closing__stage { position: relative; width: min(100%, 22rem); aspect-ratio: 1; margin-bottom: calc(var(--space-m) * -1); }
+  .closing__bloom { position: absolute; left: 50%; top: 50%; width: min(130vw, 46rem); aspect-ratio: 1; translate: -50% -50%; border-radius: 50%; pointer-events: none;
+    background: radial-gradient(closest-side, color-mix(in srgb, var(--pink) 46%, transparent), color-mix(in srgb, var(--pink) 18%, transparent) 46%, transparent 74%); }
+  .closing__stage :global(.eclipse) { --e: 6.25rem; left: 50%; right: auto; top: 50%; translate: -50% -50%; }
   .closing__title { font-size: clamp(3rem, 1.5rem + 7vw, 7rem); }
   .closing__support { max-width: 28rem; }
   .closing__actions { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: var(--space-s) var(--space-l); margin-top: var(--space-s); }
-  .closing__mail { color: var(--text-muted); text-transform: none; letter-spacing: 0.04em; overflow-wrap: anywhere; }
+  .btn--lg { min-height: 3.6rem; padding-inline: 2.4rem; font-size: 0.9375rem; box-shadow: 0 0 3rem color-mix(in srgb, var(--pink) 50%, transparent), 0 0.6rem 1.5rem -0.5rem color-mix(in srgb, var(--pink) 60%, transparent); }
+  .closing__second { color: color-mix(in srgb, var(--warm-white) 78%, var(--noir)); font-weight: 500; }
+  .closing__mail { color: color-mix(in srgb, var(--warm-white) 74%, var(--noir)); text-transform: none; letter-spacing: 0.04em; overflow-wrap: anywhere; }
+  @media (min-width: 48rem) { .closing__stage { width: 26rem; } .closing__stage :global(.eclipse) { --e: 8.5rem; } }
 
   /* ---- Motion: restrained, and only when the visitor allows it -------------------------- */
   @media (prefers-reduced-motion: no-preference) {
@@ -240,14 +443,41 @@ const mailto = card.email ? `mailto:${card.email}` : null;
     .hero__art { animation: art-in 2s var(--ease-out) 0.2s backwards; }
     .pendulum { animation: swing 7s ease-in-out -2s infinite alternate; }
     .hero__orbit { transform-origin: 50% 50%; animation: turn 160s linear infinite; }
-    .motif__swing { animation: fade 5s ease-in-out infinite alternate; }
-    /* The scribing line writes itself as it scrolls into view (visible at once without JS). */
-    :global(.js) .motif__line { stroke-dashoffset: 1; transition: stroke-dashoffset 2.4s var(--ease-in-out) 0.25s; }
-    :global(.js) .is-in .motif__line { stroke-dashoffset: 0; }
+
+    /* Section artwork: lines write themselves once revealed; ambient loops stay slow. */
+    :global(.js) .draw { stroke-dasharray: 1; stroke-dashoffset: 1; transition: stroke-dashoffset 2.6s var(--ease-in-out) 0.35s; }
+    :global(.js) .is-in .draw { stroke-dashoffset: 0; }
+    :global(.js) .draw--b { transition-delay: 0.8s; }
+    .draw { stroke-dasharray: 1; }
+    .pend { transform-origin: 330px 6px; animation: swing-s 6.5s ease-in-out infinite alternate; }
+    .frame { animation: march 22s linear infinite; }
+    .tw { animation: twink 4.6s ease-in-out infinite alternate; } .tw--b { animation-delay: -1.7s; } .tw--c { animation-delay: -3.1s; }
+    .arc-bob, .arc-glow { offset-rotate: 0deg; animation: arc 7s ease-in-out infinite alternate; }
+    .moon-glow { animation: glow 8s ease-in-out infinite alternate; }
+    .veil--a { animation: drift 15s ease-in-out infinite alternate; } .veil--b { animation: drift 21s ease-in-out -6s infinite alternate-reverse; } .veil--c { animation: drift 27s ease-in-out -11s infinite alternate; }
+    :global(.js) .strand { stroke-dasharray: 1; stroke-dashoffset: 1; }
+    :global(.js) .is-in .strand { animation: scribe 11s ease-in-out infinite; }
+    :global(.js) .is-in .strand--b { animation-delay: 1.4s; } :global(.js) .is-in .strand--c { animation-delay: 2.8s; }
+    .cel__ring { transform-origin: 100px 100px; animation: turn 120s linear infinite; }
+    .closing__bloom { animation: bloom 7s ease-in-out infinite alternate; }
+
+    /* Depth: artwork layers drift against the scroll where the browser supports it (no JS). */
+    @supports (animation-timeline: view()) {
+      .par { animation: par linear both; animation-timeline: view(); animation-range: cover 0% cover 100%; }
+    }
+
     @keyframes rise { from { opacity: 0; transform: translate3d(0, 1rem, 0); } }
     @keyframes art-in { from { opacity: 0; } }
     @keyframes swing { from { transform: rotate(-7deg); } to { transform: rotate(7deg); } }
+    @keyframes swing-s { from { transform: rotate(-9deg); } to { transform: rotate(9deg); } }
     @keyframes turn { to { transform: rotate(360deg); } }
-    @keyframes fade { from { opacity: 0.35; } to { opacity: 1; } }
+    @keyframes march { to { stroke-dashoffset: -200; } }
+    @keyframes twink { from { opacity: 0.25; } to { opacity: 1; } }
+    @keyframes arc { from { offset-distance: 4%; } to { offset-distance: 96%; } }
+    @keyframes glow { from { opacity: 0.7; } to { opacity: 1; } }
+    @keyframes drift { from { transform: translate3d(-3%, 0, 0); } to { transform: translate3d(3%, 0, 0); } }
+    @keyframes scribe { 0% { stroke-dashoffset: 1; opacity: 1; } 45% { stroke-dashoffset: 0; } 82% { stroke-dashoffset: 0; opacity: 1; } 100% { stroke-dashoffset: 0; opacity: 0; } }
+    @keyframes bloom { from { opacity: 0.75; transform: scale(0.95); } to { opacity: 1; transform: scale(1.06); } }
+    @keyframes par { from { transform: translate3d(0, var(--py, 1rem), 0); } to { transform: translate3d(0, calc(var(--py, 1rem) * -1), 0); } }
   }
 </style>

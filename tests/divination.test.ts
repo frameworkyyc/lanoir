@@ -1,6 +1,6 @@
 import { describe, it } from 'node:test';
 import assert from 'node:assert/strict';
-import { divination as d } from '../src/config/divination.ts';
+import { divination as d, meetPullQuote } from '../src/config/divination.ts';
 
 const allCopy = (): string[] => [
   d.title, d.description,
@@ -52,5 +52,19 @@ describe('/divination copy (confirmed content only)', () => {
     assert.equal(d.path, '/divination');
     assert.equal(d.description, d.hero.intro);
     assert.ok(d.title.includes('Love Beyond the Veil'));
+  });
+
+  it('pull quote is lifted verbatim from the biography (nothing new is written)', () => {
+    const bio = d.meet.paragraphs.join(' ');
+    assert.ok(bio.toLowerCase().includes(meetPullQuote.toLowerCase()), meetPullQuote);
+    assert.equal(meetPullQuote, 'A welcoming, respectful and meaningful experience guided by intuition, compassion and an open heart.');
+  });
+
+  it('timeline labels come from the existing Lenormand copy (three months; six-to-nine months)', () => {
+    const [near, far] = d.services[0].timeline!;
+    assert.equal(near, '3 months');
+    assert.equal(far, '6–9 months');
+    assert.ok(/three months/.test(d.services[0].paragraphs[0]) && /six-to-nine-month/.test(d.services[0].paragraphs[0]));
+    assert.equal(d.services[1].timeline, undefined);
   });
 });

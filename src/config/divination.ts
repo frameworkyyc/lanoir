@@ -3,7 +3,7 @@
  * metadata and the tests. Do not add prices, durations, locations, booking claims, qualifications,
  * credentials or years of experience unless the client supplies them.
  */
-export interface DivinationService { key: 'lenormand' | 'mediumship'; title: string; paragraphs: string[] }
+export interface DivinationService { key: 'lenormand' | 'mediumship'; title: string; paragraphs: string[]; /** Decorative timeline labels (from the existing copy: next three months, six-to-nine-month outlook). */ timeline?: [string, string] }
 export interface EthicsGroup { title: string; items: string[] }
 
 const intro =
@@ -38,6 +38,7 @@ export const divination = {
     {
       key: 'lenormand',
       title: 'Lenormand Readings',
+      timeline: ['3 months', '6–9 months'],
       paragraphs: [
         'Using the La Santa Muerte Lenormand deck, intuitive interpretation and pendulum dowsing, I explore themes, circumstances and potential developments over the next three months, with a broader outlook toward the six-to-nine-month period.',
         'During a reading, I interpret the cards in relation to your questions and circumstances, using clarifying questions and pendulum dowsing where appropriate. The reading explores potential paths and developments, offering perspective to help you better understand your circumstances and consider your choices.',
@@ -113,3 +114,14 @@ export const divination = {
     enquire: 'Enquire',
   },
 };
+
+/**
+ * Enlarged pull quote: lifted verbatim from the last "Meet Cindy" paragraph (only the first letter is
+ * capitalised), so it can never drift from the biography.
+ */
+export const meetPullQuote = (() => {
+  const last = divination.meet.paragraphs[divination.meet.paragraphs.length - 1];
+  const start = last.indexOf('a welcoming');
+  const q = last.slice(start);
+  return q.charAt(0).toUpperCase() + q.slice(1);
+})();

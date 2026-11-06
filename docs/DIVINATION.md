@@ -3,23 +3,38 @@
 The world entered through the Divination door on the landing ("The Threshold"): the same night sky, eclipse and
 moonlight, but calmer and built for reading. Static page; no Square, no cart code, works without JavaScript.
 
+## Art direction: chapters
+The hero (black sky, eclipse, dowsing pendulum) is the anchor. Everything below is a separate world, joined by curved
+"dome" transitions that carry an edge of light:
+
+| Chapter | Background | Artwork |
+|---|---|---|
+| Hero | black sky (shared with the landing) | eclipse, pendulum, orbit rings |
+| Meet Cindy | deep plum to black | Lenormand card + dowsing pendulum + scribed line; one pull quote |
+| Services | charcoal stage; two feature panels | Lenormand: pink/plum, fanned cards, pendulum arc, 3 months / 6–9 months timeline. Mediumship: moonlit, veil layers, looping scribed lines. Text/art sides alternate |
+| A Practice Rooted in Respect | brighter smoky plum, full width | celestial symbol, oversized quotation marks and closing statement |
+| Ethics & Sacred Practice | moonlit charcoal | five principle panels in an offset grid, each with a line symbol; alternating glass / pink edge-light surfaces |
+| Closing | smoky pink-black with stars | the eclipse with a strong pink bloom; Enquire is primary, Visit the shop secondary |
+
+Backgrounds use tints of the brand palette only (pink, gunmetal, warm-white over Noir). "Cooler" moonlight is gunmetal and
+warm-white, not a new hue.
+
 ## Where things live
-- `src/config/divination.ts` – **every word on the page** (hero, Meet Cindy, services, approach, ethics, closing)
-  plus the page title and description. Edit copy here; `tests/divination.test.ts` guards the confirmed wording and
-  fails if prices, durations, booking claims, credentials or placeholders appear.
-- `src/pages/divination.astro` – layout, motifs (eclipse + dowsing pendulum, Lenormand card, scribing line) and CSS.
-- Shared with the landing and unchanged: `components/landing/Sky.astro` and `Eclipse.astro`. This page dims the stars,
-  hides the light beam, meteor and glints, and makes `body` transparent so the fixed sky shows through.
+- `src/config/divination.ts` – **every word on the page** plus the page title and description, the pull quote (lifted
+  verbatim from the last biography paragraph) and the two decorative timeline labels (from the Lenormand copy).
+  `tests/divination.test.ts` guards the confirmed wording and fails if prices, durations, booking claims, credentials or
+  placeholders appear.
+- `src/pages/divination.astro` – layout, artwork and CSS. Zone colours are the `--zone-top` / `--zone-bot` variables.
+- Shared with the landing and unchanged: `components/landing/Sky.astro` and `Eclipse.astro`.
 
 ## Behaviour
-- Scroll reveals use the site's existing `data-reveal` (gated by `.js`, so everything is visible without JavaScript).
-- Motion is restrained: a slow pendulum sway, a slow orbit, a drifting sky and a scribing line that writes itself once.
-  `prefers-reduced-motion` removes all of it (0 running animations).
-- Enquire: a plain `mailto:` link using `card.email` from `src/config/card.ts` (the public email already on the digital
-  card). It is hidden automatically if that value is ever set to `null`.
-- Metadata: title "Divination by LaNoir | Love Beyond the Veil"; description is the confirmed intro sentence only;
-  canonical `/divination`; breadcrumb JSON-LD only (no `Service`/`Person`/`Offer` schema until facts are confirmed).
-  `/divination` is in the generated `sitemap-0.xml`.
+- Scroll reveals use the site's `data-reveal` (gated by `.js`, so everything is visible without JavaScript).
+- Parallax is CSS scroll-driven animation (`animation-timeline: view()`) on the artwork layers: no JavaScript, and it simply
+  doesn't run in browsers that lack it. Ambient loops (pendulum, veils, scribed lines, moon glow) are slow.
+  `prefers-reduced-motion` removes all of it (0 running animations; every line fully drawn).
+- Enquire: a plain `mailto:` link using `card.email` from `src/config/card.ts`. Hidden automatically if that is `null`.
+- Metadata: title "Divination by LaNoir | Love Beyond the Veil"; description is the confirmed intro only; canonical
+  `/divination`; breadcrumb JSON-LD only. `/divination` is in the generated `sitemap-0.xml`.
 
 ## Deliberately omitted (not supplied)
 Prices, durations, locations, a booking method or button, qualifications/credentials/years of experience, a portrait or
