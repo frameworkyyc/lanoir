@@ -55,7 +55,7 @@ export const primaryNav: NavItem[] = [
   { label: 'Statement Wear', href: '/statement-wear' },
   { label: 'Accessories / Jewelry', href: '/accessories' },
   { label: 'About LaNoir', href: '/about' },
-  { label: 'Divination', href: '/divination', accent: true },
+  { label: 'Spiritual Services', href: '/spiritual-services', accent: true },
 ];
 
 export const footerPolicies: NavItem[] = [

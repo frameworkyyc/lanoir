@@ -2,30 +2,30 @@
 
 | Route | What |
 |---|---|
-| `/` | **Landing** — two doors: **The Shop** → `/store`, **Divination** → `/divination`. Everyone sees it. Static; no shop header, cart or announcement bar. |
+| `/` | **Landing** — two doors: **The Shop** → `/store`, **Spiritual Services** → `/spiritual-services`. Everyone sees it. Static; no shop header, cart or announcement bar. |
 | `/store` | The shop's front page (the former homepage, unchanged). Live Square data. |
 | `/shop` | Shop All catalogue (unchanged). Collections, products, cart, `/card` are unchanged too. |
-| `/divination` | Divination — the full page, see `docs/DIVINATION.md`. |
+| `/spiritual-services` | Spiritual Services — the full page, see `docs/SPIRITUAL-SERVICES.md`. `/divination` redirects here (301). |
 
 ## Edit it
 - Landing copy, door labels, links: `src/config/landing.ts` (one source for the page, its metadata and `tests/landing.test.ts`).
 - Shop navigation (desktop + mobile): `primaryNav` in `src/config/site.ts` (`accent: true` makes an item pink).
-- Frames: `BaseLayout` takes `chrome="shop" | "divination" | "bare"` (landing uses `bare`; divination uses a slim header/footer with no cart).
+- Frames: `BaseLayout` takes `chrome="shop" | "spiritual" | "bare"` (landing uses `bare`; Spiritual Services uses a slim header/footer with no cart).
 
 ## How the two sides stay one brand
 Same palette, Bebas/Cinzel/Inter, hairlines, sharp corners and celestial motifs. The shop door carries the pink ring and
-dot; the divination door the moon and stars on the deeper Noir already used by After Dark; one shared moon sits where
-the two doors meet. The divination header is the shop header's twin (LN monogram, label type, pink accent).
+dot; the Spiritual Services door the moon and stars on the deeper Noir already used by After Dark; one shared moon sits where
+the two doors meet. The Spiritual Services header is the shop header's twin (LN monogram, label type, pink accent).
 
-## Divination
-The page is built from confirmed client copy only; see `docs/DIVINATION.md` for what it contains, what is still omitted and how to edit it.
+## Spiritual Services
+The page is built from confirmed client copy only; see `docs/SPIRITUAL-SERVICES.md` for what it contains, what is still omitted and how to edit it.
 
 ## Art direction: "The Threshold"
 
 The landing (`/`) is one night sky split by a single eclipse. The two sides share the sky, stars, mist,
 grain, type and eclipse, so they read as one brand; each gets its own energy.
 
-| | The Shop | Divination |
+| | The Shop | Spiritual Services |
 |---|---|---|
 | Light | pink, warm | warm-white moonlight |
 | Motion | embers rise, a fire-glyph sigil turns | motes drift, an orbit star circles, a constellation draws in |

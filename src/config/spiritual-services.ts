@@ -1,22 +1,23 @@
 /**
- * Copy for /divination: CONFIRMED CONTENT ONLY, supplied by the client. One source for the page, its
+ * Copy for /spiritual-services: CONFIRMED CONTENT ONLY, supplied by the client. One source for the page, its
  * metadata and the tests. Do not add prices, durations, locations, booking claims, qualifications,
  * credentials or years of experience unless the client supplies them.
  */
-export interface DivinationService { key: 'lenormand' | 'mediumship'; title: string; paragraphs: string[]; /** Decorative timeline labels (from the existing copy: next three months, six-to-nine-month outlook). */ timeline?: [string, string] }
+export interface SpiritualService { key: 'lenormand' | 'mediumship'; title: string; paragraphs: string[]; /** Decorative timeline labels (from the existing copy: next three months, six-to-nine-month outlook). */ timeline?: [string, string] }
+export interface TrainingItem { title: string; detail?: string; /** Only "In Progress" is used: that credential is NOT complete. */ status?: 'In Progress' }
 export interface EthicsGroup { title: string; items: string[] }
 
 const intro =
   'Intuitive readings for clarity, reflection and guidance through Lenormand, pendulum dowsing, mediumship and spirit scribing.';
 
-export const divination = {
-  title: 'Divination by LaNoir | Love Beyond the Veil',
+export const spiritualServices = {
+  title: 'Spiritual Services by LaNoir | Love Beyond the Veil',
   /** Same sentence as the hero introduction: only a confirmed claim. */
   description: intro,
-  path: '/divination',
+  path: '/spiritual-services',
 
   hero: {
-    eyebrow: 'Divination by LaNoir',
+    eyebrow: 'Spiritual Services by LaNoir',
     headline: 'Love Beyond the Veil.',
     support: 'Where Spirit Speaks and Intuition Leads.',
     intro,
@@ -30,6 +31,25 @@ export const divination = {
       'My practice also extends into mediumship, where I seek to connect with those who have passed and thoughtfully scribe the messages and impressions that come through. These spirit-focused sessions offer a gentle, personal space to explore the possibility of connection, remembrance and the enduring bonds we share with those we love.',
       'Whether you’re seeking clarity about the road ahead or are curious about a connection beyond the physical world, my intention is to provide a welcoming, respectful and meaningful experience guided by intuition, compassion and an open heart.',
     ],
+  },
+
+  /**
+   * Training & Certifications: EXACTLY the credentials supplied. No providers, dates, licences, years of
+   * experience, memberships or accreditations are added. `detail` is the part after the em dash in the
+   * supplied wording. These are credentials, NOT bookable services: the confirmed services stay
+   * Lenormand Readings and Mediumship & Spirit Scribing.
+   */
+  training: {
+    heading: 'Training & Certifications',
+    items: [
+      { title: 'Intuitive Tarot Masterclass Certificate' },
+      { title: 'Intuitive Psychic Mediumship Masterclass Certificate' },
+      { title: 'Witchcraft Foundations Certificate' },
+      { title: 'Reiki for Witches', detail: 'Crystal Reiki Certification, Level 1' },
+      { title: 'Pendulum Dowsing Certification', detail: 'Tony Savory, Founder of the World Divination Association' },
+      { title: 'The Basics of Paganism and Witchcraft Certification' },
+      { title: 'Advanced Psychic Development and Clairvoyance Certificate', status: 'In Progress' },
+    ] satisfies TrainingItem[],
   },
 
   /** Section has no visible heading in the brief; this names the region for assistive technology only. */
@@ -52,7 +72,7 @@ export const divination = {
         'During these sessions, I use spiritual scribing to record and communicate what I receive. Every experience is different, and while I approach this work with openness and respect, a specific connection or message cannot be guaranteed.',
       ],
     },
-  ] satisfies DivinationService[],
+  ] satisfies SpiritualService[],
 
   approach: {
     heading: 'A Practice Rooted in Respect',
@@ -120,8 +140,11 @@ export const divination = {
  * capitalised), so it can never drift from the biography.
  */
 export const meetPullQuote = (() => {
-  const last = divination.meet.paragraphs[divination.meet.paragraphs.length - 1];
+  const last = spiritualServices.meet.paragraphs[spiritualServices.meet.paragraphs.length - 1];
   const start = last.indexOf('a welcoming');
   const q = last.slice(start);
   return q.charAt(0).toUpperCase() + q.slice(1);
 })();
+
+/** The credential exactly as supplied (title, em dash, detail or status). */
+export const credentialText = (i: TrainingItem) => [i.title, i.detail ?? i.status].filter(Boolean).join(' — ');

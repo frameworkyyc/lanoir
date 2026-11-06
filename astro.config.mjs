@@ -15,6 +15,8 @@ export default defineConfig({
   site,
   output: 'static',
   trailingSlash: 'never',
+  // The Divination side was renamed Spiritual Services: old links keep working (permanent redirect).
+  redirects: { '/divination': { status: 301, destination: '/spiritual-services' } },
   adapter: cloudflare({
     // Square product images are served straight from Square's CDN (no Cloudflare Image
     // Transformations yet), and the logo uses pre-generated static WebP files (npm run brand-images).

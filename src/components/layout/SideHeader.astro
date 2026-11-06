@@ -1,14 +1,14 @@
 ---
 /**
- * Slim header for the divination side. Same bones as the shop header (sticky, hairline, LN monogram,
+ * Slim header for the Spiritual Services side. Same bones as the shop header (sticky, hairline, LN monogram,
  * label type, pink accent) so the two sides read as one brand. No cart, no announcement bar.
  */
 import Logo from '../brand/Logo.astro';
-interface Props { current?: 'divination' }
+interface Props { current?: 'spiritual' }
 const { current } = Astro.props;
 const links = [
   { label: 'The Shop', href: '/store', key: 'shop' },
-  { label: 'Divination', href: '/divination', key: 'divination' },
+  { label: 'Spiritual Services', href: '/spiritual-services', key: 'spiritual' },
 ];
 ---
 <header class="side-header">
@@ -20,7 +20,7 @@ const links = [
       <ul class="list-reset side-header__list" role="list">
         {links.map((l) => (
           <li>
-            <a class:list={['side-header__link', 't-label', { 'is-accent': l.key === 'divination' }]} href={l.href} aria-current={l.key === current ? 'page' : undefined}>{l.label}</a>
+            <a class:list={['side-header__link', 't-label', { 'is-accent': l.key === 'spiritual' }]} href={l.href} aria-current={l.key === current ? 'page' : undefined}>{l.label}</a>
           </li>
         ))}
       </ul>

@@ -3,7 +3,7 @@
  * its metadata and the tests. The two sides share one brand: same palette, type and motifs.
  */
 export interface Door {
-  key: 'shop' | 'divination';
+  key: 'shop' | 'spiritual';
   href: string;
   label: string;
   description: string;
@@ -13,7 +13,7 @@ export interface Door {
 
 export const landing = {
   eyebrow: 'LaNoir / Bad Ass Witchery',
-  title: 'LaNoir | Bad Ass Witchery — The Shop & Divination',
+  title: 'LaNoir | Bad Ass Witchery — The Shop & Spiritual Services',
   doors: [
     {
       key: 'shop',
@@ -23,11 +23,11 @@ export const landing = {
       cta: 'Enter the shop',
     },
     {
-      key: 'divination',
-      href: '/divination',
-      label: 'Divination',
+      key: 'spiritual',
+      href: '/spiritual-services',
+      label: 'Spiritual Services',
       description: 'Intuitive readings for clarity, reflection and guidance.',
-      cta: 'Enter divination',
+      cta: 'Enter spiritual services',
     },
   ] satisfies Door[],
 };

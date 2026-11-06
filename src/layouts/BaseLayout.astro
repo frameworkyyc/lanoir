@@ -21,10 +21,10 @@ interface Props {
   /**
    * Which frame wraps the page:
    *  - 'shop'        announcement bar, shop header, shop footer, cart (default)
-   *  - 'divination'  slim header + footer, no cart
+   *  - 'spiritual'    slim header + footer, no cart
    *  - 'bare'        nothing but the page (the landing)
    */
-  chrome?: 'shop' | 'divination' | 'bare';
+  chrome?: 'shop' | 'spiritual' | 'bare';
 }
 const { title, chrome = 'shop', ...seo } = Astro.props;
 const fullTitle = title.includes(siteConfig.name) ? title : `${title} — ${siteConfig.name} ${siteConfig.descriptor}`;
@@ -48,12 +48,12 @@ const fullTitle = title.includes(siteConfig.name) ? title : `${title} — ${site
   <body>
     <a class="skip-link" href="#main">Skip to content</a>
     {chrome === 'shop' && <><AnnouncementBar /><Header /></>}
-    {chrome === 'divination' && <SideHeader current="divination" />}
+    {chrome === 'spiritual' && <SideHeader current="spiritual" />}
     <main id="main">
       <slot />
     </main>
     {chrome === 'shop' && <><Footer /><CartDrawer /></>}
-    {chrome === 'divination' && <SideFooter />}
+    {chrome === 'spiritual' && <SideFooter />}
     <script>
       import '~/scripts/reveal';
     </script>
