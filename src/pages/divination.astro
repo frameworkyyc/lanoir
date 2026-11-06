@@ -252,8 +252,9 @@ const symbols = ['plumb', 'fork', 'cradle', 'veil', 'gate'] as const;
 
   <!-- 6 · CLOSING : the eclipse returns --------------------------------------------------- -->
   <section class="zone zone--close closing">
+    <div class="closing__glow" aria-hidden="true"><span class="closing__bloom"></span></div>
     <div class="container-wide closing__inner" data-reveal>
-      <div class="closing__stage" aria-hidden="true"><span class="closing__bloom"></span><Eclipse /></div>
+      <div class="closing__stage" aria-hidden="true"><Eclipse /></div>
       <h2 id="closing-title" class="h-display closing__title">{d.closing.headline}</h2>
       <p class="t-statement closing__support">{d.closing.support}</p>
       <div class="closing__actions">
@@ -280,7 +281,7 @@ const symbols = ['plumb', 'fork', 'cradle', 'veil', 'gate'] as const;
   .star { display: block; width: 0.75rem; height: 0.75rem; background: var(--pink); clip-path: polygon(50% 0, 60% 40%, 100% 50%, 60% 60%, 50% 100%, 40% 60%, 0 50%, 40% 40%); }
 
   /* ---- Hero ----------------------------------------------------------------------------- */
-  .hero { display: grid; gap: var(--space-l); align-items: center; padding-block: var(--space-m) var(--space-2xl); }
+  .hero { display: grid; gap: var(--space-l); align-items: center; padding-block: var(--space-m) var(--space-2xl); overflow-x: clip; }
   .hero__text { display: grid; gap: var(--space-m); justify-items: start; order: 2; }
   .hero__title { font-family: var(--font-display); font-weight: 400; text-transform: uppercase; line-height: 0.88; text-wrap: balance; font-size: clamp(3.75rem, 2rem + 11vw, 9rem); }
   .hero__support { max-width: 26rem; color: var(--warm-white); }
@@ -316,7 +317,7 @@ const symbols = ['plumb', 'fork', 'cradle', 'veil', 'gate'] as const;
   .zone--close::before { box-shadow: inset 0 1.5px 0 color-mix(in srgb, var(--pink) 45%, transparent); }
   .idx--soft { color: var(--soft-pink); }
   /* The page footer joins the closing zone without the shared gap. */
-  :global(main + .side-footer) { margin-top: 0; }
+  :global(main + .side-footer.side-footer) { margin-top: 0; }
 
   /* ---- 1 · Meet Cindy ------------------------------------------------------------------- */
   .meet__grid { display: grid; gap: var(--space-m); }
@@ -424,18 +425,31 @@ const symbols = ['plumb', 'fork', 'cradle', 'veil', 'gate'] as const;
   }
 
   /* ---- 5 · Closing: the eclipse returns ----------------------------------------------------- */
-  .closing__inner { position: relative; display: grid; justify-items: center; text-align: center; gap: var(--space-m); }
-  .closing__stage { position: relative; width: min(100%, 22rem); aspect-ratio: 1; margin-bottom: calc(var(--space-m) * -1); }
-  .closing__bloom { position: absolute; left: 50%; top: 50%; width: min(130vw, 46rem); aspect-ratio: 1; translate: -50% -50%; border-radius: 50%; pointer-events: none;
+  /* One compact composition. The eclipse lives in a stage sized from its own diameter, and the pink
+     bloom is clipped to the section and fades to nothing before any edge, so neither can be cut off
+     by the section edge or the sticky header. */
+  .zone--close { --ce: 5.25rem; --stage-h: calc(var(--ce) * 1.9); --by: calc(var(--zpad) + var(--stage-h) / 2); --zpad: clamp(2.25rem, 4vw, 3rem); padding-block: var(--zpad) clamp(2rem, 4vw, 3rem); }
+  .closing__glow { position: absolute; z-index: -1; inset: 0; overflow: clip; pointer-events: none; }
+  .closing__bloom { position: absolute; left: 50%; top: var(--by); width: min(150vw, 46rem); height: calc(var(--by) * 2.4); translate: -50% -50%; border-radius: 50%;
     background: radial-gradient(closest-side, color-mix(in srgb, var(--pink) 46%, transparent), color-mix(in srgb, var(--pink) 18%, transparent) 46%, transparent 74%); }
-  .closing__stage :global(.eclipse) { --e: 6.25rem; left: 50%; right: auto; top: 50%; translate: -50% -50%; }
-  .closing__title { font-size: clamp(3rem, 1.5rem + 7vw, 7rem); }
+  .closing__inner { position: relative; display: grid; justify-items: center; text-align: center; gap: var(--space-s); }
+  .closing__stage { position: relative; width: calc(var(--ce) * 2); height: var(--stage-h); margin-bottom: -0.25rem; }
+  .closing__stage :global(.eclipse) { --e: var(--ce); left: 50%; right: auto; top: 50%; translate: -50% -50%; }
+  .closing__title { font-size: clamp(2.75rem, 1.4rem + 6vw, 6rem); }
   .closing__support { max-width: 28rem; }
-  .closing__actions { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: var(--space-s) var(--space-l); margin-top: var(--space-s); }
+  .closing__actions { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: var(--space-s) var(--space-l); margin-top: var(--space-2xs); }
   .btn--lg { min-height: 3.6rem; padding-inline: 2.4rem; font-size: 0.9375rem; box-shadow: 0 0 3rem color-mix(in srgb, var(--pink) 50%, transparent), 0 0.6rem 1.5rem -0.5rem color-mix(in srgb, var(--pink) 60%, transparent); }
   .closing__second { color: color-mix(in srgb, var(--warm-white) 78%, var(--noir)); font-weight: 500; }
   .closing__mail { color: color-mix(in srgb, var(--warm-white) 74%, var(--noir)); text-transform: none; letter-spacing: 0.04em; overflow-wrap: anywhere; }
-  @media (min-width: 48rem) { .closing__stage { width: 26rem; } .closing__stage :global(.eclipse) { --e: 8.5rem; } }
+  @media (min-width: 48rem) { .zone--close { --ce: 6.25rem; } }
+  /* Not enough height for the artwork to sit fully below the sticky header with the footer in view
+     (short landscape tablets and phones, small portrait phones): the eclipse steps aside and the
+     bloom settles behind the heading, so nothing is ever cut off. */
+  @media (max-height: 46rem) {
+    .closing__stage { display: none; }
+    .zone--close { --stage-h: 0rem; --by: 8.5rem; --zpad: 2rem; }
+    .closing__title { font-size: clamp(2.5rem, 1rem + 5.5vw, 4.75rem); }
+  }
 
   /* ---- Motion: restrained, and only when the visitor allows it -------------------------- */
   @media (prefers-reduced-motion: no-preference) {
