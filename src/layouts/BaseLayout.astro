@@ -8,6 +8,7 @@ import CartDrawer from '~/components/commerce/CartDrawer.astro';
 import SideHeader from '~/components/layout/SideHeader.astro';
 import SideFooter from '~/components/layout/SideFooter.astro';
 import ShopScripts from '~/components/layout/ShopScripts.astro';
+import ShopWorld from '~/components/layout/ShopWorld.astro';
 import { siteConfig } from '~/config/site';
 
 interface Props {
@@ -45,7 +46,8 @@ const fullTitle = title.includes(siteConfig.name) ? title : `${title} — ${site
     <script is:inline>document.documentElement.classList.add('js');</script>
     <Seo title={fullTitle} {...seo} />
   </head>
-  <body>
+  <body class={chrome === 'shop' ? 'chrome-shop' : undefined}>
+    {chrome === 'shop' && <ShopWorld />}
     <a class="skip-link" href="#main">Skip to content</a>
     {chrome === 'shop' && <><AnnouncementBar /><Header /></>}
     {chrome === 'spiritual' && <SideHeader current="spiritual" />}

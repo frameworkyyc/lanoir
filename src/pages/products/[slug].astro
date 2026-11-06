@@ -48,7 +48,7 @@ const ogImage = typeof product?.images[0]?.src === 'string' ? product.images[0].
   ) : (
     <>
     <article class="container-wide pdp">
-      <ul class="pdp__gallery list-reset" role="list" aria-label={`${product.name} photos`}>
+      <ul class="pdp__gallery list-reset" role="list" tabindex="0" aria-label={`${product.name} photos`}>
         {images.map((media, i) => (
           <li class="pdp__shot">
             <Picture {media} ratio="4/5" {variant} eager={i === 0} reveal={i > 0}
