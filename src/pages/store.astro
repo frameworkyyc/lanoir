@@ -13,6 +13,8 @@ import StatementWearFeature from '~/components/sections/StatementWearFeature.ast
 import PrideFeature from '~/components/sections/PrideFeature.astro';
 import AboutPreview from '~/components/sections/AboutPreview.astro';
 import Community from '~/components/sections/Community.astro';
+import AllProducts from '~/components/sections/AllProducts.astro';
+import type { Collection } from '~/lib/commerce/types';
 import CatalogNotice from '~/components/commerce/CatalogNotice.astro';
 
 export const prerender = false; // product sections use live Square data
@@ -28,6 +30,14 @@ const catalog = await settle(commerce.getProducts());
 const products = catalog.ok ? catalog.data : [];
 if (!catalog.ok) Astro.response.headers.set('Cache-Control', 'no-store');
 
+// Collections have no photography of their own: borrow the first Square image of a product in the collection,
+// so a collection card is never an empty rectangle. (Data comes from Square; nothing is hardcoded.)
+const withSquareImage = (c: Collection): Collection => {
+  const img = products.find((p) => p.collections.includes(c.slug))?.images[0];
+  return img ? { ...c, image: { ...c.image, ...img } } : c;
+};
+const heroImage = (products.find((p) => p.featured) ?? products[0])?.images[0];
+
 const inCollection = (slug: string, n: number) => products.filter((p) => p.collections.includes(slug)).slice(0, n);
 const minis = inCollection('mystic-minis', 4);
 const featured = products.filter((p) => p.featured).slice(0, 4); // controlled by the Square "Featured" category
@@ -41,16 +51,17 @@ const afterDarkProducts = inCollection('after-dark', 1);
   path="/store"
   jsonLd={breadcrumbs([{ name: 'Home', path: '/' }, { name: 'The Shop', path: '/store' }], Astro.site)}
 >
-  <Hero />
+  <Hero image={heroImage} />
   <div class="chapter chapter--plum">
-    <SignatureCollections {prettyPoison} {afterDark} {mysticMinis} {minis} />
+    <SignatureCollections prettyPoison={withSquareImage(prettyPoison)} afterDark={withSquareImage(afterDark)} mysticMinis={withSquareImage(mysticMinis)} {minis} />
     {!catalog.ok && <div class="container-wide"><CatalogNotice kind="error" /></div>}
   </div>
   {featured.length > 0 && <div class="chapter chapter--charcoal"><FeaturedProducts products={featured} /></div>}
+  {products.length > 0 && <div class="chapter chapter--night"><AllProducts {products} /></div>}
   <BrandStatement />
-  <div class="chapter chapter--deep"><AfterDarkFeature collection={afterDark} product={afterDarkProducts[0]} /></div>
+  <div class="chapter chapter--deep"><AfterDarkFeature collection={withSquareImage(afterDark)} product={afterDarkProducts[0]} /></div>
   {apparel.length > 0 && <StatementWearFeature products={apparel} />}
-  <div class="chapter chapter--smoke"><PrideFeature collection={pride} products={prideProducts} /></div>
+  <div class="chapter chapter--smoke"><PrideFeature collection={withSquareImage(pride)} products={prideProducts} /></div>
   <div class="chapter chapter--night"><AboutPreview /></div>
   <div class="chapter chapter--plum"><Community /></div>
 </BaseLayout>

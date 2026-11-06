@@ -9,6 +9,7 @@
  */
 import type { Media } from '~/lib/commerce/types';
 import Placeholder from './Placeholder.astro';
+import ProductFallback from './ProductFallback.astro';
 import { imageSrc, imageSrcset } from '~/lib/images';
 
 interface Props {
@@ -21,6 +22,10 @@ interface Props {
   variant?: 'pretty-poison' | 'after-dark' | 'mystic-minis' | 'pride' | 'neutral';
   /** DEV-FACING description of the photo that belongs here (placeholders only). */
   label?: string;
+  /** `contain` shows the whole picture (products); `cover` fills the frame (editorial). */
+  fit?: 'cover' | 'contain';
+  /** When set and there is no image, render the branded fallback with this name instead of the neutral placeholder. */
+  fallbackTitle?: string;
   eager?: boolean;
   reveal?: boolean;
   class?: string;
@@ -32,6 +37,8 @@ const {
   widths = [360, 640, 960, 1440],
   variant = 'neutral',
   label,
+  fit = 'cover',
+  fallbackTitle,
   eager = false,
   reveal = false,
   class: className,
@@ -40,7 +47,7 @@ const {
 const src = media?.src;
 ---
 
-<div class:list={['media', className]} style={`aspect-ratio:${ratio}`} data-reveal={reveal ? 'image' : undefined}>
+<div class:list={['media', `media--${fit}`, className]} style={`aspect-ratio:${ratio}`} data-reveal={reveal ? 'image' : undefined}>
   {
     typeof src === 'string' ? (
       // Remote image (Square CDN). Served as-is through ~/lib/images so transformations can be added later.
@@ -71,6 +78,8 @@ const src = media?.src;
         decoding="async"
         style={media?.focal ? `object-position:${media.focal}` : undefined}
       />
+    ) : fallbackTitle ? (
+      <ProductFallback title={fallbackTitle} />
     ) : (
       <Placeholder variant={variant} label={label ?? media?.alt} />
     )
@@ -82,4 +91,6 @@ const src = media?.src;
   .media :global(.media__img),
   .media :global(picture),
   .media :global(picture img) { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .media--contain :global(.media__img), .media--contain :global(picture img) { object-fit: contain; }
+  .media--contain { background: linear-gradient(160deg, color-mix(in srgb, var(--pink) 8%, var(--noir-raised)), var(--noir-deep)); }
 </style>

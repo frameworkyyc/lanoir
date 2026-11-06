@@ -33,6 +33,8 @@ export interface SquareItemData {
   category_id?: string;
   categories?: { id?: string; ordinal?: number }[];
   image_ids?: string[];
+  /** Square Online image URLs (a fallback when no IMAGE object resolves). */
+  ecom_image_uris?: string[];
   item_options?: { item_option_id?: string }[];
   variations?: SquareCatalogObject[];
 }

@@ -14,7 +14,8 @@
 .cv-lines { display: grid; }
 .cv-line { display: grid; grid-template-columns: 5.5rem 1fr; gap: var(--space-s); padding-block: var(--space-m); border-bottom: var(--border-thin); }
 .cv-line:first-child { padding-top: 0; }
-.cv-line__img { width: 5.5rem; aspect-ratio: 4 / 5; object-fit: cover; background: var(--noir-raised-2); }
+.cv-line__img { width: 5.5rem; aspect-ratio: 1 / 1; object-fit: contain; background: linear-gradient(160deg, color-mix(in srgb, var(--pink) 8%, var(--noir-raised)), var(--noir-deep)); }
+.cv-line__img--empty { background: radial-gradient(circle at 62% 42%, var(--noir-deep) 0 26%, transparent 27%), radial-gradient(circle at 50% 50%, color-mix(in srgb, var(--warm-white) 70%, transparent) 0 27%, transparent 28%), linear-gradient(160deg, color-mix(in srgb, var(--pink) 16%, var(--noir-raised)), var(--noir-deep)); }
 .cv-line__body { display: grid; gap: 0.25rem; align-content: start; min-width: 0; }
 .cv-line__name { font-size: var(--fs-small); font-weight: 600; line-height: 1.3; overflow-wrap: anywhere; transition: color var(--dur-base); }
 a.cv-line__name:hover { color: var(--pink); }

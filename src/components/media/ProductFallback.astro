@@ -1,0 +1,28 @@
+---
+/**
+ * The intentional LaNoir fallback for a product that genuinely has no Square image: the brand's plum-to-Noir
+ * night with an eclipse line drawing, the LN monogram and the product name. Never a blank rectangle.
+ * Decorative + redundant for assistive tech (the product name is already the card/page heading), so aria-hidden.
+ */
+import Logo from '../brand/Logo.astro';
+interface Props { title: string; class?: string }
+const { title, class: className } = Astro.props;
+---
+<div class:list={['pfb', className]} aria-hidden="true">
+  <svg class="pfb__art" viewBox="0 0 200 200" focusable="false" preserveAspectRatio="xMidYMid slice">
+    <circle cx="100" cy="92" r="84" fill="none" stroke="currentColor" stroke-width="1" opacity="0.35" vector-effect="non-scaling-stroke" />
+    <circle cx="100" cy="92" r="64" fill="none" stroke="currentColor" stroke-width="1" stroke-dasharray="1.5 7" opacity="0.5" vector-effect="non-scaling-stroke" />
+    <g fill="currentColor"><path d="M34 40l2 6 6 2-6 2-2 6-2-6-6-2 6-2Z" /><path d="M168 150l1.6 5 5 1.6-5 1.6-1.6 5-1.6-5-5-1.6 5-1.6Z" /></g>
+  </svg>
+  <div class="pfb__body">
+    <Logo variant="icon" width="3.5rem" sizes="56px" />
+    <p class="pfb__name">{title}</p>
+  </div>
+</div>
+<style>
+  .pfb { position: relative; width: 100%; height: 100%; display: grid; place-items: center; overflow: hidden; color: var(--soft-pink);
+    background: radial-gradient(60% 55% at 70% 25%, color-mix(in srgb, var(--pink) 22%, transparent), transparent 70%), linear-gradient(160deg, color-mix(in srgb, var(--pink) 14%, color-mix(in srgb, var(--gunmetal) 10%, var(--noir))), var(--noir-deep)); }
+  .pfb__art { position: absolute; inset: 0; width: 100%; height: 100%; }
+  .pfb__body { position: relative; display: grid; justify-items: center; gap: 0.75rem; padding: 1rem; text-align: center; }
+  .pfb__name { max-width: 14rem; font-family: var(--font-statement); font-weight: 500; font-size: clamp(0.95rem, 0.8rem + 0.7vw, 1.25rem); line-height: 1.25; color: var(--warm-white); text-wrap: balance; }
+</style>

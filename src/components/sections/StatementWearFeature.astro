@@ -21,7 +21,7 @@ const { products } = Astro.props;
       {products.slice(0, 3).map((p, i) => (
         <li style={`--reveal-delay:${i * 90}ms`} data-reveal>
           <a class="wear__item" href={productUrl(p.slug)}>
-            <Picture media={p.images[0]} ratio="4/5" variant="neutral" label={`${p.name} — flat-lay or on-body apparel photograph`} sizes="(min-width: 64rem) 20vw, 60vw" class="wear__img" />
+            <Picture media={p.images[0]} ratio="1/1" fit="contain" fallbackTitle={p.name} variant="neutral" label={`${p.name} — flat-lay or on-body apparel photograph`} sizes="(min-width: 64rem) 20vw, 60vw" class="wear__img" />
             <span class="wear__name">{p.name}</span>
             <span class="t-label wear__price">{priceLabel(p)}</span>
           </a>
