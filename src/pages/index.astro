@@ -1,53 +1,116 @@
 ---
+/**
+ * Landing page: where visitors choose a side. Static (no Square), no shop header / cart /
+ * announcement bar. Copy and links come from ~/config/landing so page, metadata and tests agree.
+ * The two doors share one brand: same type, palette and motifs, with a single moon where they meet.
+ */
 import BaseLayout from '~/layouts/BaseLayout.astro';
-import { commerce } from '~/lib/commerce';
-import { settle } from '~/lib/catalog-result';
+import Logo from '~/components/brand/Logo.astro';
+import Moon from '~/components/brand/Moon.astro';
+import Eyebrow from '~/components/brand/Eyebrow.astro';
+import { landing, landingDescription } from '~/config/landing';
 import { organization, website } from '~/seo/jsonld';
-import { siteConfig } from '~/config/site';
-import Hero from '~/components/sections/Hero.astro';
-import SignatureCollections from '~/components/sections/SignatureCollections.astro';
-import FeaturedProducts from '~/components/sections/FeaturedProducts.astro';
-import BrandStatement from '~/components/sections/BrandStatement.astro';
-import AfterDarkFeature from '~/components/sections/AfterDarkFeature.astro';
-import StatementWearFeature from '~/components/sections/StatementWearFeature.astro';
-import PrideFeature from '~/components/sections/PrideFeature.astro';
-import AboutPreview from '~/components/sections/AboutPreview.astro';
-import Community from '~/components/sections/Community.astro';
-import CatalogNotice from '~/components/commerce/CatalogNotice.astro';
-
-export const prerender = false; // product sections use live Square data
-
-// Collections are editorial (no Square call). Products come from ONE catalogue snapshot.
-const [prettyPoison, afterDark, mysticMinis, pride] = (await Promise.all(
-  ['pretty-poison', 'after-dark', 'mystic-minis', 'pride-exclusive'].map((s) => commerce.getCollection(s)),
-));
-if (!prettyPoison || !afterDark || !mysticMinis || !pride) throw new Error('Editorial collections missing');
-
-const catalog = await settle(commerce.getProducts());
-const products = catalog.ok ? catalog.data : [];
-if (!catalog.ok) Astro.response.headers.set('Cache-Control', 'no-store');
-
-const inCollection = (slug: string, n: number) => products.filter((p) => p.collections.includes(slug)).slice(0, n);
-const minis = inCollection('mystic-minis', 4);
-const featured = products.filter((p) => p.featured).slice(0, 4); // controlled by the Square "Featured" category
-const apparel = inCollection('statement-wear', 3);
-const prideProducts = inCollection('pride-exclusive', 2);
-const afterDarkProducts = inCollection('after-dark', 1);
 ---
 <BaseLayout
-  title={`${siteConfig.name} — ${siteConfig.descriptor} | Wear your power`}
-  description={siteConfig.description}
+  chrome="bare"
+  title={landing.title}
+  description={landingDescription}
   path="/"
   jsonLd={[organization(Astro.site), website(Astro.site)]}
 >
-  <Hero />
-  <SignatureCollections {prettyPoison} {afterDark} {mysticMinis} {minis} />
-  {!catalog.ok && <div class="container-wide"><CatalogNotice kind="error" /></div>}
-  {featured.length > 0 && <FeaturedProducts products={featured} />}
-  <BrandStatement />
-  <AfterDarkFeature collection={afterDark} product={afterDarkProducts[0]} />
-  {apparel.length > 0 && <StatementWearFeature products={apparel} />}
-  <PrideFeature collection={pride} products={prideProducts} />
-  <AboutPreview />
-  <Community />
+  <div class="landing">
+    <header class="landing__top">
+      <Logo variant="icon" width="3.25rem" sizes="52px" eager />
+      <Eyebrow>{landing.eyebrow}</Eyebrow>
+    </header>
+    <h1 class="visually-hidden">LaNoir | Bad Ass Witchery</h1>
+
+    <ul class="doors list-reset" role="list">
+      {landing.doors.map((door, i) => (
+        <li class="doors__item">
+          <a class:list={['door', `door--${door.key}`]} href={door.href}>
+            {door.key === 'shop' ? (
+              <svg class="door__motif" viewBox="0 0 200 200" aria-hidden="true" focusable="false">
+                <circle cx="110" cy="90" r="70" fill="none" stroke="var(--pink)" stroke-width="1.5" stroke-dasharray="300 500" transform="rotate(-50 110 90)" vector-effect="non-scaling-stroke" />
+                <circle cx="62" cy="140" r="13" fill="var(--pink)" />
+              </svg>
+            ) : (
+              <svg class="door__motif" viewBox="0 0 200 200" aria-hidden="true" focusable="false">
+                <circle cx="100" cy="100" r="78" fill="none" stroke="var(--rule-strong)" stroke-width="1" vector-effect="non-scaling-stroke" />
+                <path d="M112 44A58 58 0 1 0 112 156A64 64 0 0 1 112 44Z" fill="none" stroke="var(--warm-white)" stroke-width="1.5" stroke-linejoin="round" vector-effect="non-scaling-stroke" />
+                <path d="M158 52l2.4 7.6L168 62l-7.6 2.4L158 72l-2.4-7.6L148 62l7.6-2.4Z" fill="var(--pink)" />
+                <path d="M40 150l1.6 5L47 156.6l-5.4 1.6L40 164l-1.6-5.8L33 156.6l5.4-1.6Z" fill="var(--warm-white)" opacity="0.8" />
+              </svg>
+            )}
+            <span class="door__num t-label">0{i + 1}</span>
+            <h2 class="door__label">{door.label}</h2>
+            <p class="door__desc t-statement-sm">{door.description}</p>
+            <span class="door__cta t-label">{door.cta} <span class="door__arrow" aria-hidden="true">→</span></span>
+          </a>
+        </li>
+      ))}
+    </ul>
+    <Moon class="landing__moon" size="2.75rem" fill />
+  </div>
 </BaseLayout>
+
+<style>
+  .landing { position: relative; min-height: 100svh; display: flex; flex-direction: column; overflow: hidden; }
+  .landing__top { display: flex; align-items: center; gap: var(--space-s); padding: max(0.5rem, env(safe-area-inset-top)) var(--gutter) 0.5rem; min-height: var(--header-h); }
+
+  .doors { flex: 1; display: grid; grid-template-rows: 1fr 1fr; }
+  .doors__item { display: grid; }
+
+  .door {
+    position: relative; isolation: isolate; overflow: hidden;
+    display: grid; align-content: end; gap: var(--space-xs); justify-items: start;
+    min-height: 15rem; padding: var(--space-m) var(--gutter) var(--space-l);
+    border-top: var(--border-thin);
+    background: var(--noir);
+    transition: background var(--dur-slow) var(--ease-out);
+  }
+  /* Divination sits on the deeper Noir already used by After Dark: a different mood, the same palette. */
+  .door--divination { background: var(--noir-deep); }
+  .door:hover, .door:focus-visible { background: var(--noir-raised); }
+  .door--divination:hover, .door--divination:focus-visible { background: color-mix(in srgb, var(--noir-deep) 90%, var(--warm-white)); }
+  .door:focus-visible { outline: 2px solid var(--pink); outline-offset: -6px; }
+
+  .door__num { color: var(--pink); }
+  .door__label { font-family: var(--font-display); font-weight: 400; text-transform: uppercase; line-height: 0.88; font-size: clamp(4.5rem, 21vw, 8.5rem); }
+  .door__desc { max-width: 24rem; color: var(--warm-white); }
+  .door__cta { display: inline-flex; align-items: center; gap: 0.6rem; min-height: var(--touch); color: var(--pink); }
+  .door__arrow { transition: transform var(--dur-base) var(--ease-out); }
+  .door:hover .door__arrow, .door:focus-visible .door__arrow { transform: translateX(0.4rem); }
+
+  .door__motif { position: absolute; z-index: -1; top: var(--space-s); right: var(--gutter); width: min(42vw, 9.5rem); aspect-ratio: 1; opacity: 0.9; transition: transform var(--dur-slow) var(--ease-out); }
+  .door:hover .door__motif, .door:focus-visible .door__motif { transform: rotate(8deg) scale(1.06); }
+
+  /* The one moon both sides share, set where the two doors meet. */
+  .landing :global(.landing__moon) { position: absolute; z-index: 2; pointer-events: none; color: var(--warm-white); background: var(--noir); border: var(--border-thin); border-radius: 50%; padding: 0.55rem; box-sizing: content-box; right: calc(var(--gutter) + 0.25rem); top: calc(50% + var(--header-h) / 2); translate: 0 -50%; }
+
+  @media (min-width: 48rem) {
+    .doors { grid-template-rows: none; grid-template-columns: 1fr 1fr; }
+    .door { padding: var(--space-xl) var(--gutter) var(--space-xl); min-height: 0; }
+    .doors__item + .doors__item .door { border-left: var(--border-thin); }
+    .door__label { font-size: clamp(5rem, 11vw, 9.5rem); }
+    .door__motif { top: var(--space-l); width: min(20vw, 14rem); }
+    .landing :global(.landing__moon) { right: auto; left: 50%; top: calc(50% + var(--header-h) / 2); translate: -50% -50%; }
+  }
+
+  /* Entrance: restrained, once. Reduced motion → the finished page, immediately. */
+  @media (prefers-reduced-motion: no-preference) {
+    .door > :not(.door__motif) { animation: door-rise 0.9s var(--ease-out) backwards; }
+    .doors__item:nth-child(1) .door > :nth-child(2) { animation-delay: 0.15s; }
+    .doors__item:nth-child(1) .door > :nth-child(3) { animation-delay: 0.25s; }
+    .doors__item:nth-child(1) .door > :nth-child(4) { animation-delay: 0.35s; }
+    .doors__item:nth-child(1) .door > :nth-child(5) { animation-delay: 0.45s; }
+    .doors__item:nth-child(2) .door > :nth-child(2) { animation-delay: 0.3s; }
+    .doors__item:nth-child(2) .door > :nth-child(3) { animation-delay: 0.4s; }
+    .doors__item:nth-child(2) .door > :nth-child(4) { animation-delay: 0.5s; }
+    .doors__item:nth-child(2) .door > :nth-child(5) { animation-delay: 0.6s; }
+    .door__motif { animation: motif-in 1.4s var(--ease-out) 0.2s backwards; }
+    .landing :global(.landing__moon) { animation: motif-in 1.2s var(--ease-out) 0.7s backwards; }
+    @keyframes door-rise { from { opacity: 0; transform: translateY(1.25rem); } }
+    @keyframes motif-in { from { opacity: 0; } }
+  }
+</style>

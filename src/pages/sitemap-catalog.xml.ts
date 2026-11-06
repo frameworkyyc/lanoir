@@ -12,7 +12,7 @@ export const prerender = false;
 export const GET: APIRoute = async ({ site }) => {
   const origin = site ?? new URL('https://lanoir.ca');
   const abs = (path: string) => new URL(path, origin).href;
-  const urls = new Set<string>([abs('/shop'), abs('/statement-wear'), abs('/accessories')]);
+  const urls = new Set<string>([abs('/store'), abs('/shop'), abs('/statement-wear'), abs('/accessories')]);
   try {
     for (const c of await commerce.getCollections()) urls.add(abs(collectionUrl(c)));
     for (const p of await commerce.getProducts()) urls.add(abs(productUrl(p.slug)));

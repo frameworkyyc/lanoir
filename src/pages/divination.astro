@@ -1,0 +1,51 @@
+---
+/**
+ * Divination — the second side of LaNoir.
+ *
+ * DELIBERATELY MINIMAL: it contains only what has been supplied (the one-line description).
+ * Services, prices, how to book, formats, a bio, photos and any disclaimer are NOT invented here —
+ * add them below once confirmed. See docs/LANDING.md for the list of what is needed.
+ */
+import BaseLayout from '~/layouts/BaseLayout.astro';
+import Eyebrow from '~/components/brand/Eyebrow.astro';
+import { landing } from '~/config/landing';
+
+const door = landing.doors.find((d) => d.key === 'divination')!;
+---
+<BaseLayout chrome="divination" title="Divination" description={door.description} path="/divination">
+  <section class="container-wide dv" aria-labelledby="dv-title">
+    <div class="dv__text">
+      <Eyebrow>LaNoir / Divination</Eyebrow>
+      <h1 id="dv-title" class="t-display-xl dv__title dv__rise">Divi<span class="text-pink">nation.</span></h1>
+      <p class="t-statement dv__lead dv__rise">{door.description}</p>
+      <p class="t-body t-muted dv__rise">Details are being finalised.</p>
+      <a class="link-arrow dv__rise" href="/store">Visit the shop <span class="btn__arrow" aria-hidden="true">→</span></a>
+    </div>
+    <div class="dv__motif" aria-hidden="true">
+      <svg viewBox="0 0 200 200" focusable="false">
+        <circle cx="100" cy="100" r="92" fill="none" stroke="var(--rule-strong)" stroke-width="1" vector-effect="non-scaling-stroke" />
+        <circle cx="100" cy="100" r="66" fill="none" stroke="var(--rule)" stroke-width="1" vector-effect="non-scaling-stroke" />
+        <path d="M112 48A54 54 0 1 0 112 152A60 60 0 0 1 112 48Z" fill="none" stroke="var(--warm-white)" stroke-width="1.5" stroke-linejoin="round" vector-effect="non-scaling-stroke" />
+        <path d="M156 56l2.4 7.6L166 66l-7.6 2.4L156 76l-2.4-7.6L146 66l7.6-2.4Z" fill="var(--pink)" />
+      </svg>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .dv { display: grid; gap: var(--space-xl); padding-block: var(--space-xl) 0; align-items: center; }
+  .dv__text { display: grid; gap: var(--space-m); justify-items: start; }
+  .dv__lead { max-width: 30rem; }
+  .dv__motif { width: min(70%, 22rem); aspect-ratio: 1; justify-self: end; opacity: 0.9; }
+  .dv__motif svg { width: 100%; height: 100%; overflow: visible; }
+  @media (min-width: 64rem) {
+    .dv { grid-template-columns: 7fr 5fr; gap: var(--space-2xl); padding-block: var(--space-2xl) 0; min-height: 60svh; }
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    .dv__rise { animation: dv-rise 0.9s var(--ease-out) backwards; }
+    .dv__rise:nth-child(3) { animation-delay: 0.12s; } .dv__rise:nth-child(4) { animation-delay: 0.24s; } .dv__rise:nth-child(5) { animation-delay: 0.36s; }
+    .dv__motif { animation: dv-fade 1.4s var(--ease-out) 0.2s backwards; }
+    @keyframes dv-rise { from { opacity: 0; transform: translateY(1rem); } }
+    @keyframes dv-fade { from { opacity: 0; } }
+  }
+</style>

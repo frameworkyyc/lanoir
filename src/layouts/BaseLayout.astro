@@ -5,6 +5,9 @@ import AnnouncementBar from '~/components/layout/AnnouncementBar.astro';
 import Header from '~/components/layout/Header.astro';
 import Footer from '~/components/layout/Footer.astro';
 import CartDrawer from '~/components/commerce/CartDrawer.astro';
+import SideHeader from '~/components/layout/SideHeader.astro';
+import SideFooter from '~/components/layout/SideFooter.astro';
+import ShopScripts from '~/components/layout/ShopScripts.astro';
 import { siteConfig } from '~/config/site';
 
 interface Props {
@@ -15,8 +18,15 @@ interface Props {
   ogType?: 'website' | 'product' | 'article';
   noindex?: boolean;
   jsonLd?: object | object[];
+  /**
+   * Which frame wraps the page:
+   *  - 'shop'        announcement bar, shop header, shop footer, cart (default)
+   *  - 'divination'  slim header + footer, no cart
+   *  - 'bare'        nothing but the page (the landing)
+   */
+  chrome?: 'shop' | 'divination' | 'bare';
 }
-const { title, ...seo } = Astro.props;
+const { title, chrome = 'shop', ...seo } = Astro.props;
 const fullTitle = title.includes(siteConfig.name) ? title : `${title} — ${siteConfig.name} ${siteConfig.descriptor}`;
 ---
 
@@ -37,16 +47,16 @@ const fullTitle = title.includes(siteConfig.name) ? title : `${title} — ${site
   </head>
   <body>
     <a class="skip-link" href="#main">Skip to content</a>
-    <AnnouncementBar />
-    <Header />
+    {chrome === 'shop' && <><AnnouncementBar /><Header /></>}
+    {chrome === 'divination' && <SideHeader current="divination" />}
     <main id="main">
       <slot />
     </main>
-    <Footer />
-    <CartDrawer />
+    {chrome === 'shop' && <><Footer /><CartDrawer /></>}
+    {chrome === 'divination' && <SideFooter />}
     <script>
       import '~/scripts/reveal';
-      import '~/scripts/cart-ui';
     </script>
+    {chrome === 'shop' && <ShopScripts />}
   </body>
 </html>
