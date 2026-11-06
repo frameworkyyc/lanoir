@@ -48,7 +48,7 @@ const isCurrent = (href: string) => current === href || (href !== '/' && current
                 </div>
               </>
             ) : (
-              <a class="dnav__link t-label" href={item.href} aria-current={isCurrent(item.href) ? 'page' : undefined}>{item.label}</a>
+              <a class:list={['dnav__link', 't-label', { 'dnav__link--accent': item.accent }]} href={item.href} aria-current={isCurrent(item.href) ? 'page' : undefined}>{item.label}</a>
             )}
           </li>
         ))}
@@ -129,6 +129,7 @@ const isCurrent = (href: string) => current === href || (href !== '/' && current
       transform: scaleX(0); transform-origin: left;
       transition: transform var(--dur-base) var(--ease-out);
     }
+    .dnav__link--accent { color: var(--pink); }
     .dnav__link:hover, .dnav__link[aria-expanded='true'] { color: var(--pink); }
     .dnav__link:hover::after, .dnav__link[aria-current='page']::after, .dnav__link[aria-expanded='true']::after { transform: scaleX(1); }
     .dnav__chev { transition: transform var(--dur-base) var(--ease-out); }

@@ -4,6 +4,7 @@ import Logo from '../brand/Logo.astro';
 import Rule from '../brand/Rule.astro';
 const collections = primaryNav.find((i) => i.children)!.children!;
 const shop = [
+  { label: 'Shop Home', href: '/store' },
   { label: 'Shop All', href: '/shop' },
   { label: 'Pride Exclusive', href: '/collections/pride-exclusive' },
   { label: 'Statement Wear', href: '/statement-wear' },
@@ -39,6 +40,7 @@ const year = new Date().getFullYear();
           <h2 class="t-label footer__h">LaNoir</h2>
           <ul class="list-reset" role="list">
             <li><a href="/about">About LaNoir</a></li>
+            <li><a href="/divination">Divination</a></li>
             <li><a href="/contact">Contact</a></li>
             {siteConfig.social.map((s) => <li><a href={s.href} rel="noopener me" target="_blank">{s.label}</a></li>)}
           </ul>

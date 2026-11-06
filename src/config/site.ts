@@ -35,6 +35,8 @@ export interface NavItem {
   href: string;
   index?: string;
   note?: string;
+  /** Highlight in pink (used for the other side of the brand). */
+  accent?: boolean;
   children?: NavItem[];
 }
 
@@ -53,6 +55,7 @@ export const primaryNav: NavItem[] = [
   { label: 'Statement Wear', href: '/statement-wear' },
   { label: 'Accessories / Jewelry', href: '/accessories' },
   { label: 'About LaNoir', href: '/about' },
+  { label: 'Divination', href: '/divination', accent: true },
 ];
 
 export const footerPolicies: NavItem[] = [
