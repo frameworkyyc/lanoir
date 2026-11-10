@@ -1,53 +1,400 @@
 ---
+/**
+ * Landing page: where visitors choose a side. Static (no Square), no shop header / cart /
+ * announcement bar. Copy and links come from ~/config/landing so page, metadata and tests agree.
+ *
+ * Art direction ("The Threshold"): one night sky split by a single eclipse. The Shop side is warm,
+ * pink and alchemical (embers, a turning sigil); the Spiritual Services side is moonlit and celestial
+ * (motes, an orbiting star, a constellation). Both share the same sky, stars, mist, grain, type
+ * and eclipse, so they read as one brand. All motion is CSS (transform/opacity); a ~2 kB script
+ * adds cursor parallax, the pointer/touch spotlight and the exit transition. Reduced motion gets
+ * the finished, static composition.
+ */
 import BaseLayout from '~/layouts/BaseLayout.astro';
-import { commerce } from '~/lib/commerce';
-import { settle } from '~/lib/catalog-result';
+import Logo from '~/components/brand/Logo.astro';
+import Eyebrow from '~/components/brand/Eyebrow.astro';
+import Sky from '~/components/landing/Sky.astro';
+import Eclipse from '~/components/landing/Eclipse.astro';
+import { landing, landingDescription } from '~/config/landing';
+import { particles, particleStyle } from '~/lib/landing-fx';
 import { organization, website } from '~/seo/jsonld';
-import { siteConfig } from '~/config/site';
-import Hero from '~/components/sections/Hero.astro';
-import SignatureCollections from '~/components/sections/SignatureCollections.astro';
-import FeaturedProducts from '~/components/sections/FeaturedProducts.astro';
-import BrandStatement from '~/components/sections/BrandStatement.astro';
-import AfterDarkFeature from '~/components/sections/AfterDarkFeature.astro';
-import StatementWearFeature from '~/components/sections/StatementWearFeature.astro';
-import PrideFeature from '~/components/sections/PrideFeature.astro';
-import AboutPreview from '~/components/sections/AboutPreview.astro';
-import Community from '~/components/sections/Community.astro';
-import CatalogNotice from '~/components/commerce/CatalogNotice.astro';
 
-export const prerender = false; // product sections use live Square data
+const embers = particles(14, 5, { size: [2, 4.5], dur: [7, 14], drift: [-44, 44], alpha: [0.5, 0.95] });
+const motes = particles(12, 9, { size: [1.5, 3.2], dur: [14, 26], drift: [-70, 70], alpha: [0.35, 0.8] });
 
-// Collections are editorial (no Square call). Products come from ONE catalogue snapshot.
-const [prettyPoison, afterDark, mysticMinis, pride] = (await Promise.all(
-  ['pretty-poison', 'after-dark', 'mystic-minis', 'pride-exclusive'].map((s) => commerce.getCollection(s)),
-));
-if (!prettyPoison || !afterDark || !mysticMinis || !pride) throw new Error('Editorial collections missing');
-
-const catalog = await settle(commerce.getProducts());
-const products = catalog.ok ? catalog.data : [];
-if (!catalog.ok) Astro.response.headers.set('Cache-Control', 'no-store');
-
-const inCollection = (slug: string, n: number) => products.filter((p) => p.collections.includes(slug)).slice(0, n);
-const minis = inCollection('mystic-minis', 4);
-const featured = products.filter((p) => p.featured).slice(0, 4); // controlled by the Square "Featured" category
-const apparel = inCollection('statement-wear', 3);
-const prideProducts = inCollection('pride-exclusive', 2);
-const afterDarkProducts = inCollection('after-dark', 1);
+/** Per-letter indices for the staggered type reveal. */
+const split = (label: string) => {
+  let i = 0;
+  return label.split(' ').map((w) => [...w].map((c) => ({ c, i: i++ })));
+};
 ---
 <BaseLayout
-  title={`${siteConfig.name} — ${siteConfig.descriptor} | Wear your power`}
-  description={siteConfig.description}
+  chrome="bare"
+  title={landing.title}
+  description={landingDescription}
   path="/"
   jsonLd={[organization(Astro.site), website(Astro.site)]}
 >
-  <Hero />
-  <SignatureCollections {prettyPoison} {afterDark} {mysticMinis} {minis} />
-  {!catalog.ok && <div class="container-wide"><CatalogNotice kind="error" /></div>}
-  {featured.length > 0 && <FeaturedProducts products={featured} />}
-  <BrandStatement />
-  <AfterDarkFeature collection={afterDark} product={afterDarkProducts[0]} />
-  {apparel.length > 0 && <StatementWearFeature products={apparel} />}
-  <PrideFeature collection={pride} products={prideProducts} />
-  <AboutPreview />
-  <Community />
+  <div class="landing" data-landing>
+    <!-- Repeat visits in a session get a quicker entrance (CSS timings scale by --k). -->
+    <script is:inline>try{if(sessionStorage.getItem('ln-landing-seen'))document.querySelector('[data-landing]').setAttribute('data-seen','')}catch(e){}</script>
+    <Sky />
+
+    <header class="landing__top">
+      <div class="mono">
+        <span class="mono__halo" data-depth="6" aria-hidden="true"></span>
+        <Logo variant="icon" width="6.5rem" sizes="104px" class="mono__logo" eager />
+        <span class="mono__sheen" aria-hidden="true"></span>
+      </div>
+      <div class="landing__eyebrow"><Eyebrow rule={false}>{landing.eyebrow}</Eyebrow></div>
+    </header>
+    <h1 class="visually-hidden">LaNoir | Bad Ass Witchery</h1>
+
+    <div class="stage">
+      <ul class="doors list-reset" role="list">
+        {landing.doors.map((door, i) => (
+          <li class="doors__item">
+            <a class:list={['door', `door--${door.key}`]} href={door.href} data-door={door.key}>
+              <span class="door__fx" aria-hidden="true">
+                <span class="fx fx--aura"></span>
+                <span class="fx fx--slit"></span>
+                <span class="fx fx--spot"></span>
+                <span class="fx fx--par" data-depth="14">
+                  {door.key === 'shop' ? (
+                    <span class="sigil">
+                      <svg class="sigil__a" viewBox="0 0 200 200" focusable="false">
+                        <circle cx="100" cy="100" r="94" fill="none" stroke="var(--pink)" stroke-width="1" stroke-dasharray="1.5 9" vector-effect="non-scaling-stroke" />
+                        <path d="M100 0v10M100 190v10M0 100h10M190 100h10" stroke="var(--pink)" stroke-width="1" vector-effect="non-scaling-stroke" />
+                        <circle cx="100" cy="6" r="4.5" fill="var(--pink)" />
+                      </svg>
+                      <svg class="sigil__b" viewBox="0 0 200 200" focusable="false">
+                        <circle cx="100" cy="100" r="68" fill="none" stroke="var(--pink)" stroke-width="1.5" stroke-dasharray="300 500" transform="rotate(-50 100 100)" vector-effect="non-scaling-stroke" />
+                        <path d="M100 38 154 128H46Z" fill="none" stroke="var(--pink)" stroke-width="1.25" stroke-linejoin="round" vector-effect="non-scaling-stroke" />
+                        <path d="M69 92H131" stroke="var(--pink)" stroke-width="1" opacity="0.7" vector-effect="non-scaling-stroke" />
+                        </svg>
+                      <svg class="sigil__c" viewBox="0 0 200 200" focusable="false">
+                        <circle cx="100" cy="100" r="9" fill="var(--pink)" />
+                        <circle cx="100" cy="100" r="22" fill="none" stroke="var(--pink)" stroke-width="1" opacity="0.6" vector-effect="non-scaling-stroke" />
+                      </svg>
+                    </span>
+                  ) : (
+                    <span class="orbit">
+                      <svg class="orbit__a" viewBox="0 0 200 200" focusable="false">
+                        <circle cx="100" cy="100" r="88" fill="none" stroke="var(--rule-strong)" stroke-width="1" opacity="0.7" vector-effect="non-scaling-stroke" />
+                        <path class="orbit__lines" d="M28 150 62 118 98 132 132 84 170 58" fill="none" stroke="var(--warm-white)" stroke-width="1" opacity="0.45" vector-effect="non-scaling-stroke" pathLength="1" />
+                        <g fill="var(--warm-white)"><circle cx="28" cy="150" r="2" /><circle cx="62" cy="118" r="2.4" /><circle cx="98" cy="132" r="1.8" /><circle cx="132" cy="84" r="2.6" /><circle cx="170" cy="58" r="2" /></g>
+                      </svg>
+                      <svg class="orbit__b" viewBox="0 0 200 200" focusable="false">
+                        <circle cx="100" cy="100" r="60" fill="none" stroke="var(--rule-strong)" stroke-width="1" stroke-dasharray="2 7" vector-effect="non-scaling-stroke" />
+                        <path d="M100 34l2.6 7.6L110 44l-7.4 2.4L100 54l-2.6-7.6L90 44l7.4-2.4Z" fill="var(--pink)" />
+                      </svg>
+                      <svg class="orbit__c" viewBox="0 0 200 200" focusable="false">
+                        <circle class="orbit__disc" cx="100" cy="100" r="40" fill="var(--warm-white)" />
+                        <path class="orbit__moon" d="M112 62A40 40 0 1 0 112 138A46 46 0 0 1 112 62Z" fill="none" stroke="var(--warm-white)" stroke-width="1.5" stroke-linejoin="round" vector-effect="non-scaling-stroke" />
+                      </svg>
+                    </span>
+                  )}
+                </span>
+                <span class="fx fx--parts">
+                  {(door.key === 'shop' ? embers : motes).map((p) => <i class="part" style={particleStyle(p)}></i>)}
+                </span>
+                <span class="fx fx--sheen"></span>
+                <span class="fx fx--curtain"></span>
+              </span>
+
+              <span class="door__num t-label">0{i + 1}</span>
+              <h2 class="door__label">
+                <span class="visually-hidden">{door.label}</span>
+                <span class="door__chars" aria-hidden="true">
+                  {split(door.label).map((word, wi) => (
+                    <>{wi > 0 && ' '}<span class="word">{word.map((l) => <span class="ch" style={`--i:${l.i}`}>{l.c}</span>)}</span></>
+                  ))}
+                </span>
+              </h2>
+              <p class="door__desc t-statement-sm">{door.description}</p>
+              <span class="door__cta t-label">
+                {door.cta}
+                <span class="arrow" aria-hidden="true">
+                  <span class="arrow__line"></span>
+                  <svg class="arrow__head" viewBox="0 0 8 12" focusable="false"><path d="M1 1l5 5-5 5" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" /></svg>
+                </span>
+              </span>
+            </a>
+          </li>
+        ))}
+      </ul>
+      <i class="seam" aria-hidden="true"></i>
+      <Eclipse />
+    </div>
+
+    <div class="exit" aria-hidden="true"><i class="exit__bloom"></i><i class="exit__scrim"></i></div>
+    <div class="grain" aria-hidden="true"></div>
+  </div>
 </BaseLayout>
+
+<script>
+  import '~/scripts/landing';
+</script>
+
+<style>
+  .landing {
+    --k: 1;
+    --mono: 4.25rem;
+    /* Decoration sized to the free space beside/above the type, never over it. */
+    --decor: clamp(5.5rem, calc(100svh * 0.22 - 1.5rem), 9rem);
+    --decor-o: 1;
+    position: relative; min-height: 100svh;
+    display: flex; flex-direction: column; overflow: hidden;
+  }
+  .landing[data-seen] { --k: 0.4; }
+
+  /* ---- Header: monogram + eyebrow, on the vertical axis ---------------------------------- */
+  .landing__top {
+    position: relative; display: flex; flex-direction: column; align-items: center; gap: 0.6rem;
+    padding: max(0.7rem, env(safe-area-inset-top)) var(--gutter) 0.65rem;
+  }
+  .mono { position: relative; display: grid; place-items: center; width: var(--mono); height: var(--mono); }
+  .mono__halo {
+    position: absolute; inset: -120%; border-radius: 50%; pointer-events: none;
+    background: radial-gradient(closest-side, color-mix(in srgb, var(--pink) 36%, transparent), color-mix(in srgb, var(--pink) 9%, transparent) 46%, transparent 72%);
+    opacity: 0.6;
+  }
+  .mono :global(.mono__logo) { position: relative; width: 100%; height: auto; }
+  .mono__sheen { position: absolute; inset: 0; border-radius: 50%; overflow: hidden; pointer-events: none; }
+  .mono__sheen::after {
+    content: ''; position: absolute; inset: -10% -40%; opacity: 0;
+    background: linear-gradient(105deg, transparent 42%, color-mix(in srgb, var(--warm-white) 42%, transparent) 50%, transparent 58%);
+  }
+  .landing__eyebrow { display: flex; align-items: center; justify-content: center; gap: 0.9rem; }
+  .landing__eyebrow::before, .landing__eyebrow::after { content: ''; width: 1.75rem; height: 1px; background: color-mix(in srgb, var(--pink) 70%, transparent); }
+  .landing__eyebrow :global(.eyebrow) { text-align: center; white-space: nowrap; }
+
+  /* ---- Stage: the two doors, the seam, the eclipse ---------------------------------------- */
+  .stage { --seam-y: 45.5%; position: relative; flex: 1; display: flex; min-height: 26rem; }
+  /* "Spiritual Services" stacks onto two lines on a phone, so its door gets a little more height. */
+  .doors { flex: 1; display: grid; grid-template-rows: minmax(0, 1fr) minmax(0, 1.2fr); }
+  .doors__item { display: grid; min-height: 0; }
+  .seam {
+    position: absolute; z-index: 1; pointer-events: none; left: 0; right: 0; top: var(--seam-y); height: 1px;
+    background: linear-gradient(90deg, transparent, color-mix(in srgb, var(--pink) 55%, transparent) 14%, color-mix(in srgb, var(--warm-white) 65%, transparent) 86%, transparent);
+  }
+
+  .door {
+    --glow: var(--pink);
+    position: relative; isolation: isolate; overflow: hidden; -webkit-tap-highlight-color: transparent;
+    display: grid; align-content: end; justify-items: start; gap: 0.3rem;
+    padding: var(--space-s) var(--gutter) var(--space-s);
+    background: transparent; touch-action: manipulation;
+  }
+  .door--spiritual { --glow: var(--warm-white); }
+  .door:focus-visible { outline: 2px solid var(--pink); outline-offset: -6px; }
+
+  .door__num { color: var(--pink); transition: color 0.5s var(--ease-out); }
+  .door__label {
+    font-family: var(--font-display); font-weight: 400; text-transform: uppercase; line-height: 0.88;
+    font-size: clamp(3.25rem, min(19vw, 9.5svh), 8.5rem);
+    transition: text-shadow 0.7s var(--ease-out);
+  }
+  .door__chars, .word { display: inline-block; }
+  .word { white-space: nowrap; }
+  .ch { display: inline-block; }
+  .door__desc { max-width: 17rem; color: var(--warm-white); text-wrap: pretty; }
+  .door__cta { display: inline-flex; align-items: center; gap: 0.7rem; min-height: var(--touch); color: var(--pink); transition: color 0.5s var(--ease-out); }
+
+  /* Animated arrow: a line that lengthens and a head that leads it. */
+  .arrow { --reach: 1.1rem; display: inline-flex; align-items: center; }
+  .arrow__line { display: block; width: 1.5rem; height: 1.5px; background: currentColor; transform-origin: left center; }
+  .arrow__head { width: 0.5rem; height: 0.75rem; margin-left: -0.1rem; }
+  .arrow__line, .arrow__head { transition: transform 0.6s var(--ease-out); }
+
+  /* ---- FX layer (behind the type) -------------------------------------------------------- */
+  .door__fx { position: absolute; inset: 0; z-index: -1; overflow: hidden; pointer-events: none; }
+  .fx { position: absolute; display: block; }
+  .fx--aura { inset: 0; transition: opacity 0.9s var(--ease-out), transform 1.2s var(--ease-out); }
+  .door--shop .fx--aura { background: radial-gradient(60% 50% at 18% 44%, color-mix(in srgb, var(--pink) 12%, transparent), transparent 100%); opacity: 0.8; }
+  .door--spiritual .fx--aura { background: radial-gradient(52% 46% at 78% 52%, color-mix(in srgb, var(--warm-white) 8%, transparent), transparent 100%); opacity: 0.8; }
+
+  /* Light spilling in from the seam, as if the door were opening toward the eclipse. */
+  .fx--slit { opacity: 0; transition: transform 1s var(--ease-out), opacity 0.8s var(--ease-out); }
+  .door--shop .fx--slit { inset: 0; transform-origin: 50% 100%; transform: scale(0.5); background: radial-gradient(ellipse 80% 62% at 62% 100%, color-mix(in srgb, var(--pink) 22%, transparent), transparent); }
+  .door--spiritual .fx--slit { inset: 0; transform-origin: 50% 0; transform: scale(0.5); background: radial-gradient(ellipse 80% 62% at 62% 0%, color-mix(in srgb, var(--warm-white) 9%, transparent), transparent); }
+
+  /* Follows the cursor / the finger; positioned by script. */
+  .fx--spot { left: 0; top: 0; width: 22rem; height: 22rem; margin: -11rem 0 0 -11rem; opacity: 0; transition: transform 0.5s var(--ease-out), opacity 0.6s var(--ease-out); }
+  .fx--spot::before { content: ''; position: absolute; inset: 0; border-radius: 50%; scale: 0.55; transition: scale 0.9s var(--ease-out);
+    background: radial-gradient(closest-side, color-mix(in srgb, var(--glow) 34%, transparent), color-mix(in srgb, var(--glow) 8%, transparent) 55%, transparent); }
+
+  .fx--par { right: -2.25rem; top: 0.25rem; width: var(--decor); aspect-ratio: 1; opacity: var(--decor-o); will-change: transform; }
+  .door--spiritual .fx--par { top: auto; bottom: 0.25rem; }
+  .sigil, .orbit { position: absolute; inset: 0; display: block; transition: transform 1.4s var(--ease-out), opacity 0.8s; opacity: 0.85; }
+  .sigil svg, .orbit svg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
+  .sigil__a, .sigil__b, .orbit__a, .orbit__b { will-change: transform; }
+  .orbit__lines { stroke-dasharray: 1; stroke-dashoffset: 0; transition: stroke-dashoffset 1.6s var(--ease-out); }
+  .orbit__disc { opacity: 0; transition: opacity 1s var(--ease-out); }
+  .orbit__moon { transition: transform 1.4s var(--ease-out); transform-origin: 100px 100px; }
+
+  .fx--parts { inset: 0; opacity: 0.7; transition: opacity 0.8s var(--ease-out); }
+  .part { position: absolute; left: var(--x); bottom: -4%; width: var(--s); height: var(--s); border-radius: 50%; opacity: 0; }
+  .door--shop .part { background: var(--pink); box-shadow: 0 0 0.5rem 0.1rem color-mix(in srgb, var(--pink) 55%, transparent); }
+  .door--spiritual .part { background: var(--warm-white); box-shadow: 0 0 0.45rem 0 color-mix(in srgb, var(--warm-white) 45%, transparent); }
+
+  .fx--sheen { inset: 0; overflow: hidden; }
+  .fx--sheen::before { content: ''; position: absolute; inset: -10% -30%; opacity: 0;
+    background: linear-gradient(100deg, transparent 42%, color-mix(in srgb, var(--glow) 12%, transparent) 50%, transparent 58%); }
+  .fx--curtain { inset: 0; display: none; }
+
+  /* ---- Open state: hover (pointer), press (touch), keyboard focus ------------------------- */
+  .door:is(:focus-visible, [data-hot]) .fx--aura { opacity: 1; transform: scale(1.18); }
+  .door:is(:focus-visible, [data-hot]) .fx--slit { opacity: 1; transform: none; }
+  .door:is(:focus-visible, [data-hot]) .fx--spot { opacity: 1; }
+  .door:is(:focus-visible, [data-hot]) .fx--spot::before { scale: 1; }
+  .door:is(:focus-visible, [data-hot]) .fx--parts { opacity: 1; }
+  .door:is(:focus-visible, [data-hot]) :is(.door__cta, .door__num) { color: var(--warm-white); }
+  .door:is(:focus-visible, [data-hot]) .arrow__line { transform: scaleX(1.75); }
+  .door:is(:focus-visible, [data-hot]) .arrow__head { transform: translateX(calc(var(--reach) * 1.05)); }
+  .door--shop:is(:focus-visible, [data-hot]) .sigil { transform: rotate(32deg) scale(1.1); opacity: 1; }
+  .door--shop:is(:focus-visible, [data-hot]) .door__label { text-shadow: 0 0 1.6rem color-mix(in srgb, var(--pink) 55%, transparent); }
+  .door--spiritual:is(:focus-visible, [data-hot]) .orbit { transform: scale(1.1); opacity: 1; }
+  .door--spiritual:is(:focus-visible, [data-hot]) .orbit__disc { opacity: 0.16; }
+  .door--spiritual:is(:focus-visible, [data-hot]) .orbit__moon { transform: rotate(-14deg); }
+  .door--spiritual:is(:focus-visible, [data-hot]) .orbit__lines { stroke-dashoffset: 0; }
+  .door--spiritual:is(:focus-visible, [data-hot]) .door__label { text-shadow: 0 0 1.6rem color-mix(in srgb, var(--warm-white) 40%, transparent); }
+  @media (hover: hover) {
+    .door:hover .arrow__line { transform: scaleX(1.75); }
+    .door:hover .arrow__head { transform: translateX(calc(var(--reach) * 1.05)); }
+  }
+
+  /* ---- Exit: the chosen door's light floods, then fades to Noir as the next page loads ---- */
+  .exit { position: fixed; inset: 0; z-index: 60; overflow: hidden; pointer-events: none; visibility: hidden; --bloom: var(--pink); }
+  .exit__bloom {
+    position: absolute; left: var(--ex, 50%); top: var(--ey, 50%); width: 130vmax; height: 130vmax; margin: -65vmax 0 0 -65vmax; border-radius: 50%; opacity: 0; scale: 0.04;
+    background: radial-gradient(closest-side, var(--bloom), color-mix(in srgb, var(--bloom) 38%, transparent) 38%, transparent 72%);
+  }
+  .exit__scrim { position: absolute; inset: 0; background: var(--noir); opacity: 0; }
+  .landing[data-leaving] .exit { visibility: visible; }
+  .landing[data-leaving='spiritual'] .exit { --bloom: var(--warm-white); }
+
+  /* ---- Film grain ------------------------------------------------------------------------ */
+  .grain {
+    position: fixed; inset: -160px; z-index: 55; pointer-events: none; opacity: 0.075;
+    background-size: 160px 160px;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 .6 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+  }
+
+  /* ---- Layout: desktop / tablet ---------------------------------------------------------- */
+  @media (min-width: 48rem) {
+    .landing { --mono: 6.5rem; }
+    .landing__top { padding-top: max(1.5rem, env(safe-area-inset-top)); padding-bottom: 1rem; gap: 0.9rem; }
+    .stage { --seam-y: 29%; }
+    .doors { grid-template-rows: none; grid-template-columns: 1fr 1fr; }
+    .door { padding: var(--space-xl) var(--gutter); gap: 0.5rem; }
+    .door__label { font-size: clamp(4rem, min(9.2vw, 14svh), 8.5rem); }
+    .door__desc { max-width: 24rem; }
+    .seam { left: var(--seam-x, 50%); right: auto; top: 0; bottom: 0; width: 1px; height: auto;
+      background: linear-gradient(to bottom, transparent, color-mix(in srgb, var(--pink) 50%, transparent) 20%, color-mix(in srgb, var(--warm-white) 60%, transparent) 70%, transparent); }
+    .landing { --decor: clamp(8rem, 26svh, 16rem); --decor-o: 1; }
+    .fx--par { right: auto; left: 50%; margin-left: calc(var(--decor) / -2); top: 6%; }
+    .door--spiritual .fx--par { top: 6%; bottom: auto; }
+    .door--shop .fx--slit { transform-origin: 100% 38%; transform: scale(0.5); background: radial-gradient(ellipse 70% 52% at 100% 38%, color-mix(in srgb, var(--pink) 22%, transparent), transparent); }
+    .door--spiritual .fx--slit { transform-origin: 0 38%; transform: scale(0.5); background: radial-gradient(ellipse 70% 52% at 0% 38%, color-mix(in srgb, var(--warm-white) 9%, transparent), transparent); }
+    .door--shop .fx--aura { background: radial-gradient(62% 46% at 30% 64%, color-mix(in srgb, var(--pink) 12%, transparent), transparent 100%); }
+    .door--spiritual .fx--aura { background: radial-gradient(52% 40% at 70% 38%, color-mix(in srgb, var(--warm-white) 8%, transparent), transparent 100%); }
+  }
+  /* Short phones: the type needs the room, so the artwork recedes and crops off the edge instead. */
+  @media (max-width: 47.99rem) and (max-height: 760px) { .landing { --decor-o: 0.3; } .fx--par { right: -3.25rem; } }
+  @media (max-width: 47.99rem) and (max-height: 760px) { .door__label { font-size: clamp(2.6rem, min(15vw, 7.6svh), 5rem); } }
+  @media (max-width: 47.99rem) and (max-height: 700px) { .landing { --mono: 3.5rem; } .door__desc { max-width: 18rem; } }
+  @media (max-width: 47.99rem) and (max-height: 620px) { .landing { --mono: 3rem; } .door__desc { font-size: 1rem; line-height: 1.3; } .door__label { font-size: 3rem; } .door { padding-block: 0.5rem; gap: 0.15rem; } }
+  @media (max-width: 24rem) { .landing__eyebrow::before, .landing__eyebrow::after { display: none; } .landing__eyebrow :global(.eyebrow) { letter-spacing: 0.1em; } }
+  @media (min-width: 64rem) { .door__desc { max-width: 26rem; } }
+
+  /* ---- Entrance timeline (all scaled by --k: repeat visits play ~2.5× faster) ------------- */
+  @media (prefers-reduced-motion: no-preference) {
+    /* Each world is unveiled by a clip that travels with a thin leading edge of light. */
+    .door--shop .door__fx { animation: reveal-r calc(var(--k) * 1.5s) var(--ease-in-out) calc(var(--k) * 1.15s) backwards; }
+    .door--spiritual .door__fx { animation: reveal-l calc(var(--k) * 1.5s) var(--ease-in-out) calc(var(--k) * 1.15s) backwards; }
+    .fx--curtain { display: block; animation: edge-r calc(var(--k) * 1.5s) var(--ease-in-out) calc(var(--k) * 1.15s) both; }
+    .door--shop .fx--curtain { background: linear-gradient(90deg, transparent calc(100% - 3rem), color-mix(in srgb, var(--pink) 30%, transparent) calc(100% - 2px), var(--pink) calc(100% - 2px)); }
+    .door--spiritual .fx--curtain { animation-name: edge-l; background: linear-gradient(270deg, transparent calc(100% - 3rem), color-mix(in srgb, var(--warm-white) 24%, transparent) calc(100% - 2px), var(--warm-white) calc(100% - 2px)); }
+    @keyframes reveal-r { from { clip-path: inset(0 100% 0 0); } to { clip-path: inset(0); } }
+    @keyframes reveal-l { from { clip-path: inset(0 0 0 100%); } to { clip-path: inset(0); } }
+    @keyframes edge-r { from { transform: translateX(-100%); } 92% { opacity: 1; } to { transform: translateX(0); opacity: 0; visibility: hidden; } }
+    @keyframes edge-l { from { transform: translateX(100%); } 92% { opacity: 1; } to { transform: translateX(0); opacity: 0; visibility: hidden; } }
+
+    .mono__halo { animation: halo-in calc(var(--k) * 2.4s) ease-out calc(var(--k) * 0.7s) backwards, breathe 6s ease-in-out calc(var(--k) * 3.1s) infinite; }
+    .mono :global(.mono__logo) { animation: mono-in calc(var(--k) * 2s) var(--ease-out) calc(var(--k) * 0.85s) backwards; }
+    .mono__sheen::after { animation: sheen 9s ease-in-out calc(var(--k) * 2.4s) infinite; }
+    .landing__eyebrow { animation: wipe calc(var(--k) * 1.2s) var(--ease-out) calc(var(--k) * 1.4s) backwards; }
+
+    .ch { animation: ch-in 1s var(--ease-out) calc((1.35s + var(--i) * 45ms) * var(--k)) backwards; }
+    .door--spiritual .ch { animation-delay: calc((1.6s + var(--i) * 45ms) * var(--k)); }
+    .door__num { animation: rise 0.9s var(--ease-out) calc(var(--k) * 1.2s) backwards; }
+    .door__desc { animation: rise 1s var(--ease-out) calc(var(--k) * 2s) backwards; }
+    .door__cta { animation: rise 1s var(--ease-out) calc(var(--k) * 2.25s) backwards; }
+    .door--spiritual .door__desc { animation-delay: calc(var(--k) * 2.2s); }
+    .door--spiritual .door__cta { animation-delay: calc(var(--k) * 2.45s); }
+    .fx--par, .fx--parts { animation: fade-in 2s ease-out calc(var(--k) * 2.1s) backwards; }
+
+    /* Ambient life */
+    .sigil__a { animation: spin 72s linear infinite; }
+    .sigil__b { animation: spin 110s linear infinite reverse; }
+    .sigil__c { animation: pulse 4.5s ease-in-out infinite; }
+    .orbit__b { animation: spin 48s linear infinite; }
+    .orbit__a { animation: orbit-tilt 16s ease-in-out infinite alternate; }
+    .part { animation: float var(--t) linear var(--d) infinite; }
+    .door--spiritual .part { animation-name: drift; }
+    .fx--sheen::before { animation: door-sheen 11s ease-in-out calc(var(--k) * 3s) infinite; }
+    .door--spiritual .fx--sheen::before { animation-delay: calc(var(--k) * 3s + 5.5s); }
+    .arrow__head { animation: nudge 3.4s ease-in-out calc(var(--k) * 3s) infinite; }
+    .arrow__line { animation: stretch 3.4s ease-in-out calc(var(--k) * 3s) infinite; }
+    /* The touch crowd gets ambient breathing too, so neither door looks idle on a phone. */
+    @media (hover: none) { .fx--parts { opacity: 0.9; } .sigil, .orbit { opacity: 1; } }
+
+    /* Exit */
+    .landing[data-leaving] .exit__bloom { animation: bloom 0.62s cubic-bezier(0.5, 0, 0.9, 0.5) forwards; }
+    .landing[data-leaving] .exit__scrim { animation: scrim 0.4s ease-in 0.34s forwards; }
+    .landing[data-leaving] .doors__item:not(:has(.is-chosen)) { opacity: 0.15; transition: opacity 0.4s ease-in; }
+
+    @keyframes ch-in { from { opacity: 0; transform: translate3d(0, 0.55em, 0) scale(1.05); } }
+    @keyframes rise { from { opacity: 0; transform: translate3d(0, 1rem, 0); } }
+    @keyframes fade-in { from { opacity: 0; } }
+    @keyframes wipe { from { opacity: 0; clip-path: inset(0 50% 0 50%); } to { clip-path: inset(0); } }
+    @keyframes mono-in { from { opacity: 0; scale: 1.4; } }
+    @keyframes halo-in { 0% { opacity: 0; scale: 0.3; } 45% { opacity: 1; scale: 1.25; } 100% { opacity: 0.6; scale: 1; } }
+    @keyframes breathe { 0%, 100% { opacity: 0.6; transform: scale(1); } 50% { opacity: 0.85; transform: scale(1.08); } }
+    @keyframes sheen { 0% { opacity: 1; transform: translateX(-90%); } 12% { opacity: 1; transform: translateX(90%); } 12.1%, 100% { opacity: 0; transform: translateX(90%); } }
+    @keyframes door-sheen { 0% { opacity: 1; transform: translateX(-70%); } 18% { opacity: 1; transform: translateX(70%); } 18.1%, 100% { opacity: 0; transform: translateX(70%); } }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    @keyframes pulse { 0%, 100% { transform: scale(1); opacity: 0.85; } 50% { transform: scale(1.12); opacity: 1; } }
+    @keyframes orbit-tilt { from { transform: rotate(-4deg); } to { transform: rotate(4deg); } }
+    @keyframes float {
+      0% { opacity: 0; transform: translate3d(0, 0, 0) scale(1); }
+      12% { opacity: var(--a); }
+      100% { opacity: 0; transform: translate3d(var(--dr), calc(var(--rise, 44svh) * -1), 0) scale(0.4); }
+    }
+    @keyframes drift {
+      0% { opacity: 0; transform: translate3d(0, 0, 0); }
+      25% { opacity: var(--a); }
+      60% { opacity: calc(var(--a) * 0.4); }
+      100% { opacity: 0; transform: translate3d(var(--dr), calc(var(--rise, 44svh) * -0.7), 0); }
+    }
+    @keyframes nudge { 0%, 100% { transform: translateX(0); } 50% { transform: translateX(0.3rem); } }
+    @keyframes stretch { 0%, 100% { transform: scaleX(1); } 50% { transform: scaleX(1.2); } }
+    @keyframes bloom { 0% { opacity: 0; scale: 0.04; } 25% { opacity: 1; } 100% { opacity: 1; scale: 1; } }
+    @keyframes scrim { to { opacity: 1; } }
+    @keyframes grain {
+      0% { transform: translate(0, 0); } 17% { transform: translate(-40px, 26px); } 34% { transform: translate(30px, -50px); }
+      51% { transform: translate(-58px, -22px); } 68% { transform: translate(46px, 40px); } 85% { transform: translate(-18px, 60px); } 100% { transform: translate(0, 0); }
+    }
+    .grain { animation: grain 0.9s steps(1) infinite; }
+    .door { --rise: 40svh; }
+    @media (min-width: 48rem) { .door { --rise: 78svh; } }
+  }
+
+  /* Lite mode (slow devices): same composition, fewer moving parts. */
+  .landing[data-fx='lite'] .part:nth-child(n + 6) { display: none; }
+  .landing[data-fx='lite'] .grain { animation: none; }
+  .landing[data-fx='lite'] .fx--sheen, .landing[data-fx='lite'] .mono__sheen { display: none; }
+  .landing[data-fx='lite'] :is(.sigil__a, .sigil__b, .sigil__c, .orbit__a, .orbit__b, .arrow__line, .arrow__head) { animation: none; }
+  .landing[data-fx='lite'] .fx--parts { animation: none; }
+</style>

@@ -1,0 +1,27 @@
+---
+import { siteConfig } from '~/config/site';
+import Rule from '../brand/Rule.astro';
+const year = new Date().getFullYear();
+---
+<footer class="side-footer">
+  <div class="container-wide">
+    <Rule />
+    <div class="side-footer__row t-label">
+      <p>© {year} {siteConfig.name} — {siteConfig.descriptor}</p>
+      <nav aria-label="Footer">
+        <ul class="list-reset side-footer__links" role="list">
+          <li><a href="/store">The Shop</a></li>
+          <li><a href="/spiritual-services">Spiritual Services</a></li>
+          <li><a href="/">Both sides</a></li>
+        </ul>
+      </nav>
+    </div>
+  </div>
+</footer>
+<style>
+  .side-footer { margin-top: var(--space-3xl); background: var(--noir-deep); padding-top: var(--space-l); }
+  .side-footer__row { display: flex; flex-wrap: wrap; justify-content: space-between; gap: var(--space-xs) var(--space-m); padding-block: var(--space-m) var(--space-l); color: var(--text-muted); }
+  .side-footer__links { display: flex; flex-wrap: wrap; gap: 0 var(--space-m); }
+  .side-footer__links a { display: inline-flex; align-items: center; min-height: var(--touch); transition: color var(--dur-base); }
+  .side-footer__links a:hover { color: var(--pink); }
+</style>

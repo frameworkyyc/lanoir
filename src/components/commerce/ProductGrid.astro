@@ -9,12 +9,12 @@ interface Props {
   /** Columns at desktop (mobile is always 2). */
   cols?: 3 | 4;
 }
-const { products, variant = 'neutral', ratio = '4/5', cols = 4 } = Astro.props;
+const { products, variant = 'neutral', ratio = '1/1', cols = 4 } = Astro.props;
 ---
 <ul class="grid list-reset" data-cols={cols} role="list">
   {products.map((p, i) => (
     <li style={`--reveal-delay:${(i % cols) * 70}ms`} data-reveal>
-      <ProductCard product={p} {variant} {ratio} reveal={false} />
+      <ProductCard product={p} {variant} {ratio} reveal={false} eager={i < 2} />
     </li>
   ))}
 </ul>

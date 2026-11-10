@@ -70,9 +70,9 @@ const allSoldOut = product.variants.every((v) => !v.available);
 </form>
 
 <style>
-  .atc { display: grid; gap: var(--space-m); width: 100%; }
+  .atc { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--space-m); width: 100%; min-width: 0; }
   .atc__price { color: var(--warm-white); }
-  .atc__group { border: 0; padding: 0; margin: 0; display: grid; gap: var(--space-xs); min-width: 0; }
+  .atc__group { border: 0; padding: 0; margin: 0; display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--space-xs); min-width: 0; }
   .atc__group legend { padding: 0; margin-bottom: var(--space-xs); color: var(--text-muted); }
   .atc__chosen { color: var(--warm-white); margin-left: 0.6rem; }
   .atc__chosen:not(:empty)::before { content: '— '; color: var(--text-muted); }
@@ -94,7 +94,8 @@ const allSoldOut = product.variants.every((v) => !v.available);
   .chip.is-soldout .chip__face { color: var(--text-muted); text-decoration: line-through; border-style: dashed; }
   .chip.is-soldout input:checked + .chip__face { background: transparent; color: var(--warm-white); border-color: var(--pink); }
 
-  .atc__buy { display: grid; grid-template-columns: auto 1fr; gap: var(--space-xs); }
+  .atc__buy { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: var(--space-xs); }
+  .atc__add { min-width: 0; padding-inline: 0.75rem; text-wrap: balance; }
   .atc__add { width: 100%; min-height: var(--touch); }
   .atc__add:disabled { opacity: 0.5; cursor: not-allowed; }
   .atc__add:disabled:hover { --btn-bg: var(--pink); --btn-bd: var(--pink); }

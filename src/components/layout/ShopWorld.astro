@@ -1,0 +1,80 @@
+---
+/**
+ * The shop's share of "The Threshold" identity. Rendered only inside the shop frame, so the landing and
+ * Spiritual Services are untouched. Everything here is STATIC or compositor-only (no JS, no canvas, no
+ * animated layers) so grids stay smooth and nothing delays shopping:
+ *   - a quiet fixed night sky (star dots, plum/pink mist) with a faint film grain, behind everything
+ *   - "chapters": colour zones with a curved dome edge and a thread of light, used to break pages up
+ *   - header / menu / footer atmosphere, product-card edge light, a very short cross-page fade
+ * Product images, prices and actions are never overlaid: decoration lives in the gaps and behind content.
+ */
+---
+<div class="shop-sky" aria-hidden="true"></div>
+<!-- The sky is decoration: it is switched on after the page has loaded so it can never delay first paint. Without JS the shop is simply plain Noir. -->
+<script is:inline>addEventListener('load',function(){requestAnimationFrame(function(){document.documentElement.classList.add('sky-on')})})</script>
+
+<style is:global>
+  /* ---- Sky ---------------------------------------------------------------------------------- */
+  body.chrome-shop { background: transparent; }
+  .shop-sky { display: none; position: fixed; inset: 0; z-index: -1; pointer-events: none; background-color: var(--noir);
+    /* One small star tile (a single decoded image) instead of many gradient layers: cheap to paint. */
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='520' height='520' fill='white'><circle cx='38' cy='62' r='.9' opacity='.4'/><circle cx='142' cy='318' r='1.2' opacity='.3'/><circle cx='211' cy='121' r='.8' opacity='.30'/><circle cx='287' cy='448' r='1' opacity='.36'/><circle cx='344' cy='204' r='1.3' opacity='.3'/><circle cx='409' cy='51' r='.9' opacity='.4'/><circle cx='468' cy='372' r='1' opacity='.30'/><circle cx='96' cy='471' r='.8' opacity='.3'/><circle cx='497' cy='244' r='.9' opacity='.3'/><circle cx='260' cy='288' r='.7' opacity='.3'/></svg>"); background-size: 520px 520px; }
+  .sky-on .shop-sky { display: block; }
+  .shop-sky::before { content: ''; position: absolute; left: -10vmin; top: -10vmin; width: 80vmin; aspect-ratio: 1; border-radius: 50%;
+    background: radial-gradient(closest-side, color-mix(in srgb, var(--pink) 13%, transparent), transparent); }
+  .shop-sky::after { content: ''; position: absolute; inset: 0; opacity: 0.045; background-size: 160px 160px;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='1' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 .6 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>"); }
+
+  /* ---- Chapters: a zone with a curved dome edge and a thread of light ---------------------- */
+  .chapter { --dome: clamp(1.5rem, 4.5vw, 4rem); --c-top: var(--noir-deep); --c-bot: var(--noir-deep); --c-edge: color-mix(in srgb, var(--warm-white) 22%, transparent);
+    position: relative; isolation: isolate; overflow-x: clip; margin-top: var(--dome); padding-top: 1px;
+    background: linear-gradient(to bottom, var(--c-top), var(--c-bot)); }
+  .chapter::before { content: ''; position: absolute; z-index: -1; left: -8%; right: -8%; top: calc(var(--dome) * -1); height: calc(var(--dome) + 2px);
+    background: var(--c-top); border-radius: 50% 50% 0 0 / 100% 100% 0 0; box-shadow: inset 0 1.5px 0 var(--c-edge); }
+  .chapter--plum { --c-top: color-mix(in srgb, var(--pink) 16%, color-mix(in srgb, var(--gunmetal) 9%, var(--noir))); --c-bot: var(--noir-deep); --c-edge: color-mix(in srgb, var(--pink) 38%, transparent); }
+  .chapter--charcoal { --c-top: color-mix(in srgb, var(--warm-white) 7%, color-mix(in srgb, var(--gunmetal) 20%, var(--noir))); --c-bot: color-mix(in srgb, var(--gunmetal) 8%, var(--noir-deep)); --c-edge: color-mix(in srgb, var(--warm-white) 28%, transparent); }
+  .chapter--smoke { --c-top: color-mix(in srgb, var(--pink) 17%, color-mix(in srgb, var(--gunmetal) 12%, var(--noir))); --c-bot: color-mix(in srgb, var(--pink) 8%, var(--noir-deep)); --c-edge: color-mix(in srgb, var(--soft-pink) 45%, transparent); }
+  .chapter--deep { --c-top: var(--noir-deep); --c-bot: var(--noir-deep); --c-edge: color-mix(in srgb, var(--warm-white) 18%, transparent); }
+  .chapter--night { --c-top: color-mix(in srgb, var(--gunmetal) 12%, var(--noir-deep)); --c-bot: var(--noir-deep); }
+
+  /* ---- Header, announcement, menu, footer (switched on with the sky, after first paint) ----- */
+  .sky-on .site-header.site-header.site-header { background: linear-gradient(to bottom, color-mix(in srgb, var(--pink) 5%, var(--noir)), var(--noir)); border-bottom-color: color-mix(in srgb, var(--pink) 28%, var(--rule)); box-shadow: 0 1px 0 color-mix(in srgb, var(--pink) 10%, transparent); }
+  .sky-on .announce.announce.announce { background: color-mix(in srgb, var(--noir-deep) 80%, var(--pink) 4%); }
+  .mnav.mnav.mnav { background: radial-gradient(70% 40% at 15% 8%, color-mix(in srgb, var(--pink) 16%, transparent), transparent 72%), radial-gradient(60% 40% at 95% 90%, color-mix(in srgb, var(--warm-white) 6%, transparent), transparent 72%), var(--noir); }
+  .sky-on .footer.footer.footer { position: relative; overflow-x: clip; margin-top: calc(var(--space-3xl) + 2rem); border-top: 0;
+    background: radial-gradient(50% 55% at 50% 0%, color-mix(in srgb, var(--pink) 16%, transparent), transparent 72%), linear-gradient(to bottom, color-mix(in srgb, var(--pink) 6%, var(--noir-deep)), var(--noir-deep)); }
+  .sky-on .footer.footer.footer::before { content: ''; position: absolute; left: -8%; right: -8%; top: -2rem; height: 2.1rem; background: color-mix(in srgb, var(--pink) 6%, var(--noir-deep)); border-radius: 50% 50% 0 0 / 100% 100% 0 0; box-shadow: inset 0 1.5px 0 color-mix(in srgb, var(--pink) 40%, transparent); pointer-events: none; }
+  .footer__nav a:hover { color: var(--soft-pink); }
+
+  /* The homepage hero gets a bloom where the moon sits; chapters own their own backgrounds. */
+  .hero::before { opacity: 0; transition: opacity 0.9s var(--ease-out); content: ''; position: absolute; right: -8vmax; top: -6vmax; width: 52vmax; aspect-ratio: 1; border-radius: 50%; pointer-events: none; background: radial-gradient(closest-side, color-mix(in srgb, var(--pink) 15%, transparent), transparent); }
+  .sky-on .hero::before { opacity: 1; }
+  .community { border-top: 0; }
+
+  /* ---- Product cards: an edge of light on hover / focus / touch (no layout change) ---------- */
+  .card__frame { transition: box-shadow var(--dur-base) var(--ease-out); border-radius: 2px; }
+  .card__link:is(:hover, :focus-visible) .card__frame, .card__link:active .card__frame {
+    box-shadow: 0 0 0 1px color-mix(in srgb, var(--pink) 55%, transparent), 0 1rem 2rem -1.2rem color-mix(in srgb, var(--pink) 55%, transparent); }
+  .card__link:active .card__name { color: var(--pink); }
+
+  /* ---- Product page and cart: a calm backdrop behind the important parts -------------------- */
+  .pdp { position: relative; isolation: isolate; }
+  .pdp::before { content: ''; position: absolute; z-index: -1; inset: -3rem 0 auto; height: 36rem; pointer-events: none;
+    background: radial-gradient(45% 60% at 22% 30%, color-mix(in srgb, var(--pink) 10%, transparent), transparent 72%); }
+  .cartpage { position: relative; isolation: isolate; }
+  .cartpage::before { content: ''; position: absolute; z-index: -1; inset: -2rem 0 auto; height: 24rem; pointer-events: none;
+    background: radial-gradient(40% 70% at 20% 30%, color-mix(in srgb, var(--pink) 12%, transparent), transparent 72%); }
+
+  .cartpage::after { content: ''; position: absolute; z-index: -1; right: var(--gutter); top: 1.5rem; width: clamp(6rem, 20vw, 13rem); aspect-ratio: 1; border-radius: 50%; pointer-events: none;
+    border: 1px solid color-mix(in srgb, var(--pink) 40%, transparent); box-shadow: 0 0 0 0.9rem color-mix(in srgb, var(--pink) 5%, transparent);
+    background: radial-gradient(circle at 63% 44%, var(--noir) 0 33%, transparent 34%), radial-gradient(circle at 48% 50%, color-mix(in srgb, var(--warm-white) 85%, transparent) 0 34%, transparent 35%); opacity: 0.7; }
+
+  /* ---- A very short fade between shop pages (browsers that support it; none with reduced motion) */
+  @media (prefers-reduced-motion: no-preference) {
+    @view-transition { navigation: auto; }
+    ::view-transition-old(root) { animation: 0.14s ease-in both shop-out; }
+    ::view-transition-new(root) { animation: 0.2s ease-out both shop-in; }
+    @keyframes shop-out { to { opacity: 0; } }
+    @keyframes shop-in { from { opacity: 0; } }
+  }
+</style>

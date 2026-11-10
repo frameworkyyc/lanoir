@@ -48,10 +48,10 @@ const ogImage = typeof product?.images[0]?.src === 'string' ? product.images[0].
   ) : (
     <>
     <article class="container-wide pdp">
-      <ul class="pdp__gallery list-reset" role="list" aria-label={`${product.name} photos`}>
+      <ul class="pdp__gallery list-reset" role="list" tabindex="0" aria-label={`${product.name} photos`}>
         {images.map((media, i) => (
           <li class="pdp__shot">
-            <Picture {media} ratio="4/5" {variant} eager={i === 0} reveal={i > 0}
+            <Picture {media} ratio="1/1" fit="contain" fallbackTitle={product.name} {variant} eager={i === 0} reveal={false}
               label={`${product.name} — product photograph ${i + 1}`}
               sizes="(min-width: 64rem) 34vw, 88vw" />
           </li>
@@ -94,7 +94,8 @@ const ogImage = typeof product?.images[0]?.src === 'string' ? product.images[0].
 </BaseLayout>
 
 <style>
-  .pdp { display: grid; gap: var(--space-l); padding-block: var(--space-m) 0; }
+  /* minmax(0,1fr): long Square option names / product names must wrap, never widen the page. */
+  .pdp { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--space-l); padding-block: var(--space-m) 0; }
 
   /* Mobile: swipeable photo strip. */
   .pdp__gallery {
@@ -107,7 +108,8 @@ const ogImage = typeof product?.images[0]?.src === 'string' ? product.images[0].
   .pdp__shot { scroll-snap-align: start; }
   .pdp__gallery:has(.pdp__shot:only-child) { grid-auto-columns: 100%; }
 
-  .pdp__info { display: grid; gap: var(--space-m); justify-items: start; align-content: start; min-width: 0; }
+  .pdp__info { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--space-m); justify-items: start; align-content: start; min-width: 0; }
+  .pdp__info > * { min-width: 0; max-width: 100%; }
   .pdp__title { overflow-wrap: anywhere; }
   .pdp__desc { display: grid; gap: var(--space-xs); padding-top: var(--space-m); border-top: var(--border-thin); width: 100%; }
   .pdp__desc h2 { color: var(--pink); }
@@ -120,7 +122,7 @@ const ogImage = typeof product?.images[0]?.src === 'string' ? product.images[0].
   .pdp__related { display: grid; gap: var(--space-l); padding-top: var(--space-2xl); }
 
   @media (min-width: 64rem) {
-    .pdp { grid-template-columns: 7fr 5fr; gap: var(--space-2xl); padding-block: var(--space-xl) 0; align-items: start; }
+    .pdp { grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); gap: var(--space-2xl); padding-block: var(--space-xl) 0; align-items: start; }
     /* Desktop: editorial photo grid — first photo full width, the rest two-up. */
     .pdp__gallery { display: grid; grid-auto-flow: row; grid-template-columns: 1fr 1fr; grid-auto-columns: auto; margin: 0; padding: 0; overflow: visible; gap: var(--space-xs); }
     .pdp__gallery:has(.pdp__shot:only-child) { grid-template-columns: 1fr; }

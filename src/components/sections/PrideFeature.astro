@@ -30,7 +30,7 @@ const { collection, products } = Astro.props;
         {products.slice(0, 2).map((p, i) => (
           <li style={`--reveal-delay:${i * 100}ms`} data-reveal>
             <a class="pride__item" href={productUrl(p.slug)}>
-              <Picture media={p.images[0]} ratio="4/5" variant="pride" label={`${p.name} — Pride Exclusive product photograph`} sizes="(min-width: 64rem) 22vw, 46vw" />
+              <Picture media={p.images[0]} ratio="1/1" fit="contain" fallbackTitle={p.name} variant="pride" label={`${p.name} — Pride Exclusive product photograph`} sizes="(min-width: 64rem) 22vw, 46vw" />
               <span class="pride__name">{p.name}</span>
               <span class="t-label t-muted">{priceLabel(p)}</span>
             </a>

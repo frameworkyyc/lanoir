@@ -8,7 +8,7 @@ import { cached } from './cache.ts';
 import { squareRequest, type FetchLike } from './client.ts';
 import type { SquareConfig } from './config.ts';
 import type { InventoryCounts } from './inventory.ts';
-import { mapCatalog, trackedVariationIds, type MapOptions } from './mapper.ts';
+import { mapCatalog, trackedVariationIds, type MapOptions, type MapWarning } from './mapper.ts';
 import type { SquareCatalogObject, SquareInventoryResponse, SquareListCatalogResponse } from './types.ts';
 
 export async function fetchCatalogObjects(config: SquareConfig, fetchImpl?: FetchLike): Promise<SquareCatalogObject[]> {
@@ -78,8 +78,27 @@ export async function loadProducts(config: SquareConfig, deps: LoadDeps): Promis
       const objects = await fetchCatalogObjects(config, deps.fetchImpl);
       const tracked = trackedVariationIds(objects, config.locationId);
       const counts = tracked.length ? await fetchInventoryCounts(config, tracked, deps.fetchImpl) : new Map();
-      return mapCatalog(objects, counts, { ...deps.mapOptions, locationId: config.locationId, now: deps.now });
+      const warnings: MapWarning[] = [];
+      const products = mapCatalog(objects, counts, { ...deps.mapOptions, locationId: config.locationId, now: deps.now, onWarn: (w) => warnings.push(w) });
+      logCatalogDiagnostics(products.length, products.filter((p) => p.images.length === 0).length, warnings);
+      return products;
     },
     { fresh: deps.fresh, now: deps.now },
   );
+}
+
+/**
+ * Once per cache refresh (not per request): how many products and how many have no image, plus any image
+ * reference Square returned that we could not resolve. Catalogue/IMAGE ids only (no names, URLs or tokens).
+ */
+function logCatalogDiagnostics(total: number, withoutImages: number, warnings: MapWarning[]): void {
+  const byCode = new Map<string, number>();
+  for (const w of warnings) byCode.set(w.code, (byCode.get(w.code) ?? 0) + 1);
+  console.info('[catalog] mapped', { products: total, withoutImages, unresolvedImageRefs: warnings.length });
+  if (warnings.length > 0) {
+    console.warn('[catalog] image references could not be resolved', {
+      byCode: Object.fromEntries(byCode),
+      sample: warnings.slice(0, 10).map((w) => ({ code: w.code, item: w.itemId, image: w.imageId })),
+    });
+  }
 }

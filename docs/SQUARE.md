@@ -21,7 +21,10 @@ Browser ──► Astro on a Cloudflare Worker ──► Square (Sandbox or Prod
 | Homepage products | Items in the Square category **`Featured`** ("Start here"). Empty → the section is hidden (never auto-filled). |
 | Inventory | Tracked variation: units `IN_STOCK` at the location; none recorded = sold out. Untracked = always available. Merchant "sold out" at the location wins (respecting its expiry). |
 | Sold out | Shown on cards, product page (button disabled) and in the cart (checkout blocked). |
-| Missing images | Neutral placeholder. Square images are served directly from Square's CDN, unresized (`src/lib/images.ts` is the single place to add transformations later). |
+| Images | Resolved from `item_data.image_ids`, then `item_variation_data.image_ids` (de-duplicated, Square's order), then `ecom_image_uris`. Deleted, URL-less and non-HTTPS refs are skipped. Cards use the first image; the product page shows all. Frames are 1:1 with `object-fit: contain` and reserved dimensions. |
+| No image | Branded LaNoir fallback (`ProductFallback.astro`: eclipse + monogram + product name) on cards, product page and cart. Never an empty rectangle, and never treated as sold out. |
+| Collections | Square categories first. If the catalogue has none, an item whose title matches an editorial collection name (e.g. "Mystic Minis") is placed in that collection. |
+| Diagnostics | Once per cache refresh the server logs counts (products, without images, unresolved refs) and a few item ids. No names, URLs or tokens. |
 | Not purchasable | Variable-priced or non-sellable variations show "Unavailable". |
 | Cart | Browser `localStorage`: variation id + quantity only. Per-line cap: 10 (`CART_LIMITS`, **placeholder — confirm**). |
 | Checkout | Payment Links API. Line items are **catalog variation IDs** (so Square prices the order and decrements inventory). No prices are ever sent. Taxes = Square account taxes (`auto_apply_taxes`). Shipping address collected on Square. |
@@ -34,9 +37,11 @@ Browser ──► Astro on a Cloudflare Worker ──► Square (Sandbox or Prod
 Worker name: `lanoir`. Build settings (already in use): build command `npm run build`;
 deploy command `npx wrangler deploy` on `main`, `npx wrangler preview` on `staging`.
 
-### A. Staging (Worker Preview, **Sandbox**)
-Non-secret values are already committed in `wrangler.jsonc` → `previews.vars`:
-`SQUARE_ENVIRONMENT=sandbox`, `SQUARE_LOCATION_ID=L0SZPKA80GMNA`.
+### A. Staging (Worker Preview, **live catalogue**)
+Non-secret values are committed in `wrangler.jsonc` → `previews.vars`:
+`SQUARE_ENVIRONMENT=production`, `SQUARE_LOCATION_ID=LE2GKGAWZDBE9`. Staging therefore reads the live catalogue;
+the Preview secret `SQUARE_ACCESS_TOKEN` **must be the production token** (a sandbox token is rejected by production Square).
+**Do not complete a purchase on staging** — checkout creates real Square payment links/orders.
 
 Add the **one secret** (from a terminal where you are logged in to Cloudflare; paste the token at
 the prompt — never put it on the command line):

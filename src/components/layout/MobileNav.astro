@@ -15,7 +15,7 @@ const rest = others.filter((i) => i.href !== '/shop');
 <dialog id="mobile-nav" class="mnav" aria-label="Menu" data-mobile-nav>
   <div class="mnav__panel">
     <div class="mnav__top">
-      <a class="mnav__brand" href="/" aria-label="LaNoir — home"><Logo variant="icon" width="2.75rem" sizes="44px" /></a>
+      <a class="mnav__brand" href="/store" aria-label="LaNoir — shop home"><Logo variant="icon" width="2.75rem" sizes="44px" /></a>
       <form method="dialog">
         <button class="mnav__close" aria-label="Close menu" autofocus>
           <svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M5 5l14 14M19 5L5 19" /></svg>
@@ -42,7 +42,7 @@ const rest = others.filter((i) => i.href !== '/shop');
 
       <ul class="list-reset mnav__rest" role="list">
         {rest.map((i) => (
-          <li><a class="mnav__link" href={i.href}>{i.label}</a></li>
+          <li><a class:list={['mnav__link', { 'mnav__link--accent': i.accent }]} href={i.href}>{i.label}</a></li>
         ))}
       </ul>
     </nav>
@@ -92,6 +92,7 @@ const rest = others.filter((i) => i.href !== '/shop');
   .mnav__index { color: var(--pink); min-width: 1.75rem; }
   .mnav__cname { font-family: var(--font-display); font-size: clamp(3rem, 15vw, 4.25rem); line-height: 0.95; text-transform: uppercase; }
   .mnav__rest { margin-top: var(--space-m); }
+  .mnav__link--accent { color: var(--pink); }
   .mnav__link { display: flex; align-items: center; min-height: 3.25rem; font-size: 1.0625rem; font-weight: 500; letter-spacing: 0.02em; }
   .mnav__foot { margin-top: auto; display: flex; gap: var(--space-l); padding-top: var(--space-m); border-top: var(--border-thin); color: var(--text-muted); }
   .mnav__foot a { display: inline-flex; align-items: center; min-height: var(--touch); }

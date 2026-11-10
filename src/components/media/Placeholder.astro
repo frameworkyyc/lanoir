@@ -65,10 +65,10 @@ const { variant = 'neutral', label = 'unspecified photograph', class: className 
     position: relative;
     width: 100%;
     height: 100%;
-    background: var(--noir-raised-2);
+    background: radial-gradient(60% 55% at 70% 25%, color-mix(in srgb, var(--pink) 16%, transparent), transparent 70%), linear-gradient(160deg, color-mix(in srgb, var(--pink) 10%, var(--noir-raised-2)), var(--noir-deep));
     overflow: hidden;
   }
   .placeholder--after-dark { background: var(--noir-deep); }
-  .placeholder--mystic-minis { background: var(--noir-raised); }
+  .placeholder--mystic-minis { background: linear-gradient(160deg, color-mix(in srgb, var(--warm-white) 6%, var(--noir-raised)), var(--noir-deep)); }
   .placeholder svg { position: absolute; inset: 0; width: 100%; height: 100%; }
 </style>

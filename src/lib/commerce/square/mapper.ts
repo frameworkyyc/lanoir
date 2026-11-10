@@ -16,6 +16,14 @@ export interface MapOptions {
   /** Name of the Square category that flags homepage products. */
   featuredCategory: string;
   now?: () => number;
+  /** Called for anything that could not be resolved (ids only: never URLs, names or tokens). */
+  onWarn?: (w: MapWarning) => void;
+}
+
+export interface MapWarning {
+  code: 'image-missing' | 'image-deleted' | 'image-no-url' | 'image-bad-url' | 'item-images-unresolved';
+  itemId: string;
+  imageId?: string;
 }
 
 const norm = (s: string | undefined) => (s ?? '').trim().toLowerCase();
@@ -148,18 +156,47 @@ export function mapCatalog(objects: SquareCatalogObject[], counts: InventoryCoun
       });
     }
 
-    // ---- images (missing images are fine: the UI renders a neutral placeholder) ------------
-    const imageIds = [...(data.image_ids ?? []), ...variations.flatMap((v) => v.item_variation_data!.image_ids ?? [])];
-    const images: Media[] = [];
-    for (const id of new Set(imageIds)) {
-      const img = byId.get(id)?.image_data;
-      if (img?.url && /^https:\/\//i.test(img.url)) images.push({ src: img.url, alt: img.caption || name });
+    // ---- images ----------------------------------------------------------------------------
+    // Item images first (Square returns them in display order; the first is the primary), then any
+    // variation-level images. A reference that cannot be resolved is reported (ids only) and skipped:
+    // it never affects price, availability or whether the product is listed.
+    const imageRefs = [...(data.image_ids ?? []), ...variations.flatMap((v) => v.item_variation_data!.image_ids ?? [])];
+    const resolved: { src: string; caption?: string }[] = [];
+    const seenUrls = new Set<string>();
+    const addImage = (src: string, caption?: string) => {
+      if (seenUrls.has(src)) return;
+      seenUrls.add(src);
+      resolved.push({ src, caption });
+    };
+    for (const id of new Set(imageRefs)) {
+      const obj = byId.get(id);
+      if (!obj || obj.type !== 'IMAGE') { opts.onWarn?.({ code: 'image-missing', itemId: item.id, imageId: id }); continue; }
+      if (obj.is_deleted) { opts.onWarn?.({ code: 'image-deleted', itemId: item.id, imageId: id }); continue; }
+      const url = obj.image_data?.url?.trim();
+      if (!url) { opts.onWarn?.({ code: 'image-no-url', itemId: item.id, imageId: id }); continue; }
+      if (!/^https:\/\//i.test(url)) { opts.onWarn?.({ code: 'image-bad-url', itemId: item.id, imageId: id }); continue; }
+      addImage(url, obj.image_data?.caption?.trim() || undefined);
     }
+    // Square Online image URLs are a valid fallback when no IMAGE object resolved.
+    if (resolved.length === 0) for (const uri of data.ecom_image_uris ?? []) if (/^https:\/\//i.test(uri ?? '')) addImage(uri);
+    if (resolved.length === 0 && imageRefs.length > 0) opts.onWarn?.({ code: 'item-images-unresolved', itemId: item.id });
+    const images: Media[] = resolved.map((r, i) => ({
+      src: r.src,
+      alt: r.caption || (resolved.length > 1 ? `${name} — photo ${i + 1} of ${resolved.length}` : name),
+    }));
 
     // ---- categories → collections / featured ------------------------------------------------
     const catIds = [...(data.categories ?? []).map((c) => c.id), data.category_id];
     const catNames = new Set(catIds.map(categoryName).filter(Boolean));
-    const collectionSlugs = [...catNames].map((n) => collectionByName.get(n)).filter((s): s is string => !!s);
+    let collectionSlugs = [...catNames].map((n) => collectionByName.get(n)).filter((s): s is string => !!s);
+    // Square categories always win. Only when an item has NO matching category do we fall back to its
+    // name (e.g. "Pretty Poison Collection" belongs to Pretty Poison), so a catalogue that has not been
+    // categorised yet still fills the collection pages. Data-driven: nothing is hardcoded.
+    if (collectionSlugs.length === 0) {
+      const n = norm(name);
+      const hit = opts.collections.find((c) => new RegExp(`(^|[^a-z0-9])${norm(c.name).replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}([^a-z0-9]|$)`).test(n));
+      if (hit) collectionSlugs = [hit.slug];
+    }
 
     // ---- slug (unique, stable) -----------------------------------------------------------------
     let slug = slugify(name);

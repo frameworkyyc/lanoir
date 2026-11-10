@@ -1,0 +1,40 @@
+---
+/**
+ * Slim header for the Spiritual Services side. Same bones as the shop header (sticky, hairline, LN monogram,
+ * label type, pink accent) so the two sides read as one brand. No cart, no announcement bar.
+ */
+import Logo from '../brand/Logo.astro';
+interface Props { current?: 'spiritual' }
+const { current } = Astro.props;
+const links = [
+  { label: 'The Shop', href: '/store', key: 'shop' },
+  { label: 'Spiritual Services', href: '/spiritual-services', key: 'spiritual' },
+];
+---
+<header class="side-header">
+  <div class="container-wide side-header__inner">
+    <a class="side-header__logo" href="/" aria-label="LaNoir — home">
+      <Logo variant="icon" width="2.75rem" sizes="44px" eager />
+    </a>
+    <nav aria-label="LaNoir">
+      <ul class="list-reset side-header__list" role="list">
+        {links.map((l) => (
+          <li>
+            <a class:list={['side-header__link', 't-label', { 'is-accent': l.key === 'spiritual' }]} href={l.href} aria-current={l.key === current ? 'page' : undefined}>{l.label}</a>
+          </li>
+        ))}
+      </ul>
+    </nav>
+  </div>
+</header>
+<style>
+  .side-header { position: sticky; top: 0; z-index: var(--z-header); background: var(--noir); border-bottom: var(--border-thin); }
+  .side-header__inner { display: flex; align-items: center; justify-content: space-between; gap: var(--space-m); min-height: var(--header-h); }
+  .side-header__logo { display: block; flex: none; }
+  .side-header__list { display: flex; align-items: center; gap: clamp(0.75rem, 3vw, 2rem); }
+  .side-header__link { position: relative; display: inline-flex; align-items: center; min-height: var(--touch); padding-inline: 0.15rem; letter-spacing: 0.14em; transition: color var(--dur-base); }
+  .side-header__link.is-accent { color: var(--pink); }
+  .side-header__link::after { content: ''; position: absolute; left: 0; right: 0; bottom: 0.55rem; height: 1px; background: var(--pink); transform: scaleX(0); transform-origin: left; transition: transform var(--dur-base) var(--ease-out); }
+  .side-header__link:hover { color: var(--pink); }
+  .side-header__link:hover::after, .side-header__link[aria-current='page']::after { transform: scaleX(1); }
+</style>

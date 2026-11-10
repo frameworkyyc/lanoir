@@ -1,6 +1,6 @@
 ---
 import type { Product } from '~/lib/commerce/types';
-import { priceLabel, isAvailable } from '~/lib/format';
+import { cardStatus } from '~/lib/format';
 import { productUrl } from '~/lib/routes';
 import Picture from '../media/Picture.astro';
 
@@ -10,8 +10,11 @@ interface Props {
   variant?: 'pretty-poison' | 'after-dark' | 'mystic-minis' | 'pride' | 'neutral';
   sizes?: string;
   reveal?: boolean;
+  /** First row of a listing: load eagerly (above the fold). */
+  eager?: boolean;
 }
-const { product, ratio = '4/5', variant = 'neutral', sizes = '(min-width: 64rem) 25vw, 50vw', reveal = true } = Astro.props;
+const { product, ratio = '1/1', variant = 'neutral', sizes = '(min-width: 64rem) 25vw, 50vw', reveal = true, eager = false } = Astro.props;
+const status = cardStatus(product);
 const [first, second] = product.images;
 // Placeholder motif follows the product's collection so the grid has character even before photography exists.
 const motif = variant !== 'neutral' ? variant
@@ -22,15 +25,13 @@ const motif = variant !== 'neutral' ? variant
 <article class="card">
   <a class="card__link" href={productUrl(product.slug)}>
     <div class="card__frame">
-      <Picture media={first} {ratio} variant={motif} {sizes} label={`${product.name} — product photo`} reveal={reveal} class="card__img" />
+      <Picture media={first} {ratio} variant={motif} {sizes} fit="contain" fallbackTitle={product.name} {eager} label={`${product.name} — product photo`} reveal={reveal} class="card__img" />
       {second && (
-        <Picture media={second} {ratio} variant={motif} {sizes} label={`${product.name} — detail photo`} class="card__img card__img--alt" />
+        <Picture media={second} {ratio} variant={motif} {sizes} fit="contain" label={`${product.name} — detail photo`} class="card__img card__img--alt" />
       )}
     </div>
     <h3 class="card__name">{product.name}</h3>
-    <p class="card__price t-label">
-      {isAvailable(product) ? priceLabel(product) : 'Sold out'}
-    </p>
+    <p class:list={['card__price', 't-label', `is-${status.state}`]}>{status.text}</p>
   </a>
 </article>
 

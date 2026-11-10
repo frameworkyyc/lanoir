@@ -30,13 +30,21 @@ if (collection) ld.push(collectionPage(collection, path, Astro.site) as never);
 <BaseLayout title={title} description={`${intro}`} path={path} jsonLd={ld} noindex={status === 'error'}>
   <section class:list={['lhero', `lhero--${variant}`]}>
     <div class="lhero__arc" aria-hidden="true"><Arc sweep={0.5} rotate={-30} /></div>
+    <svg class="lhero__art" viewBox="0 0 240 240" aria-hidden="true" focusable="false">
+      <circle cx="120" cy="120" r="112" fill="none" stroke="currentColor" stroke-width="1" opacity="0.35" vector-effect="non-scaling-stroke" />
+      <circle class="lhero__ring" cx="120" cy="120" r="92" fill="none" stroke="currentColor" stroke-width="1" stroke-dasharray="1.5 8" opacity="0.6" vector-effect="non-scaling-stroke" />
+      {variant === 'pretty-poison' && (<><path d="M120 54 174 148H66Z" fill="none" stroke="currentColor" stroke-width="1.25" stroke-linejoin="round" vector-effect="non-scaling-stroke" /><circle cx="120" cy="116" r="8" fill="currentColor" /></>)}
+      {variant === 'mystic-minis' && (<><g fill="currentColor"><path d="M120 70l3 11 11 3-11 3-3 11-3-11-11-3 11-3Z" /><path d="M70 146l2 7 7 2-7 2-2 7-2-7-7-2 7-2Z" /><path d="M170 150l2 6 6 2-6 2-2 6-2-6-6-2 6-2Z" /></g><path d="M120 92 78 152 170 156Z" fill="none" stroke="currentColor" stroke-width="1" opacity="0.5" vector-effect="non-scaling-stroke" /></>)}
+      {variant !== 'pretty-poison' && variant !== 'mystic-minis' && (<><circle cx="120" cy="120" r="46" fill="var(--noir)" fill-opacity="0.7" stroke="currentColor" stroke-width="1.25" vector-effect="non-scaling-stroke" /><path d="M130 92A30 30 0 1 0 130 148A34 34 0 0 1 130 92Z" fill="currentColor" /></>)}
+    </svg>
     <div class="container-wide lhero__inner">
       <Eyebrow>{eyebrow}</Eyebrow>
       <h1 class="t-display-xl lhero__title">{heading[0]}{heading[1] && <><br /><span class="text-pink">{heading[1]}</span></>}</h1>
       <p class="t-statement-sm lhero__intro">{intro}</p>
     </div>
   </section>
-  <section class="container-wide lgrid" aria-label={`${title} products`}>
+  <section class="container-wide lgrid" aria-labelledby="lgrid-title">
+    <h2 id="lgrid-title" class="visually-hidden">{title} products</h2>
     {status === 'error'
       ? <CatalogNotice kind="error" />
       : products.length > 0
@@ -45,13 +53,35 @@ if (collection) ld.push(collectionPage(collection, path, Astro.site) as never);
   </section>
 </BaseLayout>
 <style>
-  .lhero { position: relative; overflow: hidden; padding-block: var(--space-xl) var(--space-xl); border-bottom: var(--border-thin); }
-  .lhero__arc { position: absolute; width: 90vw; aspect-ratio: 1; right: -40vw; top: -30vw; color: var(--pink); opacity: 0.5; pointer-events: none; }
-  .lhero--after-dark { background: var(--noir-deep); }
+  .lhero { --h-top: color-mix(in srgb, var(--pink) 14%, color-mix(in srgb, var(--gunmetal) 9%, var(--noir))); --h-bot: var(--noir); --h-art: var(--pink);
+    position: relative; overflow: hidden; padding-block: var(--space-xl) calc(var(--space-xl) + 1.5rem);
+    background: linear-gradient(to bottom, var(--h-top), var(--h-bot));
+    border-radius: 0 0 50% 50% / 0 0 2.25rem 2.25rem; box-shadow: 0 1px 0 color-mix(in srgb, var(--pink) 28%, transparent); }
+  /* Decorative art fades in after first paint (switched on by the shop's sky-on flag), so it never delays products. */
+  .lhero::before, .lhero__art, .lhero__arc { opacity: 0; transition: opacity 0.9s var(--ease-out); }
+  :global(.sky-on) .lhero::before { opacity: 1; } :global(.sky-on) .lhero__art { opacity: 0.85; } :global(.sky-on) .lhero__arc { opacity: 0.4; }
+  .lhero::before { content: ''; position: absolute; right: -6rem; top: 50%; translate: 0 -50%; width: 34rem; aspect-ratio: 1; border-radius: 50%; pointer-events: none; background: radial-gradient(closest-side, color-mix(in srgb, var(--h-art) 14%, transparent), transparent); }
+  .lhero__arc { position: absolute; width: 90vw; aspect-ratio: 1; right: -40vw; top: -30vw; color: var(--pink); pointer-events: none; }
+  .lhero__art { position: absolute; width: clamp(9rem, 34vw, 19rem); aspect-ratio: 1; right: calc(var(--gutter) - 1rem); top: 50%; translate: 0 -50%; color: var(--h-art); pointer-events: none; overflow: visible; }
+  .lhero--pretty-poison { --h-top: color-mix(in srgb, var(--pink) 17%, color-mix(in srgb, var(--gunmetal) 10%, var(--noir))); }
+  .lhero--after-dark { --h-top: color-mix(in srgb, var(--warm-white) 4%, color-mix(in srgb, var(--gunmetal) 16%, var(--noir))); --h-bot: var(--noir-deep); --h-art: color-mix(in srgb, var(--warm-white) 50%, var(--gunmetal)); }
   .lhero--after-dark .lhero__title { font-family: var(--font-statement); font-weight: 500; letter-spacing: 0.08em; font-size: clamp(2.75rem, 10vw, 6.5rem); line-height: 1.05; }
   .lhero--after-dark .lhero__arc { color: var(--gunmetal); }
+  .lhero--mystic-minis { --h-top: color-mix(in srgb, var(--warm-white) 9%, color-mix(in srgb, var(--gunmetal) 16%, var(--noir))); --h-art: var(--soft-pink); }
+  .lhero--pride { --h-top: color-mix(in srgb, var(--pink) 20%, color-mix(in srgb, var(--gunmetal) 14%, var(--noir))); --h-bot: color-mix(in srgb, var(--pink) 6%, var(--noir-deep)); --h-art: var(--soft-pink); }
   .lhero__inner { position: relative; display: grid; gap: var(--space-m); justify-items: start; }
-  .lhero__intro { max-width: 32rem; color: var(--text-muted); }
+  .lhero__intro { max-width: 32rem; color: color-mix(in srgb, var(--warm-white) 84%, var(--noir)); }
   .lgrid { padding-block: var(--space-xl) 0; }
-  @media (min-width: 64rem) { .lhero { padding-block: var(--space-2xl); } .lgrid { padding-block-start: var(--space-2xl); } }
+  @media (min-width: 64rem) { .lhero { padding-block: var(--space-2xl) calc(var(--space-2xl) + 1.5rem); border-radius: 0 0 50% 50% / 0 0 3.5rem 3.5rem; } .lgrid { padding-block-start: var(--space-2xl); } }
+  /* The art sits beside the text on wide screens and behind it, quietly, on phones. */
+  @media (max-width: 47.99rem) { :global(.sky-on) .lhero__art { opacity: 0.45; } }
+  /* Motion never hides content: text and art are visible from the first paint (good for load metrics);
+     the title block only slides a few pixels, and the dotted ring turns slowly. */
+  @media (prefers-reduced-motion: no-preference) {
+    .lhero__inner > * { animation: lh-in 0.7s var(--ease-out) backwards; }
+    .lhero__inner > :nth-child(2) { animation-delay: 0.06s; } .lhero__inner > :nth-child(3) { animation-delay: 0.12s; }
+    .lhero__ring { transform-origin: 120px 120px; animation: lh-turn 120s linear infinite; }
+    @keyframes lh-in { from { transform: translate3d(0, 0.6rem, 0); } }
+    @keyframes lh-turn { to { transform: rotate(360deg); } }
+  }
 </style>
