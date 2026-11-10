@@ -4,7 +4,7 @@ import { spiritualServices as d, meetPullQuote, credentialText } from '../src/co
 
 const allCopy = (): string[] => [
   d.title, d.description,
-  d.hero.eyebrow, d.hero.headline, d.hero.support, d.hero.intro,
+  d.hero.eyebrow, d.hero.headline, d.hero.support, d.hero.intro, d.hero.enquire,
   d.meet.heading, ...d.meet.paragraphs,
   ...d.services.flatMap((s) => [s.title, ...s.paragraphs]),
   d.approach.heading, d.approach.lead, d.approach.closing,
@@ -19,6 +19,7 @@ describe('/spiritual-services copy (confirmed content only)', () => {
     assert.equal(d.hero.headline, 'Love Beyond the Veil.');
     assert.equal(d.hero.support, 'Where Spirit Speaks and Intuition Leads.');
     assert.equal(d.hero.intro, 'Intuitive readings for clarity, reflection and guidance through Lenormand, pendulum dowsing, mediumship and spirit scribing.');
+    assert.equal(d.hero.enquire, 'Enquire Today');
   });
 
   it('has Meet Cindy as four paragraphs, and the two services with the confirmed titles', () => {

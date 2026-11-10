@@ -21,6 +21,7 @@ export const spiritualServices = {
     headline: 'Love Beyond the Veil.',
     support: 'Where Spirit Speaks and Intuition Leads.',
     intro,
+    enquire: 'Enquire Today',
   },
 
   meet: {
