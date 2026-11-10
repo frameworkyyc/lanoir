@@ -289,7 +289,9 @@ const split = (label: string) => {
     .doors { grid-template-rows: none; grid-template-columns: 1fr 1fr; }
     .door { padding: var(--space-xl) var(--gutter); gap: 0.5rem; }
     .door__label { font-size: clamp(4rem, min(9.2vw, 14svh), 8.5rem); }
-    .door__desc { max-width: 24rem; }
+    /* Keep both door compositions on the same horizontal rhythm even when one
+       description wraps to fewer lines than the other. */
+    .door__desc { max-width: 24rem; min-height: 3lh; }
     .seam { left: var(--seam-x, 50%); right: auto; top: 0; bottom: 0; width: 1px; height: auto;
       background: linear-gradient(to bottom, transparent, color-mix(in srgb, var(--pink) 50%, transparent) 20%, color-mix(in srgb, var(--warm-white) 60%, transparent) 70%, transparent); }
     .landing { --decor: clamp(8rem, 26svh, 16rem); --decor-o: 1; }
