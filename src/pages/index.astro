@@ -288,7 +288,7 @@ const split = (label: string) => {
     .stage { --seam-y: 29%; }
     .doors { grid-template-rows: none; grid-template-columns: 1fr 1fr; }
     .door { padding: var(--space-xl) var(--gutter); gap: 0.5rem; }
-    .door__label { font-size: clamp(4rem, min(9.2vw, 14svh), 8.5rem); }
+    .door__label { min-height: 2lh; font-size: clamp(4rem, min(9.2vw, 14svh), 8.5rem); }
     /* Keep both door compositions on the same horizontal rhythm even when one
        description wraps to fewer lines than the other. */
     .door__desc { max-width: 24rem; min-height: 3lh; }
@@ -309,6 +309,7 @@ const split = (label: string) => {
   @media (max-width: 47.99rem) and (max-height: 620px) { .landing { --mono: 3rem; } .door__desc { font-size: 1rem; line-height: 1.3; } .door__label { font-size: 3rem; } .door { padding-block: 0.5rem; gap: 0.15rem; } }
   @media (max-width: 24rem) { .landing__eyebrow::before, .landing__eyebrow::after { display: none; } .landing__eyebrow :global(.eyebrow) { letter-spacing: 0.1em; } }
   @media (min-width: 64rem) { .door__desc { max-width: 26rem; } }
+  @media (min-width: 92rem) { .door__label { min-height: 1lh; } }
 
   /* ---- Entrance timeline (all scaled by --k: repeat visits play ~2.5× faster) ------------- */
   @media (prefers-reduced-motion: no-preference) {
