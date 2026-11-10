@@ -43,7 +43,6 @@ const isCurrent = (href: string) => current === href || (href !== '/' && current
                         </li>
                       ))}
                     </ul>
-                    <a class="link-arrow mega__all" href={item.href}>All collections <span class="btn__arrow" aria-hidden="true">→</span></a>
                   </div>
                 </div>
               </>
@@ -148,7 +147,7 @@ const isCurrent = (href: string) => current === href || (href !== '/' && current
     transition: opacity var(--dur-base) var(--ease-out), transform var(--dur-base) var(--ease-out), visibility 0s linear var(--dur-base);
   }
   .mega[data-open] { visibility: visible; opacity: 1; transform: none; transition-delay: 0s; }
-  .mega__inner { display: grid; grid-template-columns: 12rem 1fr auto; align-items: center; gap: var(--space-l); padding-block: var(--space-l); }
+  .mega__inner { display: grid; grid-template-columns: 12rem 1fr; align-items: center; gap: var(--space-l); padding-block: var(--space-l); }
   .mega__lead { color: var(--text-muted); }
   .mega__list { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--space-m); }
   .mega__link { display: grid; gap: 0.15rem; padding: 0.5rem 0; border-top: var(--border-thin); transition: border-color var(--dur-base); }
