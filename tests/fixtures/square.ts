@@ -43,6 +43,19 @@ export const catalogObjects: SquareCatalogObject[] = [
   image('IMG_BOX', 'https://items-images-sandbox.s3.us-west-2.amazonaws.com/box.jpg', 'Box set on black'),
   image('IMG_TEE', 'https://items-images-sandbox.s3.us-west-2.amazonaws.com/tee.jpg'),
   image('IMG_BAD', 'http://insecure.example.com/not-https.jpg'),
+  image('IMG_MOD_BLACK', 'https://items-images-sandbox.s3.us-west-2.amazonaws.com/black.jpg', 'Black finish'),
+  image('IMG_MOD_PINK', 'https://items-images-sandbox.s3.us-west-2.amazonaws.com/pink.jpg', 'Pink finish'),
+
+  {
+    type: 'MODIFIER_LIST', id: 'MODLIST_COLOUR',
+    modifier_list_data: {
+      name: 'Colour', modifier_type: 'LIST', selection_type: 'SINGLE', min_selected_modifiers: 1, max_selected_modifiers: 1,
+      modifiers: [
+        { type: 'MODIFIER', id: 'MOD_BLACK', modifier_data: { name: 'Black', modifier_list_id: 'MODLIST_COLOUR', ordinal: 1, price_money: { amount: 0, currency: CAD }, image_id: 'IMG_MOD_BLACK' } },
+        { type: 'MODIFIER', id: 'MOD_PINK', modifier_data: { name: 'Pink', modifier_list_id: 'MODLIST_COLOUR', ordinal: 2, price_money: { amount: 200, currency: CAD }, image_id: 'IMG_MOD_PINK' } },
+      ],
+    },
+  },
 
   // ---- item options: Size + Colour (with hex swatches)
   {
@@ -117,6 +130,7 @@ export const catalogObjects: SquareCatalogObject[] = [
     type: 'ITEM', id: 'ITEM_CHARM', ...at('2026-09-15T10:00:00Z'),
     item_data: {
       name: 'Mini Skull Charm', product_type: 'REGULAR', categories: [{ id: 'CAT_MM' }],
+      modifier_list_info: [{ modifier_list_id: 'MODLIST_COLOUR', min_selected_modifiers: -1, max_selected_modifiers: -1 }],
       variations: [
         variation('VAR_CHARM_L', 'ITEM_CHARM', 'Large', 1600, { ordinal: 2 }),
         variation('VAR_CHARM_S', 'ITEM_CHARM', 'Small', 1400, { ordinal: 1 }),

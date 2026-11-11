@@ -14,8 +14,9 @@ export const CART_LIMITS = {
   maxParsedQuantity: 99,
 } as const;
 
-// Square ids are alphanumeric (plus '#' for temporary ids, never valid here). Be strict.
-const ID = /^[A-Za-z0-9_-]{6,64}$/;
+// Square catalog ids are opaque strings. Temporary ids beginning with # never reach production.
+const ID = /^[A-Za-z0-9_-]{6,192}$/;
+const MAX_MODIFIERS_PER_LINE = 20;
 
 /** Parses untrusted input into clean lines. Duplicate variant ids are merged. Throws invalid_request. */
 export function parseCartLines(raw: unknown, opts: { allowEmpty?: boolean } = {}): CartLineInput[] {
@@ -24,17 +25,27 @@ export function parseCartLines(raw: unknown, opts: { allowEmpty?: boolean } = {}
   if (raw.length === 0 && !opts.allowEmpty) throw bad('Your cart is empty.');
   if (raw.length > CART_LIMITS.maxLines) throw bad('Too many items in the cart.');
 
-  const merged = new Map<string, number>();
+  const merged = new Map<string, CartLineInput>();
   for (const line of raw) {
     if (typeof line !== 'object' || line === null) throw bad('Invalid cart line.');
-    const { variantId, quantity } = line as Record<string, unknown>;
+    const { variantId, quantity, modifierIds } = line as Record<string, unknown>;
     if (typeof variantId !== 'string' || !ID.test(variantId)) throw bad('Invalid item.');
     if (typeof quantity !== 'number' || !Number.isInteger(quantity) || quantity < 1 || quantity > CART_LIMITS.maxParsedQuantity) {
       throw bad('Invalid quantity.');
     }
-    merged.set(variantId, Math.min((merged.get(variantId) ?? 0) + quantity, CART_LIMITS.maxParsedQuantity));
+    if (modifierIds !== undefined && !Array.isArray(modifierIds)) throw bad('Invalid options.');
+    const modifiers = [...new Set((modifierIds ?? []) as unknown[])];
+    if (modifiers.length > MAX_MODIFIERS_PER_LINE || modifiers.some((id) => typeof id !== 'string' || !ID.test(id))) throw bad('Invalid options.');
+    const sorted = (modifiers as string[]).sort();
+    const key = `${variantId}\u0000${sorted.join('\u0000')}`;
+    const previous = merged.get(key);
+    merged.set(key, {
+      variantId,
+      ...(sorted.length ? { modifierIds: sorted } : {}),
+      quantity: Math.min((previous?.quantity ?? 0) + quantity, CART_LIMITS.maxParsedQuantity),
+    });
   }
-  return [...merged].map(([variantId, quantity]) => ({ variantId, quantity }));
+  return [...merged.values()];
 }
 
 const times = (m: Money, q: number): Money => ({ amount: m.amount * q, currency: m.currency });
@@ -50,16 +61,28 @@ export function quoteLines(lines: CartLineInput[], products: Product[]): CartQuo
       const zero = { amount: 0, currency };
       return {
         variantId: line.variantId, productSlug: '', productName: 'Item no longer available', variantTitle: '', options: {},
-        quantity: line.quantity, unitPrice: zero, lineTotal: zero, maxQuantity: 0, issue: { code: 'not-found' },
+        modifiers: [], quantity: line.quantity, unitPrice: zero, lineTotal: zero, maxQuantity: 0, issue: { code: 'not-found' },
       };
     }
     const { product, variant } = hit;
     const stockCap = variant.inventory?.tracked ? (variant.inventory.quantity ?? 0) : Infinity;
     const maxQuantity = variant.available ? Math.min(CART_LIMITS.maxQuantityPerLine, stockCap) : 0;
 
+    const selectedIds = new Set(line.modifierIds ?? []);
+    const selectedModifiers = product.modifierGroups.flatMap((group) => group.choices.filter((choice) => selectedIds.has(choice.id)));
+    const knownIds = new Set(product.modifierGroups.flatMap((group) => group.choices.map((choice) => choice.id)));
+    const invalidModifiers = [...selectedIds].some((id) => !knownIds.has(id)) || product.modifierGroups.some((group) => {
+      const count = group.choices.filter((choice) => selectedIds.has(choice.id)).length;
+      return count < group.minSelected || (group.maxSelected > 0 && count > group.maxSelected);
+    }) || selectedModifiers.some((modifier) => modifier.price.currency !== variant.price.currency);
+
+    const modifierTotal = invalidModifiers ? 0 : selectedModifiers.reduce((sum, modifier) => sum + modifier.price.amount, 0);
+    const unitPrice = { amount: variant.price.amount + modifierTotal, currency: variant.price.currency };
+
     let issue: QuotedLine['issue'];
     if (variant.availability === 'sold-out') issue = { code: 'sold-out' };
     else if (variant.availability === 'unavailable' || variant.price.currency !== currency) issue = { code: 'unavailable' };
+    else if (invalidModifiers) issue = { code: 'invalid-modifiers' };
     else if (line.quantity > maxQuantity) issue = { code: 'insufficient-stock', available: maxQuantity };
 
     return {
@@ -68,10 +91,11 @@ export function quoteLines(lines: CartLineInput[], products: Product[]): CartQuo
       productName: product.name,
       variantTitle: variant.title,
       options: variant.options,
-      image: product.images[0],
+      modifiers: selectedModifiers.map((modifier) => ({ id: modifier.id, name: modifier.name, price: modifier.price })),
+      image: selectedModifiers.find((modifier) => modifier.image)?.image ?? product.images[0],
       quantity: line.quantity,
-      unitPrice: variant.price,
-      lineTotal: times(variant.price, line.quantity),
+      unitPrice,
+      lineTotal: times(unitPrice, line.quantity),
       maxQuantity,
       ...(issue ? { issue } : {}),
     };

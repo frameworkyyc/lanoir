@@ -20,7 +20,25 @@ const data = {
     available: v.available,
     availability: v.availability,
     price: formatMoney(v.price),
+    amount: v.price.amount,
+    currency: v.price.currency,
     max: v.available ? Math.min(CART_LIMITS.maxQuantityPerLine, v.inventory?.tracked ? (v.inventory.quantity ?? 0) : Infinity) : 0,
+  })),
+  modifierGroups: product.modifierGroups.map((group) => ({
+    id: group.id,
+    name: group.name,
+    min: group.minSelected,
+    max: group.maxSelected,
+    choices: group.choices.map((choice) => ({
+      id: choice.id,
+      name: choice.name,
+      amount: choice.price.amount,
+      currency: choice.price.currency,
+      price: choice.price.amount > 0 ? `+${formatMoney(choice.price)}` : '',
+      image: typeof choice.image?.src === 'string' ? choice.image.src : undefined,
+      alt: choice.image?.alt,
+      selected: !!choice.selectedByDefault,
+    })),
   })),
   defaultPrice: priceLabel(product),
 };
@@ -28,6 +46,9 @@ const data = {
 const json = JSON.stringify(data, (_k, v) => (v === Infinity ? CART_LIMITS.maxQuantityPerLine : v)).replace(/</g, '\\u003c');
 
 const allSoldOut = product.variants.every((v) => !v.available);
+const firstRequiredModifier = product.modifierGroups.find((group) =>
+  group.minSelected > group.choices.filter((choice) => choice.selectedByDefault).length,
+);
 ---
 
 <form class="atc" data-add-to-cart novalidate>
@@ -55,14 +76,43 @@ const allSoldOut = product.variants.every((v) => !v.available);
     </fieldset>
   ))}
 
+  {product.modifierGroups.map((group, gi) => (
+    <fieldset class="atc__group atc__modifier" data-modifier-group={group.id} data-min={group.minSelected} data-max={group.maxSelected}>
+      <legend class="t-label">{group.name}<span class="atc__chosen" data-modifier-chosen={group.id}></span></legend>
+      {group.images.length > 0 && !group.choices.some((choice) => choice.image) && (
+        <div class="modifier-art" aria-label={`${group.name} photos`}>
+          {group.images.map((image) => typeof image.src === 'string' && <img src={image.src} alt={image.alt} loading="lazy" decoding="async" referrerpolicy="no-referrer" />)}
+        </div>
+      )}
+      <div class:list={['atc__chips', { 'atc__chips--visual': group.choices.some((choice) => choice.image) }]}>
+        {group.choices.map((choice) => (
+          <label class:list={['chip', 'modifier-chip', { 'modifier-chip--visual': !!choice.image }] }>
+            <input
+              type={group.maxSelected === 1 ? 'radio' : 'checkbox'}
+              name={`modifier-${gi}`}
+              value={choice.id}
+              data-modifier-id={choice.id}
+              data-modifier-group-id={group.id}
+              checked={choice.selectedByDefault}
+            />
+            <span class="chip__face">
+              {typeof choice.image?.src === 'string' && <img class="modifier-chip__image" src={choice.image.src} alt="" loading="lazy" decoding="async" referrerpolicy="no-referrer" />}
+              <span class="modifier-chip__copy"><span>{choice.name}</span>{choice.price.amount > 0 && <small>+{formatMoney(choice.price)}</small>}</span>
+            </span>
+          </label>
+        ))}
+      </div>
+    </fieldset>
+  ))}
+
   <div class="atc__buy">
     <div class="qty" role="group" aria-label="Quantity">
       <button type="button" class="qty__btn" data-qty-dec aria-label="Decrease quantity" disabled>−</button>
       <span class="qty__val" data-qty aria-live="polite">1</span>
       <button type="button" class="qty__btn" data-qty-inc aria-label="Increase quantity">+</button>
     </div>
-    <button type="submit" class="btn atc__add" data-atc-button disabled={allSoldOut}>
-      <span data-atc-label>{allSoldOut ? 'Sold out' : product.optionGroups.length ? `Select ${product.optionGroups[0].name.toLowerCase()}` : 'Add to cart'}</span>
+    <button type="submit" class="btn atc__add" data-atc-button disabled={allSoldOut || product.optionGroups.length > 0 || !!firstRequiredModifier}>
+      <span data-atc-label>{allSoldOut ? 'Sold out' : product.optionGroups.length ? `Select ${product.optionGroups[0].name.toLowerCase()}` : firstRequiredModifier ? `Select ${firstRequiredModifier.name.toLowerCase()}` : 'Add to cart'}</span>
     </button>
   </div>
   <p class="atc__note t-label" data-atc-note role="status" aria-live="polite"></p>
@@ -90,6 +140,13 @@ const allSoldOut = product.variants.every((v) => !v.available);
   .chip input:checked + .chip__face { border-color: var(--pink); background: var(--pink); color: var(--noir); }
   .chip input:focus-visible + .chip__face { outline: 2px solid var(--pink); outline-offset: 3px; }
   .chip__swatch { width: 0.85rem; height: 0.85rem; border-radius: 50%; border: 1px solid var(--rule-strong); flex: none; }
+  .atc__chips--visual { display: grid; grid-template-columns: repeat(auto-fit, minmax(8rem, 1fr)); }
+  .modifier-chip--visual .chip__face { width: 100%; padding: 0; display: grid; justify-content: stretch; overflow: hidden; }
+  .modifier-chip__image { width: 100%; aspect-ratio: 1; object-fit: cover; background: var(--noir-soft); }
+  .modifier-chip__copy { display: flex; justify-content: space-between; align-items: baseline; gap: 0.5rem; padding: 0.75rem; }
+  .modifier-chip__copy small { color: var(--text-muted); font-size: 0.72rem; }
+  .modifier-art { display: grid; grid-template-columns: repeat(auto-fit, minmax(8rem, 1fr)); gap: var(--space-2xs); }
+  .modifier-art img { width: 100%; aspect-ratio: 1; object-fit: cover; }
   /* Every variant with this value is sold out: still selectable (so the shopper sees why), but visibly struck. */
   .chip.is-soldout .chip__face { color: var(--text-muted); text-decoration: line-through; border-style: dashed; }
   .chip.is-soldout input:checked + .chip__face { background: transparent; color: var(--warm-white); border-color: var(--pink); }
@@ -115,10 +172,11 @@ const allSoldOut = product.variants.every((v) => !v.available);
 <script>
   import { cart } from '~/scripts/cart';
 
-  interface V { id: string; options: Record<string, string>; available: boolean; availability: string; price: string; max: number }
+  interface V { id: string; options: Record<string, string>; available: boolean; availability: string; price: string; amount: number; currency: string; max: number }
+  interface ModifierGroup { id: string; name: string; min: number; max: number; choices: { id: string; name: string; amount: number; currency: string; price: string; selected: boolean }[] }
   const form = document.querySelector<HTMLFormElement>('[data-add-to-cart]');
   if (form) {
-    const data = JSON.parse(form.querySelector('[data-atc-data]')!.textContent!) as { groups: string[]; variants: V[]; defaultPrice: string };
+    const data = JSON.parse(form.querySelector('[data-atc-data]')!.textContent!) as { groups: string[]; variants: V[]; modifierGroups: ModifierGroup[]; defaultPrice: string };
     const priceEl = form.querySelector<HTMLElement>('[data-atc-price]')!;
     const btn = form.querySelector<HTMLButtonElement>('[data-atc-button]')!;
     const label = form.querySelector<HTMLElement>('[data-atc-label]')!;
@@ -128,6 +186,7 @@ const allSoldOut = product.variants.every((v) => !v.available);
     const inc = form.querySelector<HTMLButtonElement>('[data-qty-inc]')!;
 
     const selected: Record<string, string> = {};
+    const selectedModifiers = new Set<string>(data.modifierGroups.flatMap((group) => group.choices.filter((choice) => choice.selected).map((choice) => choice.id)));
     let qty = 1;
     let addedTimer: number | undefined;
 
@@ -137,9 +196,26 @@ const allSoldOut = product.variants.every((v) => !v.available);
       return data.variants.find((v) => data.groups.every((g) => v.options[g] === selected[g]));
     };
 
+    const modifierIds = () => [...selectedModifiers].sort();
+    const modifiersValid = () => data.modifierGroups.every((group) => {
+      const count = group.choices.filter((choice) => selectedModifiers.has(choice.id)).length;
+      return count >= group.min && (group.max === 0 || count <= group.max);
+    });
+    const formatAmount = (amount: number, currency: string) => new Intl.NumberFormat('en-CA', { style: 'currency', currency }).format(amount / 100);
+
     function sync() {
       const v = current();
       data.groups.forEach((g) => { const c = form!.querySelector<HTMLElement>(`[data-chosen="${CSS.escape(g)}"]`); if (c) c.textContent = selected[g] ?? ''; });
+      data.modifierGroups.forEach((group) => {
+        const names = group.choices.filter((choice) => selectedModifiers.has(choice.id)).map((choice) => choice.name);
+        const chosen = form!.querySelector<HTMLElement>(`[data-modifier-chosen="${CSS.escape(group.id)}"]`);
+        if (chosen) chosen.textContent = names.join(', ');
+        const atLimit = group.max > 0 && names.length >= group.max;
+        group.choices.forEach((choice) => {
+          const input = form!.querySelector<HTMLInputElement>(`[data-modifier-id="${CSS.escape(choice.id)}"]`);
+          if (input && input.type === 'checkbox') input.disabled = atLimit && !input.checked;
+        });
+      });
       note.textContent = '';
 
       if (data.groups.length && !v) {
@@ -151,10 +227,17 @@ const allSoldOut = product.variants.every((v) => !v.available);
       } else if (v && !v.available) {
         label.textContent = v.availability === 'sold-out' ? 'Sold out' : 'Unavailable';
         btn.disabled = true; priceEl.textContent = v.price; qty = 1;
+      } else if (v && !modifiersValid()) {
+        const missing = data.modifierGroups.find((group) => group.choices.filter((choice) => selectedModifiers.has(choice.id)).length < group.min);
+        label.textContent = missing ? `Select ${missing.name.toLowerCase()}` : 'Check your options';
+        btn.disabled = true; priceEl.textContent = v.price; qty = 1;
       } else if (v) {
         label.textContent = 'Add to cart';
-        btn.disabled = false; priceEl.textContent = v.price;
-        const inCart = cart.lines().find((l) => l.variantId === v.id)?.quantity ?? 0;
+        btn.disabled = false;
+        const modifierAmount = data.modifierGroups.flatMap((group) => group.choices).filter((choice) => selectedModifiers.has(choice.id)).reduce((sum, choice) => sum + choice.amount, 0);
+        priceEl.textContent = formatAmount(v.amount + modifierAmount, v.currency);
+        const ids = modifierIds();
+        const inCart = cart.lines().find((l) => l.variantId === v.id && JSON.stringify(l.modifierIds ?? []) === JSON.stringify(ids))?.quantity ?? 0;
         const room = Math.max(v.max - inCart, 0);
         if (room === 0) { btn.disabled = true; label.textContent = 'Max in cart'; note.textContent = `You have the most available (${v.max}) in your cart.`; qty = 1; }
         else qty = Math.min(Math.max(qty, 1), room);
@@ -168,6 +251,12 @@ const allSoldOut = product.variants.every((v) => !v.available);
     form.addEventListener('change', (e) => {
       const t = e.target as HTMLInputElement;
       if (t.dataset.groupName) { selected[t.dataset.groupName] = t.value; qty = 1; sync(); }
+      if (t.dataset.modifierId && t.dataset.modifierGroupId) {
+        const group = data.modifierGroups.find((g) => g.id === t.dataset.modifierGroupId);
+        if (t.type === 'radio' && group) group.choices.forEach((choice) => selectedModifiers.delete(choice.id));
+        if (t.checked) selectedModifiers.add(t.dataset.modifierId); else selectedModifiers.delete(t.dataset.modifierId);
+        qty = 1; sync();
+      }
     });
     dec.addEventListener('click', () => { qty = Math.max(1, qty - 1); sync(); });
     inc.addEventListener('click', () => { qty += 1; sync(); });
@@ -175,8 +264,8 @@ const allSoldOut = product.variants.every((v) => !v.available);
     form.addEventListener('submit', (e) => {
       e.preventDefault();
       const v = current();
-      if (!v || !v.available || btn.disabled) { note.textContent = data.groups.length ? 'Please choose your options first.' : ''; return; }
-      cart.add(v.id, qty);
+      if (!v || !v.available || !modifiersValid() || btn.disabled) { note.textContent = (data.groups.length || data.modifierGroups.length) ? 'Please choose your options first.' : ''; return; }
+      cart.add(v.id, qty, modifierIds());
       window.clearTimeout(addedTimer);
       label.textContent = 'Added ✓';
       addedTimer = window.setTimeout(() => { qty = 1; sync(); }, 1400);

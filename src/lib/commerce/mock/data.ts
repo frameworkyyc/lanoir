@@ -46,7 +46,7 @@ export { collections } from '../../../config/collections.ts';
 
 /* ---- Products (ALL MOCK) ---------------------------------------------------- */
 
-type RawProduct = Omit<Product, 'optionGroups'>;
+type RawProduct = Omit<Product, 'optionGroups' | 'modifierGroups'> & { modifierGroups?: Product['modifierGroups'] };
 
 const rawProducts: RawProduct[] = [
   // ---- Pretty Poison
@@ -57,6 +57,13 @@ const rawProducts: RawProduct[] = [
     collections: ['pretty-poison'],
     images: [photo('Pretty Poison Box Set (mock)', '50% 40%'), photo('Pretty Poison Box Set detail (mock)')],
     variants: [variant('mock-pp-box-1', 6500)],
+    modifierGroups: [{
+      id: 'mock-colour-list', name: 'Colour', minSelected: 1, maxSelected: 1, images: [],
+      choices: [
+        { id: 'mock-colour-black', name: 'Black', price: { amount: 0, currency: CURRENCY }, image: { src: '/brand/logo-icon-224.webp', alt: 'Black option' } },
+        { id: 'mock-colour-pink', name: 'Pink', price: { amount: 200, currency: CURRENCY }, image: { src: '/brand/logo-icon-336.webp', alt: 'Pink option' } },
+      ],
+    }],
     featured: true,
   },
   {
@@ -176,4 +183,4 @@ const groupsOf = (p: RawProduct): OptionGroup[] => {
   return [...map].map(([name, values]) => ({ name, values: values.map((value) => ({ value })) }));
 };
 
-export const products: Product[] = rawProducts.map((p) => ({ ...p, optionGroups: groupsOf(p) }));
+export const products: Product[] = rawProducts.map((p) => ({ ...p, optionGroups: groupsOf(p), modifierGroups: p.modifierGroups ?? [] }));

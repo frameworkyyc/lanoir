@@ -21,6 +21,13 @@ describe('checkout request creation', () => {
     ]);
     assert.equal(body.order.location_id, LOCATION);
   });
+  it('sends selected CatalogModifier ids on the Square line item', () => {
+    const body = build({ lines: [{ variantId: 'VAR_CHARM_S', modifierIds: ['MOD_PINK'], quantity: 1 }] });
+    assert.deepEqual(body.order.line_items, [{
+      catalog_object_id: 'VAR_CHARM_S', quantity: '1',
+      modifiers: [{ catalog_object_id: 'MOD_PINK', quantity: '1' }],
+    }]);
+  });
   it('never sends prices, names or totals — Square prices the order from its catalogue', () => {
     const json = JSON.stringify(build());
     for (const forbidden of ['price', 'amount', 'base_price_money', 'name', 'total']) assert.ok(!json.includes(forbidden), `body must not contain "${forbidden}"`);

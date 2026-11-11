@@ -17,6 +17,17 @@ describe('cart input parsing (untrusted browser data)', () => {
     const lines = parseCartLines([{ variantId: 'VAR_BOX', quantity: 1 }, { variantId: 'VAR_BOX', quantity: 2 }, { variantId: 'VAR_CANDLE', quantity: 1 }]);
     assert.deepEqual(lines, [{ variantId: 'VAR_BOX', quantity: 3 }, { variantId: 'VAR_CANDLE', quantity: 1 }]);
   });
+  it('keeps the same variation with different modifiers as separate lines', () => {
+    const lines = parseCartLines([
+      { variantId: 'VAR_CHARM_S', modifierIds: ['MOD_BLACK'], quantity: 1 },
+      { variantId: 'VAR_CHARM_S', modifierIds: ['MOD_PINK'], quantity: 1 },
+      { variantId: 'VAR_CHARM_S', modifierIds: ['MOD_BLACK'], quantity: 2 },
+    ]);
+    assert.deepEqual(lines, [
+      { variantId: 'VAR_CHARM_S', modifierIds: ['MOD_BLACK'], quantity: 3 },
+      { variantId: 'VAR_CHARM_S', modifierIds: ['MOD_PINK'], quantity: 1 },
+    ]);
+  });
   it('rejects non-arrays, empty carts (unless allowed), too many lines', () => {
     throwsCode(() => parseCartLines({}), 'invalid_request');
     throwsCode(() => parseCartLines([]), 'invalid_request');
@@ -57,6 +68,16 @@ describe('cart quoting (server-side price + stock validation)', () => {
     assert.deepEqual(q.subtotal, { amount: 16800, currency: 'CAD' });
     assert.equal(q.lines[0].productName, 'Pretty Poison Box Set');
     assert.equal(q.lines[0].image?.src, 'https://items-images-sandbox.s3.us-west-2.amazonaws.com/box.jpg');
+  });
+  it('validates required modifiers and includes their price and image', () => {
+    const missing = quoteLines([{ variantId: 'VAR_CHARM_S', quantity: 1 }], products);
+    assert.deepEqual(missing.lines[0].issue, { code: 'invalid-modifiers' });
+
+    const pink = quoteLines([{ variantId: 'VAR_CHARM_S', modifierIds: ['MOD_PINK'], quantity: 1 }], products);
+    assert.equal(pink.canCheckout, true);
+    assert.deepEqual(pink.lines[0].unitPrice, { amount: 1600, currency: 'CAD' });
+    assert.equal(pink.lines[0].modifiers[0].name, 'Pink');
+    assert.equal(pink.lines[0].image?.src, 'https://items-images-sandbox.s3.us-west-2.amazonaws.com/pink.jpg');
   });
   it('flags unknown variants without throwing', () => {
     const q = quoteLines([{ variantId: 'VAR_NOPE123', quantity: 1 }], products);

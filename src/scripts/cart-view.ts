@@ -18,6 +18,7 @@ const ISSUE_TEXT: Record<string, (l: QuotedLine) => string> = {
   'not-found': () => 'This item is no longer available.',
   'sold-out': () => 'Sold out.',
   unavailable: () => 'Not available to buy online.',
+  'invalid-modifiers': () => 'These options are no longer available.',
   'insufficient-stock': (l) => (l.issue?.code === 'insufficient-stock' ? `Only ${l.issue.available} available.` : ''),
 };
 
@@ -40,7 +41,7 @@ export function mountCartView(root: HTMLElement) {
       const res = await fetch('/api/cart/quote', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ lines: lines.map((l) => ({ variantId: l.variantId, quantity: l.quantity })) }),
+        body: JSON.stringify({ lines }),
       });
       if (!res.ok) throw new Error(String(res.status));
       const { quote } = (await res.json()) as { quote: CartQuote };
@@ -61,7 +62,7 @@ export function mountCartView(root: HTMLElement) {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          lines: cart.lines().map((l) => ({ variantId: l.variantId, quantity: l.quantity })),
+          lines: cart.lines(),
           expectedSubtotal: state.quote.subtotal?.amount,
         }),
       });
@@ -84,8 +85,9 @@ export function mountCartView(root: HTMLElement) {
 
   function lineEl(l: QuotedLine): HTMLElement {
     const blocked = !!l.issue && l.issue.code !== 'insufficient-stock';
-    const setQty = (q: number) => { cart.setQuantity(l.variantId, q); };
-    const meta = Object.values(l.options).join(' / ') || (l.variantTitle !== 'Default' ? l.variantTitle : '');
+    const modifierIds = l.modifiers.map((modifier) => modifier.id);
+    const setQty = (q: number) => { cart.setQuantity(l.variantId, q, modifierIds); };
+    const meta = [...Object.values(l.options), ...l.modifiers.map((modifier) => modifier.name)].join(' / ') || (l.variantTitle !== 'Default' ? l.variantTitle : '');
     const img = l.image?.src && typeof l.image.src === 'string'
       ? h('img', { class: 'cv-line__img', src: l.image.src, alt: '', loading: 'lazy', decoding: 'async', referrerpolicy: 'no-referrer' })
       : h('div', { class: 'cv-line__img cv-line__img--empty', 'aria-hidden': 'true' });
@@ -110,7 +112,7 @@ export function mountCartView(root: HTMLElement) {
             h('span', { class: 'qty__val', 'aria-live': 'polite' }, String(l.quantity)),
             h('button', { type: 'button', class: 'qty__btn', 'aria-label': 'Increase quantity', disabled: l.quantity >= Math.max(l.maxQuantity, 1) || blocked, onclick: () => setQty(l.quantity + 1) }, '+')),
           h('p', { class: 'cv-line__price' }, blocked ? '' : formatMoney(l.lineTotal))),
-        h('button', { type: 'button', class: 'cv-link cv-line__remove', onclick: () => cart.remove(l.variantId), 'aria-label': `Remove ${l.productName}` }, 'Remove')));
+        h('button', { type: 'button', class: 'cv-link cv-line__remove', onclick: () => cart.remove(l.variantId, modifierIds), 'aria-label': `Remove ${l.productName}` }, 'Remove')));
   }
 
   function render() {

@@ -55,6 +55,26 @@ export interface OptionGroup {
   values: { value: string; /** CSS hex colour if the provider supplies one (Square colour options). */ swatch?: string }[];
 }
 
+/** A Square modifier such as a colour, finish or add-on. */
+export interface ModifierChoice {
+  id: string;
+  name: string;
+  price: Money;
+  image?: Media;
+  selectedByDefault?: boolean;
+}
+
+export interface ModifierGroup {
+  id: string;
+  name: string;
+  minSelected: number;
+  /** 0 means Square allows any number. */
+  maxSelected: number;
+  choices: ModifierChoice[];
+  /** Images attached to the list itself rather than to one specific choice. */
+  images: Media[];
+}
+
 export interface Product {
   id: string;
   slug: string;
@@ -72,6 +92,8 @@ export interface Product {
   variants: Variant[];
   /** Ordered option groups derived from the variants. Empty when there are no options. */
   optionGroups: OptionGroup[];
+  /** Square modifier lists applied to this item, in merchant order. */
+  modifierGroups: ModifierGroup[];
   featured?: boolean;
 }
 
@@ -104,6 +126,8 @@ export interface ProductQuery {
 /** What the browser is allowed to send: ids and quantities only — NEVER prices. */
 export interface CartLineInput {
   variantId: string;
+  /** CatalogModifier ids selected for this exact line. */
+  modifierIds?: string[];
   quantity: number;
 }
 
@@ -111,6 +135,7 @@ export type LineIssue =
   | { code: 'not-found' }
   | { code: 'sold-out' }
   | { code: 'unavailable' }
+  | { code: 'invalid-modifiers' }
   | { code: 'insufficient-stock'; available: number };
 
 /** A cart line as validated by the server against the catalogue. */
@@ -120,6 +145,7 @@ export interface QuotedLine {
   productName: string;
   variantTitle: string;
   options: Record<string, string>;
+  modifiers: { id: string; name: string; price: Money }[];
   image?: Media;
   quantity: number;
   unitPrice: Money;

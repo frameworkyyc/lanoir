@@ -58,6 +58,19 @@ describe('Square provider (against a Square-shaped fake)', () => {
     assert.deepEqual(link.body.order.line_items, [{ catalog_object_id: 'VAR_BOX', quantity: '2' }]);
     assert.equal(link.body.idempotency_key, 'idem-fixed');
   });
+  it('checkout preserves selected Square modifiers after fresh server validation', async () => {
+    const { provider, calls } = make();
+    const res = await provider.createCheckout({
+      lines: [{ variantId: 'VAR_CHARM_S', modifierIds: ['MOD_PINK'], quantity: 1 }],
+      expectedSubtotal: 1600,
+    }, { origin: 'https://lanoir.example.com' });
+    assert.equal(res.url, 'https://sandbox.square.link/u/abc123');
+    const link = calls.find((c) => c.path === '/v2/online-checkout/payment-links')!;
+    assert.deepEqual(link.body.order.line_items, [{
+      catalog_object_id: 'VAR_CHARM_S', quantity: '1',
+      modifiers: [{ catalog_object_id: 'MOD_PINK', quantity: '1' }],
+    }]);
+  });
   it('checkout is refused (and Square is never asked to create a link) for sold-out / changed-price / unknown lines', async () => {
     const { provider, calls } = make();
     const origin = { origin: 'https://x.test' };

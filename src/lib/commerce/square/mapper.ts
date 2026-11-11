@@ -5,8 +5,8 @@
  * sold-out variations, products without images, category → collection matching
  * (case-insensitive), location presence, archived/deleted items.
  */
-import type { Collection, Media, OptionGroup, Product, Variant } from '../types.ts';
-import { isTracked, resolveStock, type InventoryCounts } from './inventory.ts';
+import type { Collection, Media, ModifierGroup, OptionGroup, Product, Variant } from '../types.ts';
+import { isTracked, resolveStock, toMoney, type InventoryCounts } from './inventory.ts';
 import type { SquareCatalogObject } from './types.ts';
 
 export interface MapOptions {
@@ -74,6 +74,7 @@ export function mapCatalog(objects: SquareCatalogObject[], counts: InventoryCoun
   for (const o of objects) {
     index(o);
     for (const nested of o.item_option_data?.values ?? []) index(nested); // option values can be nested
+    for (const nested of o.modifier_list_data?.modifiers ?? []) index(nested); // modifiers are commonly nested in their list
   }
 
   const categoryName = (id: string | undefined) => norm(byId.get(id ?? '')?.category_data?.name);
@@ -134,9 +135,78 @@ export function mapCatalog(objects: SquareCatalogObject[], counts: InventoryCoun
       .sort((a, b) => (a.rank < 0 ? 99 : a.rank) - (b.rank < 0 ? 99 : b.rank))
       .map(({ name: gName, values }) => ({ name: gName, values }));
 
+    const fallbackCurrency = variations
+      .flatMap((v) => [
+        v.item_variation_data!.location_overrides?.find((override) => override.location_id === locationId)?.price_money?.currency,
+        v.item_variation_data!.price_money?.currency,
+      ])
+      .find(Boolean) ?? 'USD';
+
+    // ---- modifier lists (colour/finish/add-ons configured as Square modifiers) -----------
+    const modifierGroups: ModifierGroup[] = [];
+    const modifierInfos = [...(data.modifier_list_info ?? [])]
+      .filter((info) => info.enabled !== false)
+      .sort((a, b) => (a.ordinal ?? 0) - (b.ordinal ?? 0));
+
+    for (const info of modifierInfos) {
+      const list = byId.get(info.modifier_list_id ?? '');
+      const listData = list?.modifier_list_data;
+      if (!list || list.type !== 'MODIFIER_LIST' || !listData || listData.modifier_type === 'TEXT') continue;
+
+      const overrides = new Map((info.modifier_overrides ?? []).map((o) => [o.modifier_id ?? '', o]));
+      const nested = listData.modifiers ?? [];
+      const modifierObjects = (nested.length ? nested : [...byId.values()].filter((o) => o.type === 'MODIFIER' && o.modifier_data?.modifier_list_id === list.id))
+        .filter((o) => o.type === 'MODIFIER' && !!o.modifier_data)
+        .sort((a, b) => (a.modifier_data!.ordinal ?? 0) - (b.modifier_data!.ordinal ?? 0));
+
+      const choices = modifierObjects.flatMap((modifier) => {
+        const md = modifier.modifier_data!;
+        const override = overrides.get(modifier.id);
+        const hidden = override?.hidden_online ?? md.hidden_online ?? false;
+        const location = md.location_overrides?.find((o) => o.location_id === locationId);
+        if (hidden || location?.sold_out) return [];
+        const choiceName = (md.name ?? '').trim();
+        if (!choiceName) return [];
+        const price = toMoney(override?.price_money) ?? toMoney(location?.price_money) ?? toMoney(md.price_money) ?? { amount: 0, currency: fallbackCurrency };
+
+        let image: Media | undefined;
+        if (md.image_id) {
+          const imageObject = byId.get(md.image_id);
+          const url = imageObject?.type === 'IMAGE' && !imageObject.is_deleted ? imageObject.image_data?.url?.trim() : undefined;
+          if (url && /^https:\/\//i.test(url)) image = { src: url, alt: imageObject?.image_data?.caption?.trim() || `${name} — ${choiceName}` };
+        }
+        return [{
+          id: modifier.id,
+          name: choiceName,
+          price,
+          ...(image ? { image } : {}),
+          ...((override?.on_by_default ?? md.on_by_default) ? { selectedByDefault: true } : {}),
+        }];
+      });
+      if (choices.length === 0) continue;
+
+      const listImages: Media[] = [];
+      for (const imageId of listData.image_ids ?? []) {
+        const imageObject = byId.get(imageId);
+        const url = imageObject?.type === 'IMAGE' && !imageObject.is_deleted ? imageObject.image_data?.url?.trim() : undefined;
+        if (url && /^https:\/\//i.test(url)) listImages.push({ src: url, alt: imageObject?.image_data?.caption?.trim() || `${name} — ${listData.name || 'options'}` });
+      }
+
+      const listMin = listData.min_selected_modifiers ?? (listData.selection_type === 'SINGLE' ? 1 : 0);
+      const listMax = listData.max_selected_modifiers ?? (listData.selection_type === 'SINGLE' ? 1 : 0);
+      const minSelected = info.min_selected_modifiers === undefined || info.min_selected_modifiers === -1 ? listMin : Math.max(0, info.min_selected_modifiers);
+      const maxSelected = info.max_selected_modifiers === undefined || info.max_selected_modifiers === -1 ? listMax : Math.max(0, info.max_selected_modifiers);
+      modifierGroups.push({
+        id: list.id,
+        name: (listData.name ?? '').trim() || 'Options',
+        minSelected,
+        maxSelected,
+        choices,
+        images: listImages,
+      });
+    }
+
     // ---- variants -----------------------------------------------------------------------
-    const fallbackCurrency =
-      variations.map((v) => v.item_variation_data!.price_money?.currency).find(Boolean) ?? 'USD';
     const variants: Variant[] = [];
     for (const v of variations) {
       const stock = resolveStock(v, locationId, counts, opts.now);
@@ -212,6 +282,7 @@ export function mapCatalog(objects: SquareCatalogObject[], counts: InventoryCoun
       images,
       variants,
       optionGroups,
+      modifierGroups,
       featured: catNames.has(norm(opts.featuredCategory)),
     });
   }

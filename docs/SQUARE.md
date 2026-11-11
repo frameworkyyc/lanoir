@@ -1,6 +1,6 @@
 # Square integration — setup, operation and testing
 
-Square is the source of truth for **products, prices, variations, images and inventory**. The
+Square is the source of truth for **products, prices, variations, modifiers, images and inventory**. The
 website never calls Square from the browser: a Cloudflare Worker (this Astro app) does it with a
 secret access token. Checkout and payment happen on **Square-hosted checkout**.
 
@@ -17,6 +17,7 @@ Browser ──► Astro on a Cloudflare Worker ──► Square (Sandbox or Prod
 |---|---|
 | Products | Square **items**. Archived, deleted, non-REGULAR (e.g. gift cards) and items not present at the configured location are hidden. |
 | Variations | Square **item variations**. Size/Colour come from Square **Item Options** (colour swatches use the option value's colour). Several variations with no Item Options appear as one "Option" choice. Products with one variation show no picker. |
+| Modifiers | Enabled list-based Square **Modifier Lists** appear after variation options. The site honours item-level min/max selection rules, default selections, online visibility and price overrides. Individual modifier images are shown on their choices; list-level images are shown as supporting artwork. Text and nested modifiers are not currently rendered. |
 | Collections | Square **category names** (case-insensitive): `Pretty Poison`, `After Dark`, `Mystic Minis`, `Pride Exclusive`, `Statement Wear`, `Accessories / Jewelry`. Copy/order is editorial (`src/config/collections.ts`). The website never creates or renames Square categories. |
 | Homepage products | Items in the Square category **`Featured`** ("Start here"). Empty → the section is hidden (never auto-filled). |
 | Inventory | Tracked variation: units `IN_STOCK` at the location; none recorded = sold out. Untracked = always available. Merchant "sold out" at the location wins (respecting its expiry). |
@@ -26,8 +27,8 @@ Browser ──► Astro on a Cloudflare Worker ──► Square (Sandbox or Prod
 | Collections | Square categories first. If the catalogue has none, an item whose title matches an editorial collection name (e.g. "Mystic Minis") is placed in that collection. |
 | Diagnostics | Once per cache refresh the server logs counts (products, without images, unresolved refs) and a few item ids. No names, URLs or tokens. |
 | Not purchasable | Variable-priced or non-sellable variations show "Unavailable". |
-| Cart | Browser `localStorage`: variation id + quantity only. Per-line cap: 10 (`CART_LIMITS`, **placeholder — confirm**). |
-| Checkout | Payment Links API. Line items are **catalog variation IDs** (so Square prices the order and decrements inventory). No prices are ever sent. Taxes = Square account taxes (`auto_apply_taxes`). Shipping address collected on Square. |
+| Cart | Browser `localStorage`: variation id + selected modifier ids + quantity only. The server revalidates every modifier rule and price. Per-line cap: 10 (`CART_LIMITS`, **placeholder — confirm**). |
+| Checkout | Payment Links API. Line items use **catalog variation IDs** plus selected **CatalogModifier IDs** (so Square prices the order and decrements inventory). No prices are ever sent. Taxes = Square account taxes (`auto_apply_taxes`). Shipping address collected on Square. |
 | Pickup | Wired, **disabled**. Set `FULFILLMENT_PICKUP_ENABLED=true` to allow `fulfillment: "pickup"`; the cart needs no changes. Verify the exact pickup fields in Sandbox first (see TODO in `square/checkout.ts`). |
 | Errors | Square unreachable / misconfigured → on-brand error panel (HTTP 503, never cached), never an empty or sold-out catalogue. Bad credentials are logged server-side without the token. |
 | Modes | `SQUARE_ENVIRONMENT` must be exactly `sandbox` or `production`. **Nothing defaults.** Production refuses the Sandbox location id. |
@@ -94,7 +95,7 @@ To try real Sandbox locally, put your own Sandbox token in **your local** `.dev.
 
 Prepare Sandbox (Square Developer Dashboard → Sandbox test account → Square Dashboard):
 - [ ] Categories exist with the **exact** names above, plus `Featured`.
-- [ ] Items covering: no variations · Size variations · Size + Colour (Item Options) · inventory **not** tracked · tracked with stock · tracked with **0** · an item with **no image** · a variable-price item.
+- [ ] Items covering: no variations · Size variations · Size + Colour (Item Options) · a required Modifier List with individual modifier photos · inventory **not** tracked · tracked with stock · tracked with **0** · an item with **no image** · a variable-price item.
 - [ ] Inventory counts entered at location `L0SZPKA80GMNA`; shipping + tax configured in the Sandbox account.
 
 On the staging URL:
@@ -102,20 +103,21 @@ On the staging URL:
 2. [ ] **Collections:** each collection page shows only items in that category; `Featured` items appear on the homepage; an item with no category appears only in Shop All.
 3. [ ] **Product page (no variations):** no picker; Add to cart works.
 4. [ ] **Product page (Size / Colour):** chips + swatches; price and stock follow the chosen variation; a sold-out variation disables the button; a fully sold-out value is struck through.
-5. [ ] **Untracked** item is always purchasable; **tracked** item's quantity stepper stops at stock on hand.
-6. [ ] **No image:** neutral placeholder on card, page and in the cart.
-7. [ ] **Cart drawer + /cart:** loading skeleton, quantity changes, remove, persistence after reload; empty state.
-8. [ ] In Square, sell the last unit (or set stock to 0), then open the cart: line flagged "Sold out" / "Only N available", **Checkout disabled**.
-9. [ ] **Price change:** edit a price in Square, then press Checkout on a stale cart → "prices changed", cart re-prices.
-10. [ ] **Checkout:** redirects to a Square-hosted page showing the same items; shipping address is requested; **taxes and shipping rates (if configured) are applied by Square** ← *verify, see below*.
-11. [ ] **Pay** with a Square Sandbox test card (see Square's "Testing" docs, e.g. `4111 1111 1111 1111`, any future expiry, CVV `111`, postal code `94103`).
-12. [ ] After paying you land on `/order-complete` ("Thank you"), and the cart is cleared. Visiting `/order-complete` directly does **not** clear the cart.
-13. [ ] **Square Dashboard → Orders:** the order's line items reference the catalogue variations (not custom items); **inventory decreased** for tracked variations.
-14. [ ] **Errors:** set a deliberately wrong `SQUARE_ACCESS_TOKEN` preview secret → catalogue pages show the error panel (HTTP 503), cart shows "couldn't load", checkout fails politely; restore the real token.
-15. [ ] **Security:** view page source / Network tab: no token, no `connect.squareup*` calls from the browser — only `/api/*`.
+5. [ ] **Product page (Modifier List):** each modifier name/photo appears; required selection blocks Add to cart; any modifier price is reflected; two colours of the same variation remain separate cart lines.
+6. [ ] **Untracked** item is always purchasable; **tracked** item's quantity stepper stops at stock on hand.
+7. [ ] **No image:** neutral placeholder on card, page and in the cart.
+8. [ ] **Cart drawer + /cart:** loading skeleton, quantity changes, remove, persistence after reload; empty state.
+9. [ ] In Square, sell the last unit (or set stock to 0), then open the cart: line flagged "Sold out" / "Only N available", **Checkout disabled**.
+10. [ ] **Price change:** edit a price in Square, then press Checkout on a stale cart → "prices changed", cart re-prices.
+11. [ ] **Checkout:** redirects to a Square-hosted page showing the same items and selected modifiers; shipping address is requested; **taxes and shipping rates (if configured) are applied by Square** ← *verify, see below*.
+12. [ ] **Pay** with a Square Sandbox test card (see Square's "Testing" docs, e.g. `4111 1111 1111 1111`, any future expiry, CVV `111`, postal code `94103`).
+13. [ ] After paying you land on `/order-complete` ("Thank you"), and the cart is cleared. Visiting `/order-complete` directly does **not** clear the cart.
+14. [ ] **Square Dashboard → Orders:** the order's line items reference the catalogue variations and selected modifier ids (not custom items); **inventory decreased** for tracked variations.
+15. [ ] **Errors:** set a deliberately wrong `SQUARE_ACCESS_TOKEN` preview secret → catalogue pages show the error panel (HTTP 503), cart shows "couldn't load", checkout fails politely; restore the real token.
+16. [ ] **Security:** view page source / Network tab: no token, no `connect.squareup*` calls from the browser — only `/api/*`.
 
 ### Before merging to `main`
-- [ ] All 15 checks pass on staging.
+- [ ] All 16 checks pass on staging.
 - [ ] Production variables/secret (section B) added; production catalogue, categories, inventory, taxes and shipping set up in **live** Square.
 - [ ] `SITE_URL` + `PUBLIC_ALLOW_INDEXING=true` set for production builds.
 - [ ] A real low-value live order tested and refunded.

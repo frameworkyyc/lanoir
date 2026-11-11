@@ -40,6 +40,18 @@ describe('Square → Product mapping', () => {
     assert.equal(v.title, 'S / Black');
   });
 
+  it('maps Square modifier choices, prices and their individual photos', () => {
+    const p = bySlug('mini-skull-charm');
+    assert.equal(p.modifierGroups.length, 1);
+    assert.deepEqual(p.modifierGroups[0], {
+      id: 'MODLIST_COLOUR', name: 'Colour', minSelected: 1, maxSelected: 1, images: [],
+      choices: [
+        { id: 'MOD_BLACK', name: 'Black', price: { amount: 0, currency: 'CAD' }, image: { src: 'https://items-images-sandbox.s3.us-west-2.amazonaws.com/black.jpg', alt: 'Black finish' } },
+        { id: 'MOD_PINK', name: 'Pink', price: { amount: 200, currency: 'CAD' }, image: { src: 'https://items-images-sandbox.s3.us-west-2.amazonaws.com/pink.jpg', alt: 'Pink finish' } },
+      ],
+    });
+  });
+
   it('several variations without item options become one "Option" group', () => {
     const p = bySlug('mini-skull-charm');
     assert.deepEqual(p.optionGroups, [{ name: 'Option', values: [{ value: 'Small' }, { value: 'Large' }] }]);

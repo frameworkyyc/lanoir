@@ -18,7 +18,7 @@ export interface PaymentLinkRequest {
   idempotency_key: string;
   order: {
     location_id: string;
-    line_items: { catalog_object_id: string; quantity: string }[];
+    line_items: { catalog_object_id: string; quantity: string; modifiers?: { catalog_object_id: string; quantity: string }[] }[];
     pricing_options: { auto_apply_taxes: boolean };
   };
   checkout_options: {
@@ -47,7 +47,11 @@ export function buildPaymentLinkRequest(args: {
     idempotency_key: idempotencyKey,
     order: {
       location_id: config.locationId,
-      line_items: lines.map((l) => ({ catalog_object_id: l.variantId, quantity: String(l.quantity) })),
+      line_items: lines.map((l) => ({
+        catalog_object_id: l.variantId,
+        quantity: String(l.quantity),
+        ...(l.modifierIds?.length ? { modifiers: l.modifierIds.map((id) => ({ catalog_object_id: id, quantity: '1' })) } : {}),
+      })),
       // Use the taxes configured in the Square account — never computed by the website.
       pricing_options: { auto_apply_taxes: true },
     },

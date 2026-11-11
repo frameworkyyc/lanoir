@@ -19,7 +19,7 @@ export async function fetchCatalogObjects(config: SquareConfig, fetchImpl?: Fetc
     const page = await squareRequest<SquareListCatalogResponse>(
       config,
       '/v2/catalog/list',
-      { query: { types: 'ITEM,CATEGORY,IMAGE,ITEM_OPTION,ITEM_OPTION_VAL', cursor }, retry: true },
+      { query: { types: 'ITEM,CATEGORY,IMAGE,ITEM_OPTION,ITEM_OPTION_VAL,MODIFIER_LIST,MODIFIER', cursor }, retry: true },
       fetchImpl,
     );
     objects.push(...(page.objects ?? []));

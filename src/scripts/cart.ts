@@ -5,6 +5,7 @@
  */
 export interface StoredLine {
   variantId: string;
+  modifierIds?: string[];
   quantity: number;
 }
 
@@ -12,7 +13,8 @@ const KEY = 'lanoir.cart.v1';
 const EVENT = 'lanoir:cart';
 const MAX_LINES = 30;
 const MAX_QTY = 99;
-const ID = /^[A-Za-z0-9_-]{6,64}$/;
+const ID = /^[A-Za-z0-9_-]{6,192}$/;
+const lineKey = (variantId: string, modifierIds: string[] = []) => `${variantId}\u0000${[...modifierIds].sort().join('\u0000')}`;
 
 function parse(raw: string | null): StoredLine[] {
   try {
@@ -20,8 +22,9 @@ function parse(raw: string | null): StoredLine[] {
     if (!Array.isArray(parsed)) return [];
     const lines: StoredLine[] = [];
     for (const l of parsed) {
+      const modifierIds = Array.isArray(l?.modifierIds) ? [...new Set(l.modifierIds)].filter((id): id is string => typeof id === 'string' && ID.test(id)).sort() : [];
       if (l && typeof l.variantId === 'string' && ID.test(l.variantId) && Number.isInteger(l.quantity) && l.quantity >= 1) {
-        lines.push({ variantId: l.variantId, quantity: Math.min(l.quantity, MAX_QTY) });
+        lines.push({ variantId: l.variantId, ...(modifierIds.length ? { modifierIds } : {}), quantity: Math.min(l.quantity, MAX_QTY) });
       }
     }
     return lines.slice(0, MAX_LINES);
@@ -54,19 +57,23 @@ export const cart = {
   lines: (): StoredLine[] => current().map((l) => ({ ...l })),
   count: (): number => current().reduce((n, l) => n + l.quantity, 0),
 
-  add(variantId: string, quantity = 1) {
+  add(variantId: string, quantity = 1, modifierIds: string[] = []) {
     const lines = current().map((l) => ({ ...l }));
-    const hit = lines.find((l) => l.variantId === variantId);
+    const cleanModifiers = [...new Set(modifierIds)].sort();
+    const key = lineKey(variantId, cleanModifiers);
+    const hit = lines.find((l) => lineKey(l.variantId, l.modifierIds) === key);
     if (hit) hit.quantity = Math.min(hit.quantity + quantity, MAX_QTY);
-    else if (lines.length < MAX_LINES) lines.push({ variantId, quantity: Math.min(quantity, MAX_QTY) });
+    else if (lines.length < MAX_LINES) lines.push({ variantId, ...(cleanModifiers.length ? { modifierIds: cleanModifiers } : {}), quantity: Math.min(quantity, MAX_QTY) });
     write(lines);
   },
-  setQuantity(variantId: string, quantity: number) {
-    if (quantity < 1) return cart.remove(variantId);
-    write(current().map((l) => (l.variantId === variantId ? { ...l, quantity: Math.min(quantity, MAX_QTY) } : { ...l })));
+  setQuantity(variantId: string, quantity: number, modifierIds: string[] = []) {
+    if (quantity < 1) return cart.remove(variantId, modifierIds);
+    const key = lineKey(variantId, modifierIds);
+    write(current().map((l) => (lineKey(l.variantId, l.modifierIds) === key ? { ...l, quantity: Math.min(quantity, MAX_QTY) } : { ...l })));
   },
-  remove(variantId: string) {
-    write(current().filter((l) => l.variantId !== variantId).map((l) => ({ ...l })));
+  remove(variantId: string, modifierIds: string[] = []) {
+    const key = lineKey(variantId, modifierIds);
+    write(current().filter((l) => lineKey(l.variantId, l.modifierIds) !== key).map((l) => ({ ...l })));
   },
   clear() {
     write([]);
